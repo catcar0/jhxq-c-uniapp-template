@@ -10,21 +10,20 @@
 	],
 	"subPackages": [
 		{
-			"root": "package_nzgx",
+			"root": "package_hs",
 			"pages": [
 				{
 					"path": "pages/index/index",
 					"style": {
-						"navigationBarTitleText": "",
+						"navigationBarTitleText": "花束",
 						"enablePullDownRefresh": false
 					}
-				},
-				{
-					"path": "pages/test/test",
-					"style": {
-						"navigationBarTitleText": "test"
-					}
-				},
+				}
+			]
+		},
+		{
+			"root": "package_nzgx",
+			"pages": [
 				{
 					"path": "pages/player/player",
 					"style": {

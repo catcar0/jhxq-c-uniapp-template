@@ -147,7 +147,8 @@ onUnmounted(() => {
     <view>
         <dmDialog v-if="memberStore.info" :dialogObj="dialogObj" @cancel="closeDialog" @confirm="confirm"
             @page="pageJump" :userInfo="userInfo" />
-        <jump v-if="memberStore.info.flow[0].status !== 1" :hide-index="currentPage" @page="pageJump" :flow="flow" :userInfo="userInfo" />
+        <jump v-if="memberStore.info.flow[0].status !== 1" :hide-index="currentPage" @page="pageJump" :flow="flow"
+            :userInfo="userInfo" />
 
         <RoomNumber v-show="currentPage === 'RoomNumber'" :dialog-obj="dialogObj" @updateDialogObj="updateDialogObj"
             @page="pageJump" />
@@ -157,8 +158,8 @@ onUnmounted(() => {
             @updateDialogObj="updateDialogObj" :flow="flow" :userInfo="userInfo" />
         <Gualing v-if="memberStore.info" v-show="currentPage === 'Gualing'" :dialog-obj="dialogObj"
             @updateDialogObj="updateDialogObj" />
-        <CueSet v-if="memberStore.info" v-show="currentPage === 'CueSet'" :dialog-obj="dialogObj" :teamInfo="teamInfo" :currentPage="currentPage"
-            :userInfo="userInfo" @updateDialogObj="updateDialogObj" />
+        <CueSet v-if="memberStore.info" v-show="currentPage === 'CueSet'" :dialog-obj="dialogObj" :teamInfo="teamInfo"
+            :currentPage="currentPage" :userInfo="userInfo" @updateDialogObj="updateDialogObj" />
         <view v-show="memberStore.info.flow[3].send !== 0" class="poster">
             <image src="http://159.138.147.87/statics/img/haibao.png" mode="fill" />
         </view>

@@ -391,7 +391,7 @@ const a = () =>{
     width: 90%;
     font-size: 28rpx;
     font-weight: 600;
-    min-height: 100rpx;
+    height: 100rpx;
     line-height: 150%;
     text-align: center;
     margin-top: 0rpx;
