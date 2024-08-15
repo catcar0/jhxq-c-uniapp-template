@@ -85,43 +85,20 @@ const zstselectIndex = ref<number>()
 const zstSelectUser = (index: number) => {
     zstselectIndex.value = index
 }
-const audioList = computed<AudioItem[]>(() => {
-    const clue = props.dialogObj.clue;
-    const clueData = allClues[clue];
-
-    if (!clueData) {
-        return [];
+const audioList = ref<AudioItem[]>([
+    {
+        roles: allClues[props.dialogObj.clue!].name,
+        location: allClues[props.dialogObj.clue!].content1,
+        content: allClues[props.dialogObj.clue!].content2,
+        src: allClues[props.dialogObj.clue!].url + '.mp3',
+        isPlaying: false,
+        context: null,
+        scrollText: allClues[props.dialogObj.clue!].content2,
+        scrollPosition: 0,
+        scrollOffset: 0,
+        scrollAnimationFrame: 0
     }
-
-    return [
-        {
-            roles: clueData.name,
-            location: clueData.content1,
-            content: clueData.content2,
-            src: clueData.url + '.mp3',
-            isPlaying: false,
-            context: null,
-            scrollText: clueData.content2,
-            scrollPosition: 0,
-            scrollOffset: 0,
-            scrollAnimationFrame: 0
-        }
-    ];
-});
-// const audioList = ref<AudioItem[]>([
-//     {
-//         roles: allClues[props.dialogObj.clue].name,
-//         location: allClues[props.dialogObj.clue].content1,
-//         content: allClues[props.dialogObj.clue].content2,
-//         src: allClues[props.dialogObj.clue].content1.url + '.mp3',
-//         isPlaying: false,
-//         context: null,
-//         scrollText: allClues[props.dialogObj.clue].content2,
-//         scrollPosition: 0,
-//         scrollOffset: 0,
-//         scrollAnimationFrame: 0
-//     }
-// ])
+])
 </script>
 
 <template>
@@ -133,7 +110,7 @@ const audioList = computed<AudioItem[]>(() => {
             </view>
             <text class="hyshtj font-player-gradient1 dialog-title">{{ dialogObj.title }}</text>
             <view
-                v-show="dialogObj.type === '个人线索发放+个人问题' || dialogObj.type === 'getClues' || dialogObj.type === 'success' || dialogObj.type === 'matchResult' || dialogObj.type === 'error' ||  dialogObj.type === 'submit' "
+                v-show="dialogObj.type === '个人线索发放+个人问题' || dialogObj.type === 'getClues' || dialogObj.type === 'success' || dialogObj.type === 'matchResult' || dialogObj.type === 'error' || dialogObj.type === 'submit'"
                 class="dialog-content font-player-gradient1 ">
                 {{ dialogObj.content }}
             </view>

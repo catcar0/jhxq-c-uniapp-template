@@ -17,33 +17,28 @@ const props = defineProps({
     teamInfo: Object,
     currentPage:Object
 });
-interface AudioItem {
-    src: string;
-    isPlaying: boolean;
-    context: UniApp.InnerAudioContext | null;
-    roles: string;
-    location: string;
-    content: string;
-    scrollText: string;
-    scrollPosition: number;
-    scrollOffset: number; // 新增
-    scrollAnimationFrame: number; // 新增
-}
 
+const audioList = ref([])
+watch(
+    () => memberStore.info.characters[memberStore.virtualRoleId - 1].cueset.audio,
+    (newAudioList) => {
+        const characterAudioList = newAudioList.map(audio => ({
+            roles: allClues[audio.name].name,
+            location: allClues[audio.name].content1,
+            content: allClues[audio.name].content2,
+            src: allClues[audio.name].url + '.mp3',
+            isPlaying: false,
+            context: null,
+            scrollText: allClues[audio.name].content2,
+            scrollPosition: 0,
+            scrollOffset: 0,
+            scrollAnimationFrame: 0,
+        }));
 
-const audioList = computed<AudioItem[]>(() => {
-    return memberStore.info.characters[memberStore.virtualRoleId - 1].cueset.audio.map(audio => ({
-        roles: allClues[audio.name].name,
-        location: allClues[audio.name].content1,
-        content: allClues[audio.name].content2,
-        src: allClues[audio.name].url + '.mp3',
-        isPlaying: false,
-        context: null,
-        scrollText: allClues[audio.name].content2,
-        scrollPosition: 0,
-        scrollOffset: 0,
-        scrollAnimationFrame: 0,
-    }));});
+        audioList.value = characterAudioList;
+    },
+    { immediate: true }
+);
 const replayIndex = ref(-1)
 
 const sortedClues = ref();
@@ -80,7 +75,6 @@ const readClue = (name: string) => {
 
 
 };
-
 const firstClue = (index: number, name: string) => {
     readClue(name)
     // if (classIndex.value === index) return
@@ -99,7 +93,7 @@ const firstClue = (index: number, name: string) => {
     cluesIndex.value === index ? cluesIndex.value = -1 : cluesIndex.value = 0;
     updateInfo(memberStore.info)
 }
-const a = () =>{
+const a = () =>{        
     addNewItem(0,'clue19',0,'audio','')
 }
 </script>

@@ -2,18 +2,6 @@
 import { onShow } from '@dcloudio/uni-app';
 import { defineProps, onBeforeUnmount, onMounted, watch } from 'vue';
 
-interface AudioItem {
-    src: string;
-    isPlaying: boolean;
-    context: UniApp.InnerAudioContext | null;
-    roles: string;
-    location: string;
-    content: string;
-    scrollText: string;
-    scrollPosition: number;
-    scrollOffset: number;
-    scrollAnimationFrame?: number; // 修改为 `number` 类型
-}
 
 const props = defineProps<{ audioList: AudioItem[], isDialog: boolean }>();
 

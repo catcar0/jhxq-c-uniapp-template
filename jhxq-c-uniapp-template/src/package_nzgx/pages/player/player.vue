@@ -10,6 +10,7 @@ import CueSet from './cue-set.vue'
 import { useMemberStore } from '@/package_nzgx/stores'
 import { useWebSocketStore } from '@/package_nzgx/stores'
 import { WebSocketService } from '@/package_nzgx/services/WebSocketService';
+import { initAllInfo } from '@/package_nzgx/services/initInfo';
 const memberStore = useMemberStore()
 const webSocketStore = useWebSocketStore();
 const currentPage = ref('RoomNumber')
@@ -101,6 +102,7 @@ const teamInfo = computed(() => memberStore.info?.teamInfo)
 const userInfo = computed(() => memberStore.info?.characters[memberStore.virtualRoleId - 1])
 const flow = computed(() => memberStore.info?.flow[memberStore.info.teamInfo.flowIndex])
 onMounted(() => {
+    if (!memberStore.info) memberStore.setInfo(initAllInfo)
     // 创建 WebSocket 连接
     if (!(memberStore.profile.token && memberStore.roomId && memberStore.virtualRoleId)) {
         return
@@ -129,11 +131,11 @@ onMounted(() => {
 
     // 监听 WebSocket 连接断开事件
     wsService.onClose = (event) => {
+        // 在这里添加断开连接后的处理逻辑，例如重新连接或通知用户
         console.warn("WebSocket 连接已断开", event);
         uni.showToast({ icon: 'none', title: '你已被踢出房间' })
         currentPage.value = 'RoomNumber'
         memberStore.roomId = ''
-        // 在这里添加断开连接后的处理逻辑，例如重新连接或通知用户
     };
 
 });

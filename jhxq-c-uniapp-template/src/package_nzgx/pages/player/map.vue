@@ -1,5 +1,5 @@
 <script setup lang='ts'>
-import { computed, ref, watch } from 'vue';
+import { computed, onMounted, ref, watch } from 'vue';
 import { useMemberStore } from '@/package_nzgx/stores'
 import { useWebSocketStore } from '@/package_nzgx/stores'
 import { allClues } from '@/package_nzgx/services/clues';
@@ -251,13 +251,8 @@ const mapSerch = (clue: string, id: number, isShow: boolean) => {
         addNewItem(userIndex.value, clue, 0, 'clues', '')
     }
 }
-const audio = () =>{
-    addNewItem(0, 'clue19', 0, 'clues', '')
-}
 </script>
-
 <template>
-
     <!-- 新线索+深入线索动画弹窗 -->
     <view class="newClue-mask flex-row-center" v-if="isNewClueShow">
         <view :class="isScale ? 'notScale' : 'isScale'" v-if="isDeepClue"
@@ -284,7 +279,7 @@ const audio = () =>{
         </view>
     </view>
 
-    <view class="map">
+    <view class="map" >
         <!-- 地图搜证 -->
         <view class="map-search" v-for="(item, index) in filterLocations(memberStore.info.locationList)"
             :key="item.name" v-if="(zstStatus === 2 && ypStatus === 0) || (dtStatus === 2 && glStatus === 0)"
@@ -353,13 +348,13 @@ const audio = () =>{
             </view>
         </view>
 
-        <!-- 答疑解惑 -->
+        <!-- 个人任务 -->
         <view class="FAQ" @tap="faq(userInfo!.mask.slice(-1)[0])"
             v-if="userInfo!.mask.slice(-1)[0] && userInfo!.mask.slice(-1)[0].type === 0">
         </view>
 
         <!-- 开启逐风 -->
-        <view class="newClue-mask" @tap="audio()"
+        <view class="newClue-mask"
             v-if="zfStatus === 3 && memberStore.info.flow[memberStore.info.teamInfo.flowIndex].inner[1].status === 0">
             <view class="zhufeng">
             </view>
