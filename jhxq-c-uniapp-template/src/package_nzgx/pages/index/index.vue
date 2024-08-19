@@ -9,4 +9,5 @@ import player from '@/package_nzgx/pages/player/player.vue';
     <player></player>
 </template>
 
-<style scoped></style>
+<style>
+</style>
