@@ -10,7 +10,8 @@ import CueSet from './cue-set.vue'
 import { useMemberStore } from '@/package_nzgx/stores'
 import { useWebSocketStore } from '@/package_nzgx/stores'
 import { WebSocketService } from '@/package_nzgx/services/WebSocketService';
-import { initAllInfo } from '@/package_nzgx/services/initInfo';
+import { initAllInfo, updateOriFlowInfo } from '@/package_nzgx/services/initInfo';
+import { updateOriClueInfo } from '@/package_nzgx/services/clues';
 const memberStore = useMemberStore()
 const webSocketStore = useWebSocketStore();
 const currentPage = ref('RoomNumber')
@@ -101,13 +102,22 @@ watch(() => glContent.value.status, (a, b) => {
 const teamInfo = computed(() => memberStore.info?.teamInfo)
 const userInfo = computed(() => memberStore.info?.characters[memberStore.virtualRoleId - 1])
 const flow = computed(() => memberStore.info?.flow[memberStore.info.teamInfo.flowIndex])
-onMounted(() => {
+onMounted(async () => {
+      // 获取最新的原始流程信息和线索集信息
+    uni.showLoading({
+        title: '加载中'
+    });
+    await updateOriFlowInfo()
+    await updateOriClueInfo()
+    uni.hideLoading()
+
+
     if (!memberStore.info) memberStore.setInfo(initAllInfo)
     // 创建 WebSocket 连接
     if (!(memberStore.profile.token && memberStore.roomId && memberStore.virtualRoleId)) {
         return
     }
-    const wsService = new WebSocketService(`ws://132.232.57.64:8030/?token=${memberStore.profile.token}&room_id=${memberStore.roomId}&virtual_role_id=${memberStore.virtualRoleId}`);
+    const wsService = new WebSocketService(`token=${memberStore.profile.token}&room_id=${memberStore.roomId}&virtual_role_id=${memberStore.virtualRoleId}`);
     wsService.connect()
     // 监听 WebSocket 连接成功事件
     wsService.onOpen = () => {
@@ -188,10 +198,11 @@ onUnmounted(() => {
 @import url("@/package_nzgx/static/fonts/stylesheet.css");
 @import url("@/package_nzgx/styles/common.css");
 
-.almm{
-  font-family: 'Alimama ShuHeiTi';
+.almm {
+    font-family: 'Alimama ShuHeiTi';
 }
-.hyshtj{
-  font-family: 'hyshtj';
+
+.hyshtj {
+    font-family: 'hyshtj';
 }
 </style>

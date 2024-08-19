@@ -461,3 +461,14 @@ const submit = (status: number) => {
     transform: rotate(-2deg);
 }
 </style>
+<style>
+@import url("@/package_nzgx/static/fonts/stylesheet.css");
+@import url("@/package_nzgx/styles/common.css");
+
+.almm{
+  font-family: 'Alimama ShuHeiTi';
+}
+.hyshtj{
+  font-family: 'hyshtj';
+}
+</style>

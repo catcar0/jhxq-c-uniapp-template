@@ -57,7 +57,7 @@ const play = () => {
     uni.showLoading({
         title: '加载中'
     });
-    const wsService = new WebSocketService(`ws://132.232.57.64:8030/?token=${memberStore.profile.token}&room_id=${memberStore.roomId}&virtual_role_id=${memberStore.virtualRoleId}`);
+    const wsService = new WebSocketService(`token=${memberStore.profile.token}&room_id=${memberStore.roomId}&virtual_role_id=${memberStore.virtualRoleId}`);
     wsService.connect()
     setTimeout(() => {
         if (webSocketStore.messages.slice(-1)[0] && webSocketStore.messages.slice(-1)[0].type && webSocketStore.messages.slice(-1)[0].type === 'error') {
@@ -170,5 +170,16 @@ const play = () => {
 .number {
     font-size: 45rpx;
     margin-top: -20rpx;
+}
+</style>
+<style>
+@import url("@/package_nzgx/static/fonts/stylesheet.css");
+@import url("@/package_nzgx/styles/common.css");
+
+.almm{
+  font-family: 'Alimama ShuHeiTi';
+}
+.hyshtj{
+  font-family: 'hyshtj';
 }
 </style>

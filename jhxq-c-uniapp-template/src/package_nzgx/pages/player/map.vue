@@ -682,3 +682,14 @@ const mapSerch = (clue: string, id: number, isShow: boolean) => {
     filter: brightness(100) contrast(100%) opacity(0.5);
 }
 </style>
+<style>
+@import url("@/package_nzgx/static/fonts/stylesheet.css");
+@import url("@/package_nzgx/styles/common.css");
+
+.almm{
+  font-family: 'Alimama ShuHeiTi';
+}
+.hyshtj{
+  font-family: 'hyshtj';
+}
+</style>
