@@ -22,15 +22,6 @@ const currentRoomId = (index: number) => {
         roomId.value += '0'
     }
 }
-const joinRoom = (roomId: string) => {
-    webSocketStore.send(
-        JSON.stringify({
-            type: 'join_room',
-            room_id: roomId,
-            role: memberStore.virtualRoleId
-        })
-    )
-}
 
 
 const toPlay = () => {
