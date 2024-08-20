@@ -1,14 +1,19 @@
 <script setup lang='ts'>
+import LoginPopup from "@/components/LoginPopup/index.vue";
 import { ref, watch } from 'vue';
 import { useMemberStore } from '@/package_nzgx/stores'
 import { useWebSocketStore } from '@/package_nzgx/stores'
 import { WebSocketService } from '@/package_nzgx/services/WebSocketService';
+import { LemToken } from "@/utils/auth";
+import { useMainAuthStore } from "@/stores/auth";
 const emit = defineEmits(["page"]);
 const memberStore = useMemberStore()
+const MainAuthStore = useMainAuthStore()
 const webSocketStore = useWebSocketStore();
 const keys = ['壹', '贰', '叁', '肆', '伍', '陆', '柒', '捌', '玖', 'clear', '零', 'backspace', '启']
 const roomNumber = ref('')
 const roomId = ref('')
+const loginVisible = ref<boolean>(false);
 
 const currentRoomId = (index: number) => {
     if (index >= 0 && index < 9) {
@@ -26,29 +31,26 @@ const joinRoom = (roomId: string) => {
         })
     )
 }
-const play = () => {
-    let avatarUrl: string
-    let nickName: string
-    uni.getUserProfile({
-        desc: '用于完善用户资料', // 必填，描述获取用户信息的用途
-        success: (res) => {
-            const userInfo = res.userInfo;
-            console.log('用户信息:', userInfo);
 
-            // 获取到的微信头像和昵称
-            avatarUrl = userInfo.avatarUrl;
-            nickName = userInfo.nickName;
-            memberStore.avatar = avatarUrl
-            console.log('微信头像:', avatarUrl);
-            console.log('微信昵称:', nickName);
-        },
-        fail: (err) => {
-            console.error('获取用户信息失败:', err);
-        }
-    });
-    const _roomId = roomId.value
-    console.log(_roomId)
-    memberStore.setRoomId(_roomId)
+
+const toPlay = () => {
+    loginVisible.value = true;
+}
+
+const play = ({ avatar, nickname }: { avatar: string, nickname: string }) => {
+    const token = LemToken.get();
+    let avatarUrl = avatar;
+    let nickName = nickname;
+    console.log('微信头像:', avatarUrl);
+    console.log('微信昵称:', nickName);
+    memberStore.avatar = avatarUrl;
+    const _roomId = roomId.value;
+    memberStore.setRoomId(_roomId);
+    memberStore.setProfile({ token });
+    memberStore.setVirtualRoleId(MainAuthStore.RoleId);
+    console.log(memberStore.profile)
+    console.log(memberStore.roomId)
+    console.log(memberStore.virtualRoleId)
     // 创建 WebSocket 连接
     if (!(memberStore.profile.token && memberStore.roomId && memberStore.virtualRoleId)) {
         return
@@ -79,6 +81,7 @@ const play = () => {
 </script>
 
 <template>
+    <LoginPopup @success="play" v-model:show="loginVisible"></LoginPopup>
     <view class="room-number hyshtj">
         <view class="fu">
             <view class="input flex-row-center">
@@ -98,7 +101,7 @@ const play = () => {
                         @tap="roomNumber = ''; roomId = ''">
                         <img class="icon1" src="http://159.138.147.87/statics/img/clear_icon.png" alt="">
                     </view>
-                    <view v-show="item === '启'" class="num-key-btn flex-row-center" @tap="play">
+                    <view v-show="item === '启'" class="num-key-btn flex-row-center" @tap="toPlay">
                         <text class="number">{{ item }}</text>
                     </view>
                 </view>
@@ -176,10 +179,11 @@ const play = () => {
 @import url("@/package_nzgx/static/fonts/stylesheet.css");
 @import url("@/package_nzgx/styles/common.css");
 
-.almm{
-  font-family: 'Alimama ShuHeiTi';
+.almm {
+    font-family: 'Alimama ShuHeiTi';
 }
-.hyshtj{
-  font-family: 'hyshtj';
+
+.hyshtj {
+    font-family: 'hyshtj';
 }
 </style>
