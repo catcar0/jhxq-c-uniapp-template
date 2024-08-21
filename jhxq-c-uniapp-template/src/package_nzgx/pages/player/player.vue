@@ -103,7 +103,7 @@ const teamInfo = computed(() => memberStore.info?.teamInfo)
 const userInfo = computed(() => memberStore.info?.characters[memberStore.virtualRoleId - 1])
 const flow = computed(() => memberStore.info?.flow[memberStore.info.teamInfo.flowIndex])
 onMounted(async () => {
-      // 获取最新的原始流程信息和线索集信息
+    // 获取最新的原始流程信息和线索集信息
     uni.showLoading({
         title: '加载中'
     });
@@ -118,6 +118,19 @@ onMounted(async () => {
         return
     }
     const wsService = new WebSocketService(`token=${memberStore.profile.token}&room_id=${memberStore.roomId}&virtual_role_id=${memberStore.virtualRoleId}`);
+    // 监听连接错误或关闭事件
+    wsService.onError = (error) => {
+        console.error("WebSocket 连接失败", error);
+        // 在这里可以添加错误处理逻辑
+    };
+
+    // 监听 WebSocket 连接断开事件
+    wsService.onClose = () => {
+        // 在这里添加断开连接后的处理逻辑，例如重新连接或通知用户
+        uni.showToast({ icon: 'none', title: '你已被踢出房间' })
+        currentPage.value = 'RoomNumber'
+        memberStore.roomId = ''
+    };
     wsService.connect()
     // 监听 WebSocket 连接成功事件
     wsService.onOpen = () => {
@@ -133,20 +146,6 @@ onMounted(async () => {
 
     };
 
-    // 监听连接错误或关闭事件
-    wsService.onError = (error) => {
-        console.error("WebSocket 连接失败", error);
-        // 在这里可以添加错误处理逻辑
-    };
-
-    // 监听 WebSocket 连接断开事件
-    wsService.onClose = (event) => {
-        // 在这里添加断开连接后的处理逻辑，例如重新连接或通知用户
-        console.warn("WebSocket 连接已断开", event);
-        uni.showToast({ icon: 'none', title: '你已被踢出房间' })
-        currentPage.value = 'RoomNumber'
-        memberStore.roomId = ''
-    };
 
 });
 

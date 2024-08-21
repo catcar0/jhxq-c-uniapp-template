@@ -62,7 +62,10 @@ const play = ({ avatar, nickname }: { avatar: string, nickname: string }) => {
             webSocketStore.updateInfo(nickName, avatarUrl)
             setTimeout(() => {
                 uni.hideLoading();
-                if (memberStore.info) memberStore.info.characters[memberStore.virtualRoleId - 1].playerAvatar = avatarUrl
+                if (memberStore.info){
+                    memberStore.info.characters[memberStore.virtualRoleId - 1].playerAvatar = avatarUrl
+                    memberStore.info.characters[memberStore.virtualRoleId - 1].playerAvatar = nickName
+                }
                 uni.showToast({ icon: 'success', title: '加入成功' })
                 emit('page', 'TeamInfo')
             }, 3000);
