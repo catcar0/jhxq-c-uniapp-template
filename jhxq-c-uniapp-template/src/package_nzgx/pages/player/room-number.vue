@@ -6,6 +6,8 @@ import { useWebSocketStore } from '@/package_nzgx/stores'
 import { WebSocketService } from '@/package_nzgx/services/WebSocketService';
 import { LemToken } from "@/utils/auth";
 import { useMainAuthStore } from "@/stores/auth";
+import { useScriptStore } from '@/stores/script';
+const ScriptStore = useScriptStore();
 const IsTestPlay = computed(() => ScriptStore.IsTestPlay);
 const emit = defineEmits(["page"]);
 const memberStore = useMemberStore()
