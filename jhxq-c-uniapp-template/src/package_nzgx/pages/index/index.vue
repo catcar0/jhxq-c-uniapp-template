@@ -6,6 +6,7 @@ import player from '@/package_nzgx/pages/player/player.vue';
  <!-- 所有游戏业务逻辑都在前端进行处理 后端逻辑非常简单 逻辑是七个人共同更新一个对象数组(像共享文档都可以编辑)  /services/initInfo.ts 
    开发时间非常有限 需要功能基本实现 代码待优化 -->
 <template>
+    <Watermark></Watermark>
     <player></player>
 </template>
 

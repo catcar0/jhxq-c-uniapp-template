@@ -1,10 +1,15 @@
 import { useMemberStore } from "@/package_nzgx/stores"
+import { useMainAuthStore } from "@/stores/auth";
 
-const baseURL = `http://mn.nzgx.api.wanjuyuanxian.com`
+const DM_Api_Url = 'https://nzgx.api.wanjuyuanxian.com';
+const DM_TEST_Api_Url = 'https://mn.nzgx.api.wanjuyuanxian.com';
+
 const httpInterceptor = {
     invoke(options: UniApp.RequestOptions) {
+        const IsTestPlay = useMainAuthStore().IsTestPlay;
+
         if (!options.url.startsWith('http')) {
-            options.url = baseURL + options.url
+            options.url = (IsTestPlay ? DM_TEST_Api_Url : DM_Api_Url) + options.url
         }
         options.timeout = 10000
 
