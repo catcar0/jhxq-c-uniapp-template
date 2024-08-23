@@ -6,13 +6,11 @@ import { useWebSocketStore } from '@/package_nzgx/stores'
 import { WebSocketService } from '@/package_nzgx/services/WebSocketService';
 import { LemToken } from "@/utils/auth";
 import { useMainAuthStore } from "@/stores/auth";
-import { useScriptStore } from '@/stores/script';
-const ScriptStore = useScriptStore();
-const IsTestPlay = computed(() => ScriptStore.IsTestPlay);
 const emit = defineEmits(["page"]);
 const memberStore = useMemberStore()
 const MainAuthStore = useMainAuthStore()
 const webSocketStore = useWebSocketStore();
+const IsTestPlay = computed(() => MainAuthStore.IsTestPlay);
 const keys = ['壹', '贰', '叁', '肆', '伍', '陆', '柒', '捌', '玖', 'clear', '零', 'backspace', '启']
 const roomNumber = ref('')
 const roomId = ref('')
@@ -77,7 +75,7 @@ const play = ({ avatar, nickname }: { avatar: string, nickname: string }) => {
                 } else {
                     uni.showToast({ icon: 'success', title: '加入成功' })
                     emit('page', 'TeamInfo')
-                }   
+                }
             }, 3000);
         }
     }, 1000);

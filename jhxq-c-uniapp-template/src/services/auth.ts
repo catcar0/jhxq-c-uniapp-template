@@ -1,98 +1,67 @@
-import type { IResultData } from "@/utils/LemFetch";
-import { BFetcher } from "./index";
+import { PlayFetcher } from "./index";
 
-export interface Userinfos {
-	avatar: string,
-	business_id: number,
-	created_at: string,
-	id: number,
-	bind_wechat: boolean,
-	account_type: 1 | 2, // 1 商家；2 DM
-	dm_id?: number
-	dm_type?: 1|2 // 1兼职DM 2全职DM
-	name: string
-	phone: string
-	updated_at: string
+export interface AuthResponse {
+  token: string;
+  userinfo: {
+    // 1=DM  2=player
+    type: 1 | 2;
+  };
 }
 
-export const GetPhoneAuthCode = (data: { phone: string, account_type: 1 | 2 }) => {
-	return BFetcher().post("/verification", data);
+export interface AuthData {
+  code: string;
+  iv?: string;
+  encryptedData?: string;
 }
 
-export const GetUserInfos = (): Promise<IResultData<Userinfos>> => {
-	return BFetcher().get("/getUserInfo");
+// 玩家登录
+export const authorizations = (data: AuthData): Promise<AuthResponse> => {
+  return PlayFetcher().post("/authorizations", data);
+};
+
+// 设置玩家信息
+export interface PlayerInfos {
+  avatar?: string;
+  nickname?: string;
+}
+export const updatePlayerInfos = (data: PlayerInfos) => {
+  return PlayFetcher().post("/player_info", data);
+};
+
+// 玩家登录 + 绑定手机
+export const auth_BindTel = (data: AuthData): Promise<AuthResponse> => {
+  return PlayFetcher().post("/authorizations/bind_tel", data);
+};
+
+export interface JoinData {
+  role_id: number | string;
+  room_number: number | string;
 }
 
-export interface AuthorizationData {
-	verification_key: string,
-	verification_code: string
+export interface JoinResponse {
+  host: string
+  is_imitate: number
+  message: string
 }
 
-export interface AuthorizationRes {
-	code?: number,
-	toke: string,
-	userinfo: Userinfos
+// 进入房间
+export const joinRoom = (data: JoinData): Promise<JoinResponse> => {
+  return PlayFetcher().post("/join_room", data);
+};
+
+export interface PlayInfos {
+  DM: string
+  account_type: string
+  people_number: number
+  room_end_time: string
+  room_number: string
+  running_room: boolean
+  script_id: number
+  script_name: string
+  script_preview: string
 }
 
-// 登录验证
-export const Authorization = (data?: AuthorizationData): Promise<AuthorizationRes> => {
-	return BFetcher().post("/authorization", data)
-}
-
-// 绑定微信
-export const BindWechat = (code?: any) => {
-	return BFetcher().post("/bind_wechat", {
-		code
-	})
-}
-
-export interface QuickLoginData {
-	account_type: 1 | 2, // 登陆端 1=商家 2=DM
-	iv: string,
-	encryptedData: string,
-	code: string
-}
-
-// 快速登录
-export const QuickLogin = (data: QuickLoginData): Promise<AuthorizationRes> => {
-	return BFetcher().post("/quick_mobile_login", data)
-}
-
-// 快速登录(test)
-export const QuickLoginTest = (data: QuickLoginData): Promise<AuthorizationRes> => {
-	return BFetcher().post("/quick_mobile_login2", data)
-}
-
-export interface SilentLoginData {
-	account_type: 1 | 2, // 登陆端 1=商家 2=DM
-	code: string
-}
-
-// 静默登录
-export const SilentLogin = (data: SilentLoginData): Promise<AuthorizationRes> => {
-	return BFetcher().post("/silent_login", data)
-}
-
-
-// 获取旧手机验证码
-export const GetOldPhoneCode = (): Promise<{ verification_key: string }> => {
-	return BFetcher().post("/user/changeBindBefore", {});
-}
-
-// 获取新手机验证码
-export interface NewPhoneData {
-	phone: any, // 现手机号
-	verification_key: any, // 验证码key 原
-	code: any // 验证码code 原
-}
-export const GetNewPhoneCode = (data: NewPhoneData): Promise<{ verification_key: string }> => {
-	return BFetcher().post("/user/changeBindAfter", data);
-}
-
-// 换绑手机号
-export const RebindPhone = (data: {
-	verification_key: any,
-	code: any
-}) => {
-	return BFetcher().put("/user/changeBindPhone", data);
-}
+// 获取开本信息
+export const getPlayInfos = (): Promise<PlayInfos> => {
+  return PlayFetcher().get("/kaibeninfo", {});
+};

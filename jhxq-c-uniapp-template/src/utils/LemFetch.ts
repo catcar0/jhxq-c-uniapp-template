@@ -1,12 +1,11 @@
-import { useAuthStore } from "@/stores/auth";
-import { PlayToken } from "./auth";
+import { useMainAuthStore } from "@/stores/auth";
 
 export interface IResultData<T> {
 	data?: T;
 	meta?: any;
 	links?: any
 }
-// LemFetch().ts
+
 class LemFetch {
 	public baseUrl?: string;
 	public token?: string;
@@ -14,7 +13,6 @@ class LemFetch {
 	constructor() {}
 
 	private request<T>(url: string, method: 'GET' | 'POST' | 'PUT' | 'DELETE', data?: any): Promise<T> {
-		const AuthStore = useAuthStore();
 		return new Promise((resolve, reject) => {
 			uni.request({
 				url: this.baseUrl + url,
@@ -28,14 +26,15 @@ class LemFetch {
 				success: (response) => {
 					console.log(response.statusCode+':'+url)
 					if (response.statusCode === 401) {
-						// token过期
-						let playToken = PlayToken.get(); // 游戏Token
-						if(AuthStore.Token && !playToken){
-							AuthStore.$patch({Token:''});
-							AuthStore.clearData();
-							AuthStore.silentLogin();
-						}
-					} else if(response.statusCode == 422 || response.statusCode >= 500){
+						// token失效
+						useMainAuthStore().LoginOut();
+					} else if(response.statusCode == 405){
+						// 房间关闭
+						useMainAuthStore().ClearRoom();
+					} else if(response.statusCode == 406){
+						// 被踢出
+						useMainAuthStore().BanRoom();
+					} else if(response.statusCode == 422){
 						uni.showToast({
 							title: (response.data as any) .message || '服务器错误', 
 							icon: 'none',

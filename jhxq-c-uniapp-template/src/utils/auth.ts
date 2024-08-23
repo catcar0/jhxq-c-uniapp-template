@@ -1,52 +1,57 @@
 const TokenKey = "Authorization";
-const PlayTokenKey = "PlayToken";
 
-// 商家端TOKEN
 export const LemToken = {
 	get() {
 		try {
 			return uni.getStorageSync(TokenKey)
 		} catch (e: any) {
-			return null
+			throw e
 		}
 	},
 	set(token: string) {
 		try {
 			uni.setStorageSync(TokenKey, token)
 		} catch (e: any) {
-			console.log(e)
+			throw e
 		}
 	},
 	clear() {
 		try {
 			uni.removeStorageSync(TokenKey)
 		} catch (e) {
-			// error
+			throw e
 		}
 	},
 };
 
-// 开本服务端TOKEN
-export const PlayToken = {
-	get() {
+export const WxLocalInfos = {
+	get(type: 'nickname' | 'avatar') {
 		try {
-			return uni.getStorageSync(PlayTokenKey)
+			return uni.getStorageSync('wx_' + type)
 		} catch (e: any) {
-			return null
+			throw e
 		}
 	},
-	set(token: string) {
+	set(type: 'nickname' | 'avatar', value: string) {
 		try {
-			uni.setStorageSync(PlayTokenKey, token)
+			uni.setStorageSync('wx_' + type, value)
 		} catch (e: any) {
 			console.log(e)
+			throw e
 		}
 	},
-	clear() {
+	clear(type?: 'nickname' | 'avatar') {
 		try {
-			uni.removeStorageSync(PlayTokenKey)
+			if (type) {
+				uni.removeStorageSync('wx_' + type)
+			} else {
+				uni.removeStorageSync('wx_nickname');
+				uni.removeStorageSync('wx_avatar');
+			}
 		} catch (e) {
 			// error
+			throw e
 		}
 	},
 }
+
