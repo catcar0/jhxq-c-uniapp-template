@@ -1,6 +1,6 @@
 <script setup lang='ts'>
 import LoginPopup from "@/components/LoginPopup/index.vue";
-import { ref, watch } from 'vue';
+import { computed, ref, watch } from 'vue';
 import { useMemberStore } from '@/package_nzgx/stores'
 import { useWebSocketStore } from '@/package_nzgx/stores'
 import { WebSocketService } from '@/package_nzgx/services/WebSocketService';
