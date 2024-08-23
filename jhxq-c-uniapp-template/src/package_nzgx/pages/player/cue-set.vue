@@ -196,7 +196,7 @@ const a = () =>{
                             </view>
                             <view style="height: 70vh;width: 100rpx;" class="flex-row-center">
                                 <img v-show="replayIndex !== memberStore.info?.teamInfo.replay.length && memberStore.info?.teamInfo.replay.length > 1 && memberStore.info?.teamInfo.replay[replayIndex + 1].hy.length !== 0"
-                                    style="height: 80rpx;width: 50rpx;transform: rotate(180deg);"@tap="replayIndex++"
+                                    style="height: 80rpx;width: 50rpx;transform: rotate(180deg);" @tap="replayIndex++"
                                     src="http://159.138.147.87/statics/img/left.png" alt="">
                             </view>
                         </view>
