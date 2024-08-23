@@ -124,8 +124,8 @@ const audioList = ref<AudioItem[]>([
                     <input type="text" style="text-align: center;" v-model="userName">
                 </view>
             </view>
-            <view class="flex-row-center" style="height: 200rpx;">
-                <audioplay v-if="dialogObj.type === 'voice'" :audioList="audioList" :isDialog="true" />
+            <view class="flex-row-center" style="height: 200rpx;" v-if="dialogObj.type === 'voice'">
+                <audioplay  :audioList="audioList" :isDialog="true" />
             </view>
             <view class="dialog-control">
                 <view @tap="confirm" class="theme-button button">

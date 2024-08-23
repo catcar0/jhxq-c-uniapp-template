@@ -37,29 +37,29 @@ export const useWebSocketStore = defineStore('webSocket', {
                 virtual_role_id: 'first'
             }));
         },
-        kickplayer(id:any){
+        kickplayer(id: any) {
             this.gameWebSocketService.send(JSON.stringify({
                 type: 'kick_player',
-                user_id:19691,
+                user_id: 19691,
                 virtual_role_id: id
             }));
         },
-        updateInfo (nickname:string,avatar:string) {
+        updateInfo(nickname: string, avatar: string) {
             this.gameWebSocketService.send(JSON.stringify({
                 type: 'update_player_info',
                 updated_data: {
                     nickname: nickname,
                     avatar: avatar
-                    },
+                },
                 virtual_role_id: memberStore.virtualRoleId
             }));
         },
-        getPlayerInfo () {
+        getPlayerInfo() {
             this.gameWebSocketService.send(JSON.stringify({
                 type: 'get_all_players_info'
             }));
         },
-        closeRoom(){
+        closeRoom() {
             this.gameWebSocketService.send(JSON.stringify({
                 type: 'close_room'
             }));
@@ -68,8 +68,7 @@ export const useWebSocketStore = defineStore('webSocket', {
             this.gameWebSocketService.close();
         },
         addMessage(message: any) {
-            memberStore.setPlayerInfo(message)
-            memberStore.playerInfo = message
+            if (message.players) memberStore.setPlayerInfo(message)
             if (message.type && message.type === 'error') {
                 this.messages.push(message);
                 return

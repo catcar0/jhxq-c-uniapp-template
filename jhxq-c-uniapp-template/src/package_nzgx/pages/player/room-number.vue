@@ -6,6 +6,7 @@ import { useWebSocketStore } from '@/package_nzgx/stores'
 import { WebSocketService } from '@/package_nzgx/services/WebSocketService';
 import { LemToken } from "@/utils/auth";
 import { useMainAuthStore } from "@/stores/auth";
+const IsTestPlay = computed(() => ScriptStore.IsTestPlay);
 const emit = defineEmits(["page"]);
 const memberStore = useMemberStore()
 const MainAuthStore = useMainAuthStore()
@@ -59,15 +60,22 @@ const play = ({ avatar, nickname }: { avatar: string, nickname: string }) => {
         } else {
             webSocketStore.gameWebSocketService = wsService;
             webSocketStore.gameplayerFirstSend()
+            webSocketStore.getPlayerInfo()
             webSocketStore.updateInfo(nickName, avatarUrl)
             setTimeout(() => {
                 uni.hideLoading();
-                if (memberStore.info){
+                if (memberStore.info) {
                     memberStore.info.characters[memberStore.virtualRoleId - 1].playerAvatar = avatarUrl
                     memberStore.info.characters[memberStore.virtualRoleId - 1].playerAvatar = nickName
                 }
-                uni.showToast({ icon: 'success', title: '加入成功' })
-                emit('page', 'TeamInfo')
+                if (IsTestPlay.value && Object.keys(memberStore.playerInfo.players).length > 3) {
+                    uni.showToast({ icon: 'none', title: '无法加入' })
+                    webSocketStore.gameClose()
+                    return
+                } else {
+                    uni.showToast({ icon: 'success', title: '加入成功' })
+                    emit('page', 'TeamInfo')
+                }   
             }, 3000);
         }
     }, 1000);

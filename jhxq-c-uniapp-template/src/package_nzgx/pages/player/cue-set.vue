@@ -173,13 +173,13 @@ const a = () =>{
                     <view v-if="replayIndex !== -1"
                         style="display: flex;flex-direction: column;justify-content: space-between;">
                         <view style="display: flex;height: 50%;">
-                            <view style="height: 100%;width: 100rpx;" class="flex-row-center">
-                                <img style="height: 100rpx;width: 50rpx;"
+                            <view style="height: 70vh;width: 100rpx;" class="flex-row-center">
+                                <img style="height: 100rpx;width: 50rpx;" @tap="replayIndex--"
                                     v-show="replayIndex !== 0 && memberStore.info?.teamInfo.replay.length > 1"
                                     src="http://159.138.147.87/statics/img/left.png" alt="">
                             </view>
                             <view>
-                                <view style="font-weight: 700;height: 100rpx;text-align: center;">{{
+                                <view style="font-weight: 700;height: 100rpx;text-align: center;padding-top: 30rpx;">{{
                                     memberStore.info?.teamInfo.replay[replayIndex].name }}</view>
                                 <view v-for="(item, index) in memberStore.info?.teamInfo.replay[replayIndex].hy"
                                     v-if="memberStore.info?.teamInfo.replay[replayIndex].hy.length !== 0"
@@ -194,9 +194,9 @@ const a = () =>{
                                     <view>{{ item.slice(1) }}</view>
                                 </view>
                             </view>
-                            <view style="height: 100%;width: 100rpx;" class="flex-row-center">
+                            <view style="height: 70vh;width: 100rpx;" class="flex-row-center">
                                 <img v-show="replayIndex !== memberStore.info?.teamInfo.replay.length && memberStore.info?.teamInfo.replay.length > 1 && memberStore.info?.teamInfo.replay[replayIndex + 1].hy.length !== 0"
-                                    style="height: 80rpx;width: 50rpx;transform: rotate(180deg);"
+                                    style="height: 80rpx;width: 50rpx;transform: rotate(180deg);"@tap="replayIndex++"
                                     src="http://159.138.147.87/statics/img/left.png" alt="">
                             </view>
                         </view>
