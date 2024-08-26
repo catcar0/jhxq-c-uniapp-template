@@ -76,6 +76,7 @@ const changeAvatar = () => {
                     memberStore.avatar = base64Image;
                     memberStore.info.characters[memberStore.virtualRoleId - 1].playerAvatar = base64Image
                     updateInfo(memberStore.info)
+                    webSocketStore.updateInfo(memberStore.info.characters[memberStore.virtualRoleId - 1].user, base64Image)
                 },
                 fail: function (err) {
                     console.error('图片转换Base64失败', err);

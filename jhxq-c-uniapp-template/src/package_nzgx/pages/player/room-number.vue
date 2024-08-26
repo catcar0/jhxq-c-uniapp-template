@@ -66,7 +66,10 @@ const play = ({ avatar, nickname }: { avatar: string, nickname: string }) => {
                 uni.hideLoading();
                 if (memberStore.info) {
                     memberStore.info.characters[memberStore.virtualRoleId - 1].playerAvatar = avatarUrl
-                    memberStore.info.characters[memberStore.virtualRoleId - 1].playerAvatar = nickName
+                    memberStore.info.characters[memberStore.virtualRoleId - 1].user = nickName
+                    webSocketStore.gameSend(
+                        memberStore.info
+                    )
                 }
                 if (IsTestPlay.value && Object.keys(memberStore.playerInfo.players).length > 3) {
                     uni.showToast({ icon: 'none', title: '无法加入' })
