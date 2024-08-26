@@ -127,13 +127,16 @@ onMounted(async () => {
     // 监听 WebSocket 连接断开事件
     wsService.onClose = () => {
         // 在这里添加断开连接后的处理逻辑，例如重新连接或通知用户
-        uni.showToast({ icon: 'none', title: '你已被踢出房间' })
-        currentPage.value = 'RoomNumber'
-        memberStore.roomId = ''
+        uni.showToast({ icon: 'none', title: '你已经断开连接' })
+        if (webSocketStore.messages.slice(-1)[0] && webSocketStore.messages.slice(-1)[0].type && webSocketStore.messages.slice(-1)[0].type === 'kicked') {
+            currentPage.value = 'RoomNumber'
+            memberStore.roomId = ''
+        }
     };
     wsService.connect()
     // 监听 WebSocket 连接成功事件
     wsService.onOpen = () => {
+        uni.showToast({ icon: 'none', title: '你已经成功连接' })
         console.log("WebSocket 连接成功");
 
         // 连接成功后执行后续操作

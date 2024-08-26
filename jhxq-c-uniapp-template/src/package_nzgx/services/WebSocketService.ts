@@ -61,6 +61,8 @@ export class WebSocketService {
         websocketStore.addMessage(parsedData);
       } else if (parsedData.type === 'error') {
         websocketStore.addMessage(parsedData);
+      } else if (parsedData.type === 'kicked'){
+        websocketStore.addMessage(parsedData);
       }
     });
 

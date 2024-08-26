@@ -69,7 +69,7 @@ export const useWebSocketStore = defineStore('webSocket', {
         },
         addMessage(message: any) {
             if (message.players) memberStore.setPlayerInfo(message)
-            if (message.type && message.type === 'error') {
+            if (message.type && (message.type === 'error'  || message.type === 'kicked' )) {
                 this.messages.push(message);
                 return
             }
