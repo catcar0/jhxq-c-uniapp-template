@@ -59,9 +59,7 @@ export class WebSocketService {
         websocketStore.gameAddMessage(parsedData.data.statuses.allinfo.info);
       } else if (parsedData.players) {
         websocketStore.addMessage(parsedData);
-      } else if (parsedData.type === 'error') {
-        websocketStore.addMessage(parsedData);
-      } else if (parsedData.type === 'kicked'){
+      } else {
         websocketStore.addMessage(parsedData);
       }
     });

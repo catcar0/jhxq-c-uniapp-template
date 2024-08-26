@@ -52,6 +52,16 @@ const play = ({ avatar, nickname }: { avatar: string, nickname: string }) => {
         title: '加载中'
     });
     const wsService = new WebSocketService(`token=${memberStore.profile.token}&room_id=${memberStore.roomId}&virtual_role_id=${memberStore.virtualRoleId}`);
+    // 监听 WebSocket 连接断开事件
+    wsService.onClose = () => {
+        // 在这里添加断开连接后的处理逻辑，例如重新连接或通知用户
+        uni.showToast({ icon: 'none', title: '你已经断开连接' })
+        if (webSocketStore.messages.slice(-1)[0] && webSocketStore.messages.slice(-1)[0].type && webSocketStore.messages.slice(-1)[0].type === 'kicked') {
+            // currentPage.value = 'RoomNumber'
+            emit('page', 'RoomNumber')
+            memberStore.roomId = ''
+        }
+    };
     wsService.connect()
     setTimeout(() => {
         if (webSocketStore.messages.slice(-1)[0] && webSocketStore.messages.slice(-1)[0].type && webSocketStore.messages.slice(-1)[0].type === 'error') {
@@ -100,11 +110,13 @@ const play = ({ avatar, nickname }: { avatar: string, nickname: string }) => {
                     </view>
                     <view v-show="item === 'backspace'" class="num-key-btn flex-row-center"
                         @tap="roomNumber = roomNumber.slice(0, -1); roomId = roomId.slice(0, -1)">
-                        <img class="icon" src="https://applet.cdn.wanjuyuanxian.com/nzgx/static/img/backspace_icon.png" alt="">
+                        <img class="icon" src="https://applet.cdn.wanjuyuanxian.com/nzgx/static/img/backspace_icon.png"
+                            alt="">
                     </view>
                     <view v-show="item === 'clear'" class="num-key-btn flex-row-center"
                         @tap="roomNumber = ''; roomId = ''">
-                        <img class="icon1" src="https://applet.cdn.wanjuyuanxian.com/nzgx/static/img/clear_icon.png" alt="">
+                        <img class="icon1" src="https://applet.cdn.wanjuyuanxian.com/nzgx/static/img/clear_icon.png"
+                            alt="">
                     </view>
                     <view v-show="item === '启'" class="num-key-btn flex-row-center" @tap="toPlay">
                         <text class="number">{{ item }}</text>
