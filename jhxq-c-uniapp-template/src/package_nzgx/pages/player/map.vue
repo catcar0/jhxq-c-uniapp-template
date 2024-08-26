@@ -119,8 +119,8 @@ const updateYpUsers = (user: number, newUserIndex: number, index: number, roomUs
 const isNewClueShow = ref(false)
 const isDeepClue = ref(false)
 const voiceIndex = ref(-1)
-const newClueSrc = ref('http://159.138.147.87/statics/img/clue2.png')
-const oldClueSrc = ref('http://159.138.147.87/statics/img/clue1.png')
+const newClueSrc = ref('https://applet.cdn.wanjuyuanxian.com/nzgx/static/img/clue2.png')
+const oldClueSrc = ref('https://applet.cdn.wanjuyuanxian.com/nzgx/static/img/clue1.png')
 watch(() => canJoin, () => {
     console.log(canJoin)
 })
@@ -194,7 +194,7 @@ watch(() => memberStore.info.characters[userIndex.value].cueset.clues, () => {
             case 0:
                 isNewClueShow.value = true;
                 isDeepClue.value = false;
-                newClueSrc.value = `http://159.138.147.87/statics/clues/${newclue.name}.png`;
+                newClueSrc.value = `https://applet.cdn.wanjuyuanxian.com/nzgx/static/clues/${newclue.name}.png`;
                 break;
             case 1:
                 dialogObj.value.title = '获得新线索';
@@ -288,7 +288,7 @@ const mapSerch = (clue: string, id: number, isShow: boolean) => {
                 {{ item.name }}
             </view>
             <img :style="{ top: item.position.iconTop, left: item.position.iconLeft }" class="location-icon"
-                src="http://159.138.147.87/statics/img/location_icon.png" alt="">
+                src="https://applet.cdn.wanjuyuanxian.com/nzgx/static/img/location_icon.png" alt="">
         </view>
         <!-- 音频搜证地点 -->
         <view class="audio-search" @tap="voiceIndex = index" v-for="(item, index) in ypContent" :key="item.name"
@@ -332,7 +332,7 @@ const mapSerch = (clue: string, id: number, isShow: boolean) => {
 
                             <img v-if="ypUsers[index] === userIndex"
                                 @tap="updateYpUsers(ypUsers[index], -1, voiceIndex, index)" class="out-btn"
-                                src="http://159.138.147.87/statics/img/out_btn_icon.png" alt="">
+                                src="https://applet.cdn.wanjuyuanxian.com/nzgx/static/img/out_btn_icon.png" alt="">
                         </view>
 
                     </view>
@@ -451,7 +451,7 @@ const mapSerch = (clue: string, id: number, isShow: boolean) => {
 .newClue {
     height: 900rpx;
     width: 90%;
-    background: url('http://159.138.147.87/statics/img/paper5.png') no-repeat;
+    background: url('https://applet.cdn.wanjuyuanxian.com/nzgx/static/img/paper5.png') no-repeat;
     background-size: 100% 100%;
     background-position: center;
     padding: 100rpx;
@@ -499,7 +499,7 @@ const mapSerch = (clue: string, id: number, isShow: boolean) => {
 .map {
     width: 100%;
     height: 100vh;
-    background: url('http://159.138.147.87/statics/img/map2.png') no-repeat;
+    background: url('https://applet.cdn.wanjuyuanxian.com/nzgx/static/img/map2.png') no-repeat;
     background-size: 100% 100%;
     background-position: center;
 }
@@ -507,7 +507,7 @@ const mapSerch = (clue: string, id: number, isShow: boolean) => {
 .audio-serach-location {
     width: 170rpx;
     height: 167rpx;
-    background: url('http://159.138.147.87/statics/img/audio_search_location_bg.png') no-repeat;
+    background: url('https://applet.cdn.wanjuyuanxian.com/nzgx/static/img/audio_search_location_bg.png') no-repeat;
     background-size: 100% 100%;
     background-position: center;
     font-size: 26.5rpx;
@@ -520,7 +520,7 @@ const mapSerch = (clue: string, id: number, isShow: boolean) => {
 .location {
     width: 201rpx;
     height: 104rpx;
-    background: url('http://159.138.147.87/statics/img/location_bg.png') no-repeat;
+    background: url('https://applet.cdn.wanjuyuanxian.com/nzgx/static/img/location_bg.png') no-repeat;
     background-size: 100% 100%;
     background-position: center;
     font-size: 31.5rpx;
@@ -542,7 +542,7 @@ const mapSerch = (clue: string, id: number, isShow: boolean) => {
     position: fixed;
     bottom: -20rpx;
     right: -20rpx;
-    background: url('http://159.138.147.87/statics/img/FAQ.png') no-repeat;
+    background: url('https://applet.cdn.wanjuyuanxian.com/nzgx/static/img/FAQ.png') no-repeat;
     background-size: 100% 100%;
     background-position: center;
     pointer-events: all;
@@ -554,7 +554,7 @@ const mapSerch = (clue: string, id: number, isShow: boolean) => {
     top: 20rpx;
     left: 0rpx;
     position: fixed;
-    background: url('http://159.138.147.87/statics/img/zhufeng.png') no-repeat;
+    background: url('https://applet.cdn.wanjuyuanxian.com/nzgx/static/img/zhufeng.png') no-repeat;
     background-size: 100% 100%;
     background-position: center;
 }
@@ -601,7 +601,7 @@ const mapSerch = (clue: string, id: number, isShow: boolean) => {
     display: flex;
     align-items: center;
     flex-direction: column;
-    background: url('http://159.138.147.87/statics/img/player_dialog_bg.png') no-repeat;
+    background: url('https://applet.cdn.wanjuyuanxian.com/nzgx/static/img/player_dialog_bg.png') no-repeat;
     background-size: 100% 100%;
     background-position: center;
     padding: 60rpx 130rpx 90rpx 130rpx;
@@ -654,7 +654,7 @@ const mapSerch = (clue: string, id: number, isShow: boolean) => {
     font-size: 28rpx;
     /* border-radius: 16px; */
     font-weight: bold;
-    background: url('http://159.138.147.87/statics/img/player_dialog_btn1.png') no-repeat;
+    background: url('https://applet.cdn.wanjuyuanxian.com/nzgx/static/img/player_dialog_btn1.png') no-repeat;
     background-size: 100% 100%;
     background-position: center;
 }
@@ -667,7 +667,7 @@ const mapSerch = (clue: string, id: number, isShow: boolean) => {
     font-size: 28rpx;
     /* border-radius: 16px; */
     font-weight: bold;
-    background: url('http://159.138.147.87/statics/img/new_clue_btn.png') no-repeat;
+    background: url('https://applet.cdn.wanjuyuanxian.com/nzgx/static/img/new_clue_btn.png') no-repeat;
     background-size: 100% 100%;
     background-position: center;
 }
@@ -676,7 +676,7 @@ const mapSerch = (clue: string, id: number, isShow: boolean) => {
     position: absolute;
     width: 185rpx;
     height: 95.5rpx;
-    background: url('http://159.138.147.87/statics/img/player_dialog_btn2.png') no-repeat;
+    background: url('https://applet.cdn.wanjuyuanxian.com/nzgx/static/img/player_dialog_btn2.png') no-repeat;
     background-size: 100% 100%;
     background-position: center;
     filter: brightness(100) contrast(100%) opacity(0.5);

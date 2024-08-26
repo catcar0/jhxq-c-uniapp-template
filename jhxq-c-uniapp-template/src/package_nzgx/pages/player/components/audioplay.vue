@@ -116,7 +116,7 @@ onBeforeUnmount(() => {
         :key="index">
         <view class="audio-icon1 flex-row-center" @tap="togglePlayPause(index)">
             <img class="audio-icon1-img"
-                :src="`http://159.138.147.87/statics/img/${item.isPlaying ? 'pause' : 'play'}.png`" alt="">
+                :src="`https://applet.cdn.wanjuyuanxian.com/nzgx/static/img/${item.isPlaying ? 'pause' : 'play'}.png`" alt="">
         </view>
         <view class="flex-column-sb audio-info">
             <text class="audio-roles">{{ item.roles }}</text>
@@ -126,7 +126,7 @@ onBeforeUnmount(() => {
             <view v-show="item.isPlaying" class="audio-content">
                 <view :style="{ transform: `translateX(-${item.scrollOffset}px)` }"> {{ item.scrollText }} </view>
             </view>
-            <img v-show="!item.isPlaying" class="audio-icon2" src="http://159.138.147.87/statics/img/voice_icon.png"
+            <img v-show="!item.isPlaying" class="audio-icon2" src="https://applet.cdn.wanjuyuanxian.com/nzgx/static/img/voice_icon.png"
                 alt="">
         </view>
     </view>
@@ -134,7 +134,7 @@ onBeforeUnmount(() => {
 
 <style scoped>
 .audio-box2 {
-    background: url('http://159.138.147.87/statics/img/paper3.png') no-repeat;
+    background: url('https://applet.cdn.wanjuyuanxian.com/nzgx/static/img/paper3.png') no-repeat;
     background-size: 100% 100%;
     background-position: center;
     height: 121rpx;

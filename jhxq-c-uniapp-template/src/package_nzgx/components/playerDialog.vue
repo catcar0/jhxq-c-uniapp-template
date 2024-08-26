@@ -106,7 +106,7 @@ const audioList = ref<AudioItem[]>([
         <view class="dialog-inner">
             <view class="dialog-header">
                 <image v-if="!dialogObj.hideCloseIcon" class="close-icon" @tap="close"
-                    src="http://159.138.147.87/statics/img/close_icon.png" :mode="'widthFix'" />
+                    src="https://applet.cdn.wanjuyuanxian.com/nzgx/static/img/close_icon.png" :mode="'widthFix'" />
             </view>
             <text class="hyshtj font-player-gradient1 dialog-title">{{ dialogObj.title }}</text>
             <view
@@ -182,7 +182,7 @@ const audioList = ref<AudioItem[]>([
     display: flex;
     align-items: center;
     flex-direction: column;
-    background: url('http://159.138.147.87/statics/img/player_dialog_bg.png') no-repeat;
+    background: url('https://applet.cdn.wanjuyuanxian.com/nzgx/static/img/player_dialog_bg.png') no-repeat;
     background-size: 100% 100%;
     background-position: center;
     padding: 40rpx 50rpx 90rpx 50rpx;
@@ -237,7 +237,7 @@ const audioList = ref<AudioItem[]>([
     font-size: 28rpx;
     border-radius: 16px;
     font-weight: bold;
-    background: url('http://159.138.147.87/statics/img/player_dialog_btn1.png') no-repeat;
+    background: url('https://applet.cdn.wanjuyuanxian.com/nzgx/static/img/player_dialog_btn1.png') no-repeat;
     background-size: 100% 100%;
     background-position: center;
 }
@@ -251,7 +251,7 @@ const audioList = ref<AudioItem[]>([
     position: absolute;
     width: 185rpx;
     height: 95.5rpx;
-    background: url('http://159.138.147.87/statics/img/player_dialog_btn2.png') no-repeat;
+    background: url('https://applet.cdn.wanjuyuanxian.com/nzgx/static/img/player_dialog_btn2.png') no-repeat;
     background-size: 100% 100%;
     background-position: center;
     filter: brightness(100) contrast(100%) opacity(0.5);
@@ -260,7 +260,7 @@ const audioList = ref<AudioItem[]>([
 .input-box {
     width: 500rpx;
     height: 100rpx;
-    background: url('http://159.138.147.87/statics/img/dialog_input_bg.png') no-repeat;
+    background: url('https://applet.cdn.wanjuyuanxian.com/nzgx/static/img/dialog_input_bg.png') no-repeat;
     background-size: 100% 100%;
     background-position: center;
     font-weight: 600;
