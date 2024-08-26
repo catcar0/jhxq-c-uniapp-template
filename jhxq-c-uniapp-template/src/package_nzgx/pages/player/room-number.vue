@@ -100,11 +100,11 @@ const play = ({ avatar, nickname }: { avatar: string, nickname: string }) => {
                     </view>
                     <view v-show="item === 'backspace'" class="num-key-btn flex-row-center"
                         @tap="roomNumber = roomNumber.slice(0, -1); roomId = roomId.slice(0, -1)">
-                        <img class="icon" src="http://159.138.147.87/statics/img/backspace_icon.png" alt="">
+                        <img class="icon" src="https://applet.cdn.wanjuyuanxian.com/nzgx/static/img/backspace_icon.png" alt="">
                     </view>
                     <view v-show="item === 'clear'" class="num-key-btn flex-row-center"
                         @tap="roomNumber = ''; roomId = ''">
-                        <img class="icon1" src="http://159.138.147.87/statics/img/clear_icon.png" alt="">
+                        <img class="icon1" src="https://applet.cdn.wanjuyuanxian.com/nzgx/static/img/clear_icon.png" alt="">
                     </view>
                     <view v-show="item === '启'" class="num-key-btn flex-row-center" @tap="toPlay">
                         <text class="number">{{ item }}</text>
@@ -123,7 +123,7 @@ const play = ({ avatar, nickname }: { avatar: string, nickname: string }) => {
     align-items: center;
     justify-content: flex-end;
     flex-direction: column;
-    background: url('http://159.138.147.87/statics/img/room_bg.png') no-repeat;
+    background: url('https://applet.cdn.wanjuyuanxian.com/nzgx/static/img/room_bg.png') no-repeat;
     background-size: 100% 100%;
     background-position: center;
 }
@@ -137,7 +137,7 @@ const play = ({ avatar, nickname }: { avatar: string, nickname: string }) => {
 }
 
 .input {
-    background: url('http://159.138.147.87/statics/img/input_bg.png');
+    background: url('https://applet.cdn.wanjuyuanxian.com/nzgx/static/img/input_bg.png');
     background-size: contain;
     height: 108.5rpx;
     width: 445.5rpx;
@@ -156,7 +156,7 @@ const play = ({ avatar, nickname }: { avatar: string, nickname: string }) => {
 }
 
 .num-key-btn {
-    background: url('http://159.138.147.87/statics/img/number_bg.png');
+    background: url('https://applet.cdn.wanjuyuanxian.com/nzgx/static/img/number_bg.png');
     background-size: contain;
     width: 170rpx;
     height: 170rpx;

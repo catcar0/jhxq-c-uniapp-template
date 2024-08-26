@@ -136,10 +136,10 @@ const a = () =>{
                                     style="width: 20rpx;height: 20rpx;border-radius: 999rpx;background-color: red;position: absolute;margin-left: 100rpx;margin-top: -5rpx;">
                                 </view>
                                 <img class="clue-selected-border2" v-show="cluesIndex === index"
-                                    src="http://159.138.147.87/statics/img/cue_seleted.png" alt="">
+                                    src="https://applet.cdn.wanjuyuanxian.com/nzgx/static/img/cue_seleted.png" alt="">
                                 <view class="clue-small-image"
-                                    :style="{ backgroundImage: `url(http://159.138.147.87/statics/clues/${item.name}.png)` }">
-                                    <!-- <img class="clue-small-image"  :src="`http://159.138.147.87/statics/img/${item}.png`" alt=""> -->
+                                    :style="{ backgroundImage: `url(https://applet.cdn.wanjuyuanxian.com/nzgx/static/clues/${item.name}.png)` }">
+                                    <!-- <img class="clue-small-image"  :src="`https://applet.cdn.wanjuyuanxian.com/nzgx/static/img/${item}.png`" alt=""> -->
                                 </view>
                             </view>
                             <view v-if="allClues[item.name]" class="clue-name"><text>{{ allClues[item.name].name
@@ -176,7 +176,7 @@ const a = () =>{
                             <view style="height: 70vh;width: 100rpx;" class="flex-row-center">
                                 <img style="height: 100rpx;width: 50rpx;" @tap="replayIndex--"
                                     v-show="replayIndex !== 0 && memberStore.info?.teamInfo.replay.length > 1"
-                                    src="http://159.138.147.87/statics/img/left.png" alt="">
+                                    src="https://applet.cdn.wanjuyuanxian.com/nzgx/static/img/left.png" alt="">
                             </view>
                             <view>
                                 <view style="font-weight: 700;height: 100rpx;text-align: center;padding-top: 30rpx;">{{
@@ -197,7 +197,7 @@ const a = () =>{
                             <view style="height: 70vh;width: 100rpx;" class="flex-row-center">
                                 <img v-show="replayIndex !== memberStore.info?.teamInfo.replay.length && memberStore.info?.teamInfo.replay.length > 1 && memberStore.info?.teamInfo.replay[replayIndex + 1].hy.length !== 0"
                                     style="height: 80rpx;width: 50rpx;transform: rotate(180deg);" @tap="replayIndex++"
-                                    src="http://159.138.147.87/statics/img/left.png" alt="">
+                                    src="https://applet.cdn.wanjuyuanxian.com/nzgx/static/img/left.png" alt="">
                             </view>
                         </view>
                         <view @tap="replayIndex = -1" class="theme-button button">返回
@@ -219,7 +219,7 @@ const a = () =>{
     font-size: 28rpx;
     border-radius: 16px;
     font-weight: bold;
-    background: url('http://159.138.147.87/statics/img/player_dialog_btn1.png') no-repeat;
+    background: url('https://applet.cdn.wanjuyuanxian.com/nzgx/static/img/player_dialog_btn1.png') no-repeat;
     background-size: 100% 100%;
     background-position: center;
 }
@@ -243,7 +243,7 @@ const a = () =>{
     height: 83%;
     position: absolute;
     z-index: 11;
-    background: url('http://159.138.147.87/statics/img/make_old3.png') no-repeat;
+    background: url('https://applet.cdn.wanjuyuanxian.com/nzgx/static/img/make_old3.png') no-repeat;
     background-size: 100% 100%;
     background-position: center;
     mix-blend-mode: soft-light;
@@ -256,7 +256,7 @@ const a = () =>{
     height: 83%;
     position: absolute;
     z-index: 9999;
-    background: url('http://159.138.147.87/statics/img/make_old3.png') no-repeat;
+    background: url('https://applet.cdn.wanjuyuanxian.com/nzgx/static/img/make_old3.png') no-repeat;
     background-size: 100% 100%;
     background-position: center;
     mix-blend-mode: soft-light;
@@ -268,7 +268,7 @@ const a = () =>{
     color: #333333;
     width: 100%;
     height: 100vh;
-    background: url('http://159.138.147.87/statics/img/cue_set_bg.png') no-repeat;
+    background: url('https://applet.cdn.wanjuyuanxian.com/nzgx/static/img/cue_set_bg.png') no-repeat;
     background-size: 100% 100%;
     background-position: center;
 }
@@ -291,7 +291,7 @@ const a = () =>{
     width: 158rpx;
     height: 105rpx;
     margin-top: -40rpx;
-    background: url('http://159.138.147.87/statics/img/set_selected.png') no-repeat;
+    background: url('https://applet.cdn.wanjuyuanxian.com/nzgx/static/img/set_selected.png') no-repeat;
     background-size: 100% 100%;
     background-position: center;
     transform: rotate(-2deg);
@@ -300,7 +300,7 @@ const a = () =>{
 .class-not-selected {
     width: 158rpx;
     height: 105rpx;
-    background: url('http://159.138.147.87/statics/img/set_not_selected.png') no-repeat;
+    background: url('https://applet.cdn.wanjuyuanxian.com/nzgx/static/img/set_not_selected.png') no-repeat;
     background-size: 100% 100%;
     background-position: center;
     transform: rotate(-2deg);
@@ -317,7 +317,7 @@ const a = () =>{
     top: 125rpx;
     width: 120%;
     height: 87%;
-    background: url('http://159.138.147.87/statics/img/paper.png') no-repeat;
+    background: url('https://applet.cdn.wanjuyuanxian.com/nzgx/static/img/paper.png') no-repeat;
     background-size: 100% 100%;
     background-position: center;
 }
@@ -336,7 +336,7 @@ const a = () =>{
     font-size: 45.5rpx;
     display: flex;
     align-items: center;
-    background: url('http://159.138.147.87/statics/img/teaminfo_title_bg.png') no-repeat;
+    background: url('https://applet.cdn.wanjuyuanxian.com/nzgx/static/img/teaminfo_title_bg.png') no-repeat;
     background-size: 175rpx 70rpx;
     background-position: left;
 }
@@ -406,7 +406,7 @@ const a = () =>{
     display: flex;
     flex-wrap: wrap;
     gap: 30rpx;
-    background: url('http://159.138.147.87/statics/img/paper6.jpg') repeat;
+    background: url('https://applet.cdn.wanjuyuanxian.com/nzgx/static/img/paper6.jpg') repeat;
     background-size: 100% 100%;
 }
 

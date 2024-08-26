@@ -84,7 +84,7 @@ const hasUnreadClues = computed(() => {
     width: 220rpx;
     height: 120rpx;
     background-color: aliceblue;
-    background: url('http://159.138.147.87/statics/img/paper2.png') no-repeat;
+    background: url('https://applet.cdn.wanjuyuanxian.com/nzgx/static/img/paper2.png') no-repeat;
     background-size: 100% 100%;
     background-position: center;
     padding-left: 50rpx;

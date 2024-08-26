@@ -172,7 +172,7 @@ onUnmounted(() => {
         <CueSet v-if="memberStore.info" v-show="currentPage === 'CueSet'" :dialog-obj="dialogObj" :teamInfo="teamInfo"
             :currentPage="currentPage" :userInfo="userInfo" @updateDialogObj="updateDialogObj" />
         <view v-show="memberStore.info.flow[3].send !== 0" class="poster">
-            <image src="http://159.138.147.87/statics/img/haibao.png" mode="fill" />
+            <image src="https://applet.cdn.wanjuyuanxian.com/nzgx/static/img/haibao.png" mode="fill" />
         </view>
     </view>
 </template>
