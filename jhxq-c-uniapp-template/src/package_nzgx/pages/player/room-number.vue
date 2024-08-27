@@ -52,14 +52,51 @@ const play = ({ avatar, nickname }: { avatar: string, nickname: string }) => {
         title: '加载中'
     });
     const wsService = new WebSocketService(`token=${memberStore.profile.token}&room_id=${memberStore.roomId}&virtual_role_id=${memberStore.virtualRoleId}`);
+    // 监听连接错误或关闭事件
+    wsService.onError = (error) => {
+        console.error("WebSocket 连接失败", error);
+        uni.showToast({ icon: 'none', title: '数据异常，连接失败，请重新扫码' })
+        uni.exitMiniProgram({
+            success: function () {
+                uni.clearStorageSync();
+                console.log('退出小程序成功');
+            },
+            fail: function (err) {
+                console.log('退出小程序失败', err);
+            }
+        })
+        // 在这里可以添加错误处理逻辑
+    };
+
     // 监听 WebSocket 连接断开事件
     wsService.onClose = () => {
         // 在这里添加断开连接后的处理逻辑，例如重新连接或通知用户
         uni.showToast({ icon: 'none', title: '你已经断开连接' })
         if (webSocketStore.messages.slice(-1)[0] && webSocketStore.messages.slice(-1)[0].type && webSocketStore.messages.slice(-1)[0].type === 'kicked') {
-            // currentPage.value = 'RoomNumber'
             emit('page', 'RoomNumber')
             memberStore.roomId = ''
+            uni.showModal({
+                title: '提示',
+                content: '房间已经关闭或你已被踢出房间，请重新扫描二维码',
+                showCancel: false,
+                success: function (res) {
+                    if (res.confirm) {
+                        uni.exitMiniProgram({
+                            success: function () {
+                                uni.clearStorageSync();
+                                console.log('退出小程序成功');
+                            },
+                            fail: function (err) {
+                                console.log('退出小程序失败', err);
+                            }
+                        })
+                    } else {
+                        console.log('点击了取消')
+                    }
+                }
+            })
+        }else{
+            wsService.connect()
         }
     };
     wsService.connect()

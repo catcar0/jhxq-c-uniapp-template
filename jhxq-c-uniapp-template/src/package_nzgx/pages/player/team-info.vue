@@ -62,7 +62,7 @@ const updateInfo = (info: any) => {
 const changeAvatar = () => {
     uni.chooseImage({
         count: 1, // 只允许选择一张图片
-        sizeType: ['original', 'compressed'], // 可以指定是原图还是压缩图
+        sizeType: ['compressed'], // 可以指定是原图还是压缩图
         sourceType: ['album', 'camera'], // 可以指定来源是相册还是相机
         success: function (res) {
             const tempFilePath = res.tempFilePaths[0];

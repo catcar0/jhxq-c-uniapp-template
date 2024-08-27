@@ -30,6 +30,7 @@ const userIndex = computed(() => memberStore.virtualRoleId - 1)
 const changeTeamName = () => {
     const newInfo = memberStore.info
     newInfo.characters[userIndex.value].user = userName.value
+    webSocketStore.updateInfo(userName.value, memberStore.info.characters[memberStore.virtualRoleId - 1].playerAvatar)
     updateInfo(newInfo)
 }
 const close = () => {

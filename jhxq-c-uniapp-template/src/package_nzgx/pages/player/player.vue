@@ -121,6 +121,16 @@ onMounted(async () => {
     // 监听连接错误或关闭事件
     wsService.onError = (error) => {
         console.error("WebSocket 连接失败", error);
+        uni.showToast({ icon: 'none', title: '数据异常，连接失败，请重新扫码' })
+        uni.exitMiniProgram({
+            success: function () {
+                uni.clearStorageSync();
+                console.log('退出小程序成功');
+            },
+            fail: function (err) {
+                console.log('退出小程序失败', err);
+            }
+        })
         // 在这里可以添加错误处理逻辑
     };
 
@@ -131,14 +141,34 @@ onMounted(async () => {
         if (webSocketStore.messages.slice(-1)[0] && webSocketStore.messages.slice(-1)[0].type && webSocketStore.messages.slice(-1)[0].type === 'kicked') {
             currentPage.value = 'RoomNumber'
             memberStore.roomId = ''
+            uni.showModal({
+                title: '提示',
+                content: '房间已经关闭或你已被踢出房间，请重新扫描二维码',
+                showCancel: false,
+                success: function (res) {
+                    if (res.confirm) {
+                        uni.exitMiniProgram({
+                            success: function () {
+                                uni.clearStorageSync();
+                                console.log('退出小程序成功');
+                            },
+                            fail: function (err) {
+                                console.log('退出小程序失败', err);
+                            }
+                        })
+                    } else {
+                        console.log('点击了取消')
+                    }
+                }
+            })
         }
     };
     wsService.connect()
     // 监听 WebSocket 连接成功事件
     wsService.onOpen = () => {
-        uni.showToast({ icon: 'none', title: '你已经成功连接' })
+        // uni.showToast({ icon: 'none', title: '你已经成功连接' })
         console.log("WebSocket 连接成功");
-
+        currentPage.value = 'TeamInfo'
         // 连接成功后执行后续操作
         webSocketStore.gameWebSocketService = wsService;
         // webSocketStore.gameConnect();
@@ -161,8 +191,8 @@ onUnmounted(() => {
     <view>
         <dmDialog v-if="memberStore.info" :dialogObj="dialogObj" @cancel="closeDialog" @confirm="confirm"
             @page="pageJump" :userInfo="userInfo" />
-        <jump v-if="memberStore.info.flow[0].status !== 1" :hide-index="currentPage" @page="pageJump" :flow="flow"
-            :userInfo="userInfo" />
+        <jump v-if="memberStore.info.flow[0].status !== 1 && memberStore.roomId !== ''" :hide-index="currentPage"
+            @page="pageJump" :flow="flow" :userInfo="userInfo" />
 
         <RoomNumber v-show="currentPage === 'RoomNumber'" :dialog-obj="dialogObj" @updateDialogObj="updateDialogObj"
             @page="pageJump" />
