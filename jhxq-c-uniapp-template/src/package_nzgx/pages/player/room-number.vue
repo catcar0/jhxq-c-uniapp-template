@@ -15,7 +15,7 @@ const keys = ['壹', '贰', '叁', '肆', '伍', '陆', '柒', '捌', '玖', 'cl
 const roomNumber = ref('')
 const roomId = ref('')
 const loginVisible = ref<boolean>(false);
-
+const connectCount = ref<number>(0)
 const currentRoomId = (index: number) => {
     if (index >= 0 && index < 9) {
         roomId.value += index + 1 + ''
@@ -72,12 +72,12 @@ const play = ({ avatar, nickname }: { avatar: string, nickname: string }) => {
     wsService.onClose = () => {
         // 在这里添加断开连接后的处理逻辑，例如重新连接或通知用户
         uni.showToast({ icon: 'none', title: '你已经断开连接' })
-        if (webSocketStore.messages.slice(-1)[0] && webSocketStore.messages.slice(-1)[0].type && webSocketStore.messages.slice(-1)[0].type === 'kicked') {
+        if ((webSocketStore.messages.slice(-1)[0] && webSocketStore.messages.slice(-1)[0].type && webSocketStore.messages.slice(-1)[0].type === 'kicked') || connectCount.value ===3) {
             emit('page', 'RoomNumber')
             memberStore.roomId = ''
             uni.showModal({
                 title: '提示',
-                content: '房间已经关闭或你已被踢出房间，请重新扫描二维码',
+                content: '房间已经关闭或您已被踢出房间或您暂时无法加入该房间，请重新扫描二维码',
                 showCancel: false,
                 success: function (res) {
                     if (res.confirm) {
@@ -96,7 +96,11 @@ const play = ({ avatar, nickname }: { avatar: string, nickname: string }) => {
                 }
             })
         }else{
-            wsService.connect()
+            // 断开后尝试重新连接三次
+            if (connectCount.value < 3) {
+                connectCount.value ++
+                wsService.connect()
+            }
         }
     };
     wsService.connect()

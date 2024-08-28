@@ -72,7 +72,7 @@ const hasUnreadClues = computed(() => {
 
 .jump-box {
     position: fixed;
-    z-index: 10000;
+    z-index: 13000;
     left: -140rpx;
     bottom: -15rpx;
     transform: rotate(-0deg);
