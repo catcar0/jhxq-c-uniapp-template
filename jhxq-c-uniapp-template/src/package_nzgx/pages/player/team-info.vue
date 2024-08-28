@@ -60,31 +60,64 @@ const updateInfo = (info: any) => {
     )
 }
 const changeAvatar = () => {
-    uni.chooseImage({
-        count: 1, // 只允许选择一张图片
-        sizeType: ['compressed'], // 可以指定是原图还是压缩图
-        sourceType: ['album', 'camera'], // 可以指定来源是相册还是相机
-        success: function (res) {
-            const tempFilePath = res.tempFilePaths[0];
-            // 将图片转换为Base64格式
-            uni.getFileSystemManager().readFile({
-                filePath: tempFilePath,
-                encoding: 'base64',
-                success: function (fileRes) {
-                    // 保存到 memberStore.avatar
-                    const base64Image = 'data:image/png;base64,' + fileRes.data;
-                    memberStore.avatar = base64Image;
-                    memberStore.info.characters[memberStore.virtualRoleId - 1].playerAvatar = base64Image
-                    updateInfo(memberStore.info)
-                    webSocketStore.updateInfo(memberStore.info.characters[memberStore.virtualRoleId - 1].user, base64Image)
-                },
-                fail: function (err) {
-                    console.error('图片转换Base64失败', err);
-                }
-            });
+    // 首先获取token
+    uni.request({
+        url: 'http://kaiben.center.wanjuyuanxian.com/open/upload_token', // 获取token的接口
+        method: 'GET',
+        success: function (tokenRes) {
+            if (tokenRes.statusCode === 200) {
+                const token = tokenRes.data.data.token; // 获取到的token
+                
+                // 选择图片并上传
+                uni.chooseImage({
+                    count: 1, // 只允许选择一张图片
+                    sizeType: ['compressed'], // 可以指定是原图还是压缩图
+                    sourceType: ['album', 'camera'], // 可以指定来源是相册还是相机
+                    success: function (res) {
+                        const tempFilePath = res.tempFilePaths[0];
+                        const xFormat = '.png'; // 根据文档，设定文件后缀名
+                        
+                        // 使用uni.uploadFile上传图片
+                        uni.uploadFile({
+                            url: 'http://up-z2.qiniup.com/', // 替换为你实际的上传接口URL
+                            filePath: tempFilePath,
+                            name: 'file', // 对应接口中的file字段
+                            formData: {
+                                'x:format': xFormat,
+                                'token': token
+                            },
+                            success: function (uploadRes) {
+                                if (uploadRes.statusCode === 200) {
+                                    // 解析返回的JSON数据
+                                    const responseData = JSON.parse(uploadRes.data);
+                                    const uploadedImageUrl = responseData.key; // 从响应中获取图片的URL
+                                    
+                                    // 保存到 memberStore.avatar
+                                    memberStore.avatar = uploadedImageUrl;
+                                    memberStore.info.characters[memberStore.virtualRoleId - 1].playerAvatar = uploadedImageUrl;
+                                    updateInfo(memberStore.info);
+                                    webSocketStore.updateInfo(memberStore.info.characters[memberStore.virtualRoleId - 1].user, uploadedImageUrl);
+                                } else {
+                                    console.error('图片上传失败', uploadRes);
+                                }
+                            },
+                            fail: function (err) {
+                                console.error('上传图片失败', err);
+                            }
+                        });
+                    }
+                });
+            } else {
+                console.error('获取token失败', tokenRes);
+            }
+        },
+        fail: function (err) {
+            console.error('请求token失败', err);
         }
     });
 };
+
+
 const avatarList = ['clue22', 'clue25', 'clue23', 'clue24', 'clue26', 'clue27',]
 const showDialog = (e: any) => {
     console.log(e)
