@@ -16,7 +16,7 @@ export class WebSocketService {
   public onError: ((error: any) => void) | null = null;
   public onClose: (() => void) | null = null;
 
-  constructor(url: string, reconnectInterval: number = 5000,heartbeatInterval: number = 10000) {
+  constructor(url: string, reconnectInterval: number = 5000,heartbeatInterval: number = 30000) {
     let IsTestPlay = useMainAuthStore().IsTestPlay;
     this.url = (IsTestPlay ? DM_TEST_Api_Url : DM_Api_Url) + url;
     // this.url = 'ws://132.232.57.64:8030/?' + url;
