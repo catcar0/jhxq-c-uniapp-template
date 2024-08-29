@@ -52,13 +52,13 @@ const pageJump = (val: any) => {
     currentPage.value = val
 }
 watch(() => memberStore.info.teamInfo.replay, (a, b) => {
-    if (JSON.stringify(a) !== JSON.stringify(b)) {
-        console.log(a, b);
+    console.log(a, b);
+    if (JSON.stringify(a) !== JSON.stringify(b) && a!==undefined &&b!==undefined) {
         dialogObj.value.dialogVisible = true;
         dialogObj.value.title = '你收到新的复盘记录';
         dialogObj.value.content = '需要查看复盘记录吗';
         dialogObj.value.confirmText = '确定';
-        dialogObj.value.hideCloseIcon = true;
+        dialogObj.value.hideCloseIcon = false;
         dialogObj.value.type = 'newReplay';
     }
 },
