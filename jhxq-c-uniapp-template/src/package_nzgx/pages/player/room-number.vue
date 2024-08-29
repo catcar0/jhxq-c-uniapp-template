@@ -122,7 +122,7 @@ const play = ({ avatar, nickname }: { avatar: string, nickname: string }) => {
                         memberStore.info
                     )
                 }
-                if (IsTestPlay.value && Object.keys(memberStore.playerInfo.players).length > 3) {
+                if (IsTestPlay.value && Object.keys(memberStore.playerInfo.players).length > 4) {
                     uni.showToast({ icon: 'none', title: '无法加入' })
                     webSocketStore.gameClose()
                     return

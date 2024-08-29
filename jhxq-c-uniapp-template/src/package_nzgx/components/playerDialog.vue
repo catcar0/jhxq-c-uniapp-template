@@ -68,9 +68,8 @@ const confirm = () => {
         // jump('ZfMap')
     }
     if (props.dialogObj.type === 'success') {
-        const newInfo = memberStore.info
-        newInfo.characters[userIndex.value].cueset.clues.slice(-1)[0].type = 2
-        updateInfo(newInfo)
+        memberStore.info.characters[userIndex.value].cueset.clues.slice(-1)[0].type = 2
+        updateInfo(memberStore.info)
     }
     if (props.dialogObj.type === 'error') {
         const newInfo = memberStore.info
@@ -111,7 +110,7 @@ const audioList = ref<AudioItem[]>([
             </view>
             <text class="hyshtj font-player-gradient1 dialog-title">{{ dialogObj.title }}</text>
             <view
-                v-show="dialogObj.type === '个人线索发放+个人问题' || dialogObj.type === 'getClues' || dialogObj.type === 'success' || dialogObj.type === 'matchResult' || dialogObj.type === 'error' || dialogObj.type === 'submit'"
+                v-show="dialogObj.type === '个人线索发放+个人问题' || dialogObj.type === 'getClues' || dialogObj.type === 'success' || dialogObj.type === 'matchResult' || dialogObj.type === 'error' || dialogObj.type === 'submit' || dialogObj.type==='newReplay'"
                 class="dialog-content font-player-gradient1 ">
                 {{ dialogObj.content }}
             </view>

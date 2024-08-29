@@ -15,7 +15,8 @@ const props = defineProps({
     dialogObj: Object,
     userInfo: Object,
     teamInfo: Object,
-    currentPage:Object
+    currentPage:Object,
+    newReplay:Number
 });
 
 const audioList = ref([])
@@ -42,27 +43,46 @@ watch(
 const replayIndex = ref(-1)
 
 const sortedClues = ref();
-
+watch(() => memberStore.info.characters[memberStore.virtualRoleId - 1].cueset.clues, (a,b) => {
+    console.log(a,b,'新线索排序')
+    if (a.length !== b.length && a[a.length - 1].type !== 2 && a[a.length - 1].type !== 3) {
+        console.log('有新线索，触发排序')
+        setTimeout(() => {
+            sortClues()
+        }, 500);
+    }
+},
+{ deep: true })
 watch(() => props.currentPage, (a,b) => {
     sortClues()
     console.log(props.currentPage,'ccc')
 },
 { deep: true })
+watch(() => props.newReplay, (a,b) => {
+    classIndex.value = 2
+},
+{ deep: true })
 const sortClues = () => {
+    console.log('排序')
     const clues = memberStore.info.characters[memberStore.virtualRoleId - 1].cueset.clues;
 
     // 创建新数组并排序
     sortedClues.value = [...clues].sort((a, b) => {
+        // 先按照是否已读排序，未读的排在前面
         if (a.isRead === b.isRead) {
-            return 0; // 保持原有顺序
+            // 如果 isRead 相同，则按时间戳排序，时间戳大的（新的）排在前面
+            return b.timestamp - a.timestamp;
         } else if (a.isRead === false && b.isRead === true) {
             return -1; // a 排在 b 之前
         } else {
             return 1; // b 排在 a 之前
         }
     });
-    memberStore.info.characters[memberStore.virtualRoleId - 1].cueset.clues = sortedClues.value
+
+    // 更新排序后的线索列表
+    memberStore.info.characters[memberStore.virtualRoleId - 1].cueset.clues = sortedClues.value;
 };
+
 const updateInfo = (info: any) => {
     webSocketStore.gameSend(
         info
@@ -93,8 +113,12 @@ const firstClue = (index: number, name: string) => {
     cluesIndex.value === index ? cluesIndex.value = -1 : cluesIndex.value = 0;
     updateInfo(memberStore.info)
 }
-const a = () =>{        
-    addNewItem(0,'clue19',0,'audio','')
+
+const preview =(url:string) =>{
+    uni.previewImage({
+        urls: [url],
+        current: 0
+    });
 }
 </script>
 
@@ -109,15 +133,14 @@ const a = () =>{
         <view class="paper">
             <view v-show="classIndex !== 0" class="make-old"></view>
             <!-- 物品 -->
-            <view class="class-inner" v-show="classIndex === 0">
+            <view class="class-inner" v-show="classIndex === 0" >
                 <view class="player-title hyshtj ">
-                    <view class="font-player-gradient1" @tap="a">线索集</view>
+                    <view class="font-player-gradient1" >线索集</view>
                 </view>
-                <scroll-view scroll-y style="height: 71vh;">
                     <view v-if="cluesIndex !== -1" class="clue-big-image flex-row-center">
                         <img mode="heightFix"
                             :src="allClues[memberStore.info.characters[memberStore.virtualRoleId - 1].cueset.clues[cluesIndex].name].url + '.png'"
-                            alt="">
+                            alt="" @tap="preview(allClues[memberStore.info.characters[memberStore.virtualRoleId - 1].cueset.clues[cluesIndex].name].url + '.png')">
                     </view>
                     <view v-if="cluesIndex !== -1" class="flex-row-center clue-text">
                         {{ allClues[memberStore.info.characters[memberStore.virtualRoleId -
@@ -125,6 +148,7 @@ const a = () =>{
                         <!-- {{ allClues[memberStore.info.characters[memberStore.virtualRoleId -
                             1].cueset.clues[cluesIndex].name].name }} -->
                     </view>
+                    <scroll-view scroll-y  :style="{maxHeight: cluesIndex === -1? '71vh':'29vh'}">
                     <view class="clues-box flex-row-center">
                         <!-- <view class="make-old2"></view> -->
                         <view
@@ -166,7 +190,7 @@ const a = () =>{
                     <view class="font-player-gradient1">调查记录</view>
                 </view>
                 <scroll-view scroll-y style="width: 625rpx;height: 71vh;padding-top: 20rpx;">
-                    <view @tap="replayIndex = index" v-if="replayIndex === -1" v-show="item.hy.length !== 0"
+                    <view @tap="replayIndex = index" v-if="replayIndex === -1" v-show="item.hy.length !== 0 || item.xa.length !== 0"
                         class="audio-box flex-row-sb" v-for="(item, index) in memberStore.info?.teamInfo.replay" :key="index">
                         {{ item.name }}
                     </view>

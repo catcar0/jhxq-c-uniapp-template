@@ -5,6 +5,20 @@ import { useWebSocketStore } from '@/package_nzgx/stores'
 const memberStore = useMemberStore()
 const webSocketStore = useWebSocketStore();
 const props = defineProps<{ hideIndex: string, flow: any, userInfo: any }>()
+
+const isSpecificFlowActive = computed(() => {
+    return props.flow?.inner.some((item: { title: string,status:number }) => {
+        return (
+            // (item.title === '开启逐风' && item.status === 3) ||
+            (
+                (item.title === '找尸体' ||
+                item.title === '音频搜证' ||
+                item.title === '地图搜证') &&
+                item.status === 2
+            )
+        );
+    });
+});
 const emit = defineEmits(["page"]);
 const pages = computed(() => {
     return [
@@ -25,43 +39,56 @@ const pages = computed(() => {
         }
     ];
 });
-const canJump = ref([false,false,false])
+const canJump = ref([false, false, false])
 const flowIndex = computed(() => {
-    console.log(memberStore.info.teamInfo.flowIndex,'flowindex');
-  return memberStore.info.teamInfo.flowIndex;
+    console.log(memberStore.info.teamInfo.flowIndex, 'flowindex');
+    return memberStore.info.teamInfo.flowIndex;
 });
-watch(() => flowIndex, (a,b) => {
+watch(() => flowIndex, (a, b) => {
     emit('page', 'TeamInfo');
 },
-{ deep: true })
-const jump = (url: string, status: string,index:number) => {
+    { deep: true })
+const jump = (url: string, status: string, index: number) => {
     if (!canJump.value[index]) {
         canJump.value[index] = true
         return
     }
     if (status === '0') return
     emit('page', url);
-    canJump.value = [false,false,false]
+    canJump.value = [false, false, false]
 }
 const hasUnreadClues = computed(() => {
-  const clues = memberStore.info.characters[memberStore.virtualRoleId - 1].cueset.clues;
-  
-  // 检查是否存在未读的线索
-  return clues.some(clue => clue.isRead === false);
+    const clues = memberStore.info.characters[memberStore.virtualRoleId - 1].cueset.clues;
+
+    // 检查是否存在未读的线索
+    return clues.some(clue => clue.isRead === false);
 });
 </script>
 
 <template>
     <view class="jump-box hyshtj">
-        <view v-show="hideIndex !== item.url" @tap="jump(item.url, item.status,index)" v-for="(item, index) in pages"
-            :key="index" class="paper flex-row-center " :class="[item.status === '0' ? 'hide' : '',canJump[index] ? 'expand' : '']">
+        <view v-show="hideIndex !== item.url" @tap="jump(item.url, item.status, index)" v-for="(item, index) in pages"
+            :key="index" class="paper flex-row-center "
+            :class="[item.status === '0' ? 'hide' : '', canJump[index] ? 'expand' : '']">
             <text class="font-player-gradient1">{{ item.name }}</text>
-            <view v-if="hasUnreadClues && item.name==='线索集'" style="width: 20rpx;height: 20rpx;border-radius: 999rpx;background-color: red;position: absolute;margin-left: 150rpx;margin-top: -90rpx;"></view>
+            <view v-if="hasUnreadClues && item.name === '线索集'" class="redPoint"></view>
+            <view v-if="isSpecificFlowActive && item.name === '逐风'"
+                class="redPoint"></view>
         </view>
     </view>
 </template>
 
 <style scoped>
+.redPoint {
+    width: 20rpx;
+    height: 20rpx;
+    border-radius: 999rpx;
+    background-color: red;
+    position: absolute;
+    margin-left: 150rpx;
+    margin-top: -90rpx;
+}
+
 .expand {
     margin-left: 70rpx;
 }
@@ -74,7 +101,7 @@ const hasUnreadClues = computed(() => {
     position: fixed;
     z-index: 13000;
     left: -140rpx;
-    bottom: -15rpx;
+    bottom: 35rpx;
     transform: rotate(-0deg);
 
 }

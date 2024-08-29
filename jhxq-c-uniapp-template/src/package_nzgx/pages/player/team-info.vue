@@ -160,17 +160,17 @@ const showDialog = (e: any) => {
                     <img class="edit-icon" src="https://applet.cdn.wanjuyuanxian.com/nzgx/static/img/edit_icon.png" alt="">
                 </view>
                 <view class="team-name font-player-gradient1">
-                    啥都接公司:天下无敌第一小分队
+                    啥都接公司: {{ memberStore.info.teamInfo.name }} 小分队
                 </view>
                 <view class="team-level font-player-gradient1">
-                    队伍等级:
+                    <text>队伍等级:</text>
                     <img v-if="teamInfo!.score === 0" class="level-icon" src="https://applet.cdn.wanjuyuanxian.com/nzgx/static/img/wu.png" alt="">
                     <img v-if="teamInfo!.score === 1" class="level-icon" src="https://applet.cdn.wanjuyuanxian.com/nzgx/static/img/ren.png" alt="">
                     <img v-if="teamInfo!.score === 2" class="level-icon" src="https://applet.cdn.wanjuyuanxian.com/nzgx/static/img/di.png" alt="">
                     <img v-if="teamInfo!.score === 3" class="level-icon" src="https://applet.cdn.wanjuyuanxian.com/nzgx/static/img/tian.png" alt="">
                 </view>
                 <view class="exp font-player-gradient1">
-                    个人经验:
+                    <text>个人经验: </text>
                     <view class="exp-icon"></view>
                     <view class="exp-border flex-row-center">
                         <img v-if="userInfo!.score > 400" class="ding-icon"

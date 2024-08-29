@@ -7,14 +7,13 @@ const memberStore = useMemberStore()
 const webSocketStore = useWebSocketStore();
 import { defineProps, defineEmits } from 'vue';
 import { addNewItem } from '@/package_nzgx/services/info';
-
 const props = defineProps({
     dialogObj: Object,
     userInfo: Object,
     flow: Object
 });
 
-const emit = defineEmits(['updateDialogObj']);
+const emit = defineEmits(['updateDialogObj', "page"]);
 
 const modifyDialog = () => {
     dialogObj.value.dialogVisible = true
@@ -34,42 +33,26 @@ const dialogObj = ref({
     hideCloseIcon: false,
     clue: ''
 })
-const isRotate = ref(false)
-const isScale = ref(false)
-const ani = () => {
-    setTimeout(() => {
-        isRotate.value = !isRotate.value
-    }, 1000);
-    setTimeout(() => {
-        isScale.value = !isScale.value
-    }, 2000);
-}
 const userIndex = computed(() => memberStore.virtualRoleId - 1)
 const faq = (item: any) => {
+    console.log('faq',item)
     let newContent = '';
     item.qa.forEach(itema => {
         const questionText = itema.question.replace(/^\d+\.\s*/, '');
         newContent += questionText + '\n';
     });
-    dialogObj.value.dialogVisible = true
     dialogObj.value.title = '你当前收到一条个人任务'
     dialogObj.value.confirmText = '确定'
     dialogObj.value.content = newContent
     dialogObj.value.type = 'newTask2'
+    modifyDialog()
 }
 const updateInfo = (info: any) => {
     webSocketStore.gameSend(
         info
     )
 }
-const updateClues = () => {
-    const newInfo = memberStore.info
-    newInfo.characters[userIndex.value].cueset.clues.forEach(element => {
-        element.isNew = false
-        element.type = 0
-    });
-    updateInfo(newInfo)
-}
+
 const getStatus = (title: string) => {
     return computed(() => props.flow?.inner.find((item: { title: string; }) => item.title === title)?.status ?? 3);
 };
@@ -160,74 +143,6 @@ watch(() => memberStore.info.flow[memberStore.info.teamInfo.flowIndex].inner.fin
     }
 },
     { deep: true })
-const requiredClues = ['clue1', 'clue2', 'clue3', 'clue4'];
-const clue5 = ref(false)
-watch(() => memberStore.info.characters[userIndex.value].cueset.clues, () => {
-    const newclue = memberStore.info.characters[userIndex.value].cueset.clues.slice(-1)[0];
-    if (!newclue) {
-        return
-    }
-    const clues = memberStore.info.characters[userIndex.value].cueset.clues;
-
-    // 检查 cueset.clues 是否包含 name 为 clue1 到 clue4 的所有线索
-    const hasAllClues = requiredClues.every(clueName =>
-        clues.some(clue => clue.name === clueName)
-    );
-
-    // 检查 cueset.clues 是否已经包含 clue5
-    const hasClue5 = clues.some(clue => clue.name === 'clue5');
-
-    if (hasAllClues && !hasClue5 && !clue5.value && newclue.name !== 'clue5') {
-        clue5.value = true
-        setTimeout(() => {
-            // addNewItem(-1, 'clue5', 0, 'clues', '');
-            memberStore.info.characters[userIndex.value].cueset.clues.push({
-                name: 'clue5',
-                isNew: true,
-                isRead: false,
-                type: 0
-            })
-        }, 3000);
-    }
-    if (newclue.isNew) {
-        switch (newclue.type) {
-            case 0:
-                isNewClueShow.value = true;
-                isDeepClue.value = false;
-                newClueSrc.value = `https://applet.cdn.wanjuyuanxian.com/nzgx/static/clues/${newclue.name}.png`;
-                break;
-            case 1:
-                dialogObj.value.title = '获得新线索';
-                dialogObj.value.content = '您获得新的6条个人线索，请前往线索集查看';
-                dialogObj.value.type = 'getClues';
-                dialogObj.value.confirmText = '查看';
-                modifyDialog();
-                break;
-            case 2:
-                console.log('2')
-                isRotate.value = false
-                isScale.value = false
-                isNewClueShow.value = true;
-                isDeepClue.value = true;
-                newClueSrc.value = allClues[newclue.name].url + '.png';
-                oldClueSrc.value = allClues[newclue.deepClue].url + '.png';
-                break;
-            case 3:
-                dialogObj.value.title = '个人任务成功';
-                dialogObj.value.content = '获得一条深入线索';
-                dialogObj.value.type = 'success';
-                dialogObj.value.confirmText = '查看';
-                // memberStore.info.characters[userIndex.value].cueset.clues.slice(-1)[0].type = 2
-                memberStore.info.characters[userIndex.value].mask.slice(-1)[0].type = 2;
-                modifyDialog();
-                break;
-            default:
-                // 处理未定义的类型
-                console.warn('未处理的线索类型:', newclue.type);
-        }
-    }
-},
-    { deep: true })
 
 const filterLocations = (list: any) => {
     if (dtStatus.value === 2) {
@@ -253,33 +168,8 @@ const mapSerch = (clue: string, id: number, isShow: boolean) => {
 }
 </script>
 <template>
-    <!-- 新线索+深入线索动画弹窗 -->
-    <view class="newClue-mask flex-row-center" v-if="isNewClueShow">
-        <view :class="isScale ? 'notScale' : 'isScale'" v-if="isDeepClue"
-            style="transition: all 2s;;position: absolute;z-index: 13000;width: 100%;height: 100%;display: flex;align-items: center;justify-content: center;padding-bottom: 120rpx;">
-            <img mode='aspectFit' class="newClue-img-A" :class="isRotate ? 'newClue-img-A-rotate' : ''" @tap="ani()"
-                :src="oldClueSrc" alt="">
-            <view
-                style="transform: rotateY(180deg);width: 100%;height: 100%;display: flex;align-items: center;justify-content: center;">
-                <img mode='aspectFit' class="newClue-img-B" :class="isRotate ? 'newClue-img-B-rotate' : 'hide'"
-                    :src="newClueSrc" alt="">
-            </view>
-        </view>
-        <view class="newClue flex-column-sb-center" :class="isDeepClue ? isScale ? 'show' : 'hide' : ''">
-            <view class="newClue-title hyshtj">
-                {{ isDeepClue ? " 获得一条深入线索" : " 获得一条新线索" }}
-            </view>
-            <img class="newClue-img" :style="{ opacity: isDeepClue ? '0' : '1' }" :src="newClueSrc" alt=""
-                mode="heightFix">
-            <view style="">这里看起来似乎有些不同寻常</view>
-            <view class="theme-button2 button" @tap="isNewClueShow = false; updateClues()">
-                <view class="theme-button-clear"></view>
-                <view class="newClue-btn-text hyshtj">收入线索集</view>
-            </view>
-        </view>
-    </view>
 
-    <view class="map" >
+    <view class="map">
         <!-- 地图搜证 -->
         <view class="map-search" v-for="(item, index) in filterLocations(memberStore.info.locationList)"
             :key="item.name" v-if="(zstStatus === 2 && ypStatus === 0) || (dtStatus === 2 && glStatus === 0)"
@@ -686,10 +576,11 @@ const mapSerch = (clue: string, id: number, isShow: boolean) => {
 @import url("@/package_nzgx/static/fonts/stylesheet.css");
 @import url("@/package_nzgx/styles/common.css");
 
-.almm{
-  font-family: 'Alimama ShuHeiTi';
+.almm {
+    font-family: 'Alimama ShuHeiTi';
 }
-.hyshtj{
-  font-family: 'hyshtj';
+
+.hyshtj {
+    font-family: 'hyshtj';
 }
 </style>

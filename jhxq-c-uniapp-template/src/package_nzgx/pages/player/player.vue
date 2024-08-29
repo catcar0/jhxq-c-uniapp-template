@@ -11,10 +11,11 @@ import { useMemberStore } from '@/package_nzgx/stores'
 import { useWebSocketStore } from '@/package_nzgx/stores'
 import { WebSocketService } from '@/package_nzgx/services/WebSocketService';
 import { initAllInfo, updateOriFlowInfo } from '@/package_nzgx/services/initInfo';
-import { updateOriClueInfo } from '@/package_nzgx/services/clues';
+import { allClues, updateOriClueInfo } from '@/package_nzgx/services/clues';
 const memberStore = useMemberStore()
 const webSocketStore = useWebSocketStore();
 const currentPage = ref('RoomNumber')
+const newReplay = ref(0)
 const dialogObj = ref({
     dialogVisible: false,
     title: '请输入您的昵称',
@@ -33,6 +34,10 @@ const closeDialog = (val: any) => {
 const confirm = (val: any) => {
     console.log(val)
     dialogObj.value.dialogVisible = false
+    if (dialogObj.value.type === 'newReplay') {
+        currentPage.value = 'CueSet'
+        newReplay.value++
+    }
 }
 const updateInfo = (info: any) => {
     webSocketStore.gameSend(
@@ -46,7 +51,18 @@ const pageJump = (val: any) => {
     console.log(val)
     currentPage.value = val
 }
-
+watch(() => memberStore.info.teamInfo.replay, (a, b) => {
+    if (JSON.stringify(a) !== JSON.stringify(b)) {
+        console.log(a, b);
+        dialogObj.value.dialogVisible = true;
+        dialogObj.value.title = '你收到新的复盘记录';
+        dialogObj.value.content = '需要查看复盘记录吗';
+        dialogObj.value.confirmText = '确定';
+        dialogObj.value.hideCloseIcon = true;
+        dialogObj.value.type = 'newReplay';
+    }
+},
+    { deep: true })
 watch(() => memberStore.info.characters[memberStore.virtualRoleId - 1].mask, (a, b) => {
     console.log(a, b)
     if (a.length === 0 || b.length === 0) {
@@ -102,6 +118,121 @@ watch(() => glContent.value.status, (a, b) => {
 const teamInfo = computed(() => memberStore.info?.teamInfo)
 const userInfo = computed(() => memberStore.info?.characters[memberStore.virtualRoleId - 1])
 const flow = computed(() => memberStore.info?.flow[memberStore.info.teamInfo.flowIndex])
+const isNewClueShow = ref(false)
+const isDeepClue = ref(false)
+const newClueSrc = ref('https://applet.cdn.wanjuyuanxian.com/nzgx/static/img/clue2.png')
+const oldClueSrc = ref('https://applet.cdn.wanjuyuanxian.com/nzgx/static/img/clue1.png')
+const requiredClues = ['clue1', 'clue2', 'clue3', 'clue4'];
+const isRotate = ref(false)
+const isScale = ref(false)
+const clue5 = ref(false)
+const userIndex = computed(() => memberStore.virtualRoleId - 1)
+const sortedClues = ref();
+const sortClues = () => {
+    console.log('排序')
+    const clues = memberStore.info.characters[memberStore.virtualRoleId - 1].cueset.clues;
+
+    // 创建新数组并排序
+    sortedClues.value = [...clues].sort((a, b) => {
+        // 先按照是否已读排序，未读的排在前面
+        if (a.isRead === b.isRead) {
+            // 如果 isRead 相同，则按时间戳排序，时间戳大的（新的）排在前面
+            return b.timestamp - a.timestamp;
+        } else if (a.isRead === false && b.isRead === true) {
+            return -1; // a 排在 b 之前
+        } else {
+            return 1; // b 排在 a 之前
+        }
+    });
+
+    // 更新排序后的线索列表
+    memberStore.info.characters[memberStore.virtualRoleId - 1].cueset.clues = sortedClues.value;
+};
+const updateClues = () => {
+    const newInfo = memberStore.info
+    newInfo.characters[userIndex.value].cueset.clues.forEach(element => {
+        element.isNew = false
+        element.type = 0
+    });
+    sortClues()
+    updateInfo(newInfo)
+}
+const ani = () => {
+    setTimeout(() => {
+        isRotate.value = !isRotate.value
+    }, 1000);
+    setTimeout(() => {
+        isScale.value = !isScale.value
+    }, 2000);
+}
+watch(() => memberStore.info.characters[userIndex.value].cueset.clues, () => {
+    const newclue = memberStore.info.characters[userIndex.value].cueset.clues.slice(-1)[0];
+    if (!newclue) {
+        return
+    }
+    const clues = memberStore.info.characters[userIndex.value].cueset.clues;
+
+    // 检查 cueset.clues 是否包含 name 为 clue1 到 clue4 的所有线索
+    const hasAllClues = requiredClues.every(clueName =>
+        clues.some(clue => clue.name === clueName)
+    );
+
+    // 检查 cueset.clues 是否已经包含 clue5
+    const hasClue5 = clues.some(clue => clue.name === 'clue5');
+
+    if (hasAllClues && !hasClue5 && !clue5.value && newclue.name !== 'clue5') {
+        clue5.value = true
+        setTimeout(() => {
+            // addNewItem(-1, 'clue5', 0, 'clues', '');
+            memberStore.info.characters[userIndex.value].cueset.clues.push({
+                name: 'clue5',
+                isNew: true,
+                isRead: false,
+                type: 0,
+                timestamp: Date.now() // 当前时间戳
+            })
+            // sortClues()
+        }, 3000);
+    }
+    if (newclue.isNew) {
+        switch (newclue.type) {
+            case 0:
+                isNewClueShow.value = true;
+                isDeepClue.value = false;
+                newClueSrc.value = `https://applet.cdn.wanjuyuanxian.com/nzgx/static/clues/${newclue.name}.png`;
+                break;
+            case 1:
+                dialogObj.value.title = '获得新线索';
+                dialogObj.value.content = '您获得新的6条个人线索，请前往线索集查看';
+                dialogObj.value.type = 'getClues';
+                dialogObj.value.confirmText = '查看';
+                dialogObj.value.dialogVisible = true
+                break;
+            case 2:
+                console.log('2')
+                isRotate.value = false
+                isScale.value = false
+                isNewClueShow.value = true;
+                isDeepClue.value = true;
+                newClueSrc.value = allClues[newclue.name].url + '.png';
+                oldClueSrc.value = allClues[newclue.deepClue].url + '.png';
+                break;
+            case 3:
+                dialogObj.value.title = '个人任务成功';
+                dialogObj.value.content = '获得一条深入线索';
+                dialogObj.value.type = 'success';
+                dialogObj.value.confirmText = '查看';
+                // memberStore.info.characters[userIndex.value].cueset.clues.slice(-1)[0].type = 2
+                memberStore.info.characters[userIndex.value].mask.slice(-1)[0].type = 2;
+                dialogObj.value.dialogVisible = true
+                break;
+            default:
+                // 处理未定义的类型
+                console.warn('未处理的线索类型:', newclue.type);
+        }
+    }
+},
+    { deep: true })
 onMounted(async () => {
     // 获取最新的原始流程信息和线索集信息
     uni.showLoading({
@@ -189,6 +320,31 @@ onUnmounted(() => {
 
 <template>
     <view>
+        <!-- 新线索+深入线索动画弹窗 -->
+        <view class="newClue-mask flex-row-center" v-if="isNewClueShow">
+            <view :class="isScale ? 'notScale' : 'isScale'" v-if="isDeepClue"
+                style="transition: all 2s;;position: absolute;z-index: 13000;width: 100%;height: 100%;display: flex;align-items: center;justify-content: center;padding-bottom: 120rpx;">
+                <img mode='aspectFit' class="newClue-img-A" :class="isRotate ? 'newClue-img-A-rotate' : ''" @tap="ani()"
+                    :src="oldClueSrc" alt="">
+                <view
+                    style="transform: rotateY(180deg);width: 100%;height: 100%;display: flex;align-items: center;justify-content: center;">
+                    <img mode='aspectFit' class="newClue-img-B" :class="isRotate ? 'newClue-img-B-rotate' : 'hide'"
+                        :src="newClueSrc" alt="">
+                </view>
+            </view>
+            <view class="newClue flex-column-sb-center" :class="isDeepClue ? isScale ? 'show' : 'hide' : ''">
+                <view class="newClue-title hyshtj">
+                    {{ isDeepClue ? " 获得一条深入线索" : " 获得一条新线索" }}
+                </view>
+                <img class="newClue-img" :style="{ opacity: isDeepClue ? '0' : '1' }" :src="newClueSrc" alt=""
+                    mode="aspectFit">
+                <view style="">这里看起来似乎有些不同寻常</view>
+                <view class="theme-button2 button" @tap="isNewClueShow = false; updateClues()">
+                    <view class="theme-button-clear"></view>
+                    <view class="newClue-btn-text hyshtj">收入线索集</view>
+                </view>
+            </view>
+        </view>
         <dmDialog v-if="memberStore.info" :dialogObj="dialogObj" @cancel="closeDialog" @confirm="confirm"
             @page="pageJump" :userInfo="userInfo" />
         <jump v-if="memberStore.info.flow[0].status !== 1 && memberStore.roomId !== ''" :hide-index="currentPage"
@@ -198,12 +354,12 @@ onUnmounted(() => {
             @page="pageJump" />
         <TeamInfo v-if="memberStore.info" v-show="currentPage === 'TeamInfo'" :dialog-obj="dialogObj"
             :teamInfo="teamInfo" :userInfo="userInfo" @updateDialogObj="updateDialogObj" />
-        <ZfMap v-if="memberStore.info" v-show="currentPage === 'ZfMap'" :dialog-obj="dialogObj"
+        <ZfMap v-if="memberStore.info" v-show="currentPage === 'ZfMap'" :dialog-obj="dialogObj" @page="pageJump"
             @updateDialogObj="updateDialogObj" :flow="flow" :userInfo="userInfo" />
         <Gualing v-if="memberStore.info" v-show="currentPage === 'Gualing'" :dialog-obj="dialogObj"
             @updateDialogObj="updateDialogObj" />
         <CueSet v-if="memberStore.info" v-show="currentPage === 'CueSet'" :dialog-obj="dialogObj" :teamInfo="teamInfo"
-            :currentPage="currentPage" :userInfo="userInfo" @updateDialogObj="updateDialogObj" />
+            :newReplay="newReplay" :currentPage="currentPage" :userInfo="userInfo" @updateDialogObj="updateDialogObj" />
         <view v-show="memberStore.info.flow[3].send !== 0" class="poster">
             <image src="https://applet.cdn.wanjuyuanxian.com/nzgx/static/img/haibao.png" mode="fill" />
         </view>
@@ -211,6 +367,130 @@ onUnmounted(() => {
 </template>
 
 <style scoped>
+.theme-button2 {
+    width: 245rpx;
+    position: relative;
+    z-index: 14000;
+    line-height: 124.5rpx;
+    font-size: 28rpx;
+    /* border-radius: 16px; */
+    font-weight: bold;
+    background: url('https://applet.cdn.wanjuyuanxian.com/nzgx/static/img/new_clue_btn.png') no-repeat;
+    background-size: 100% 100%;
+    background-position: center;
+}
+
+.theme-button-clear {
+    position: absolute;
+    width: 185rpx;
+    height: 95.5rpx;
+    background: url('https://applet.cdn.wanjuyuanxian.com/nzgx/static/img/player_dialog_btn2.png') no-repeat;
+    background-size: 100% 100%;
+    background-position: center;
+    filter: brightness(100) contrast(100%) opacity(0.5);
+}
+.show {
+    opacity: 1;
+    animation: 1s changeShow;
+}
+
+.hide {
+    opacity: 0;
+}
+
+.isScale {
+    transform: scale(1.5)
+}
+
+.notScale {
+    transform: scale(1.1)
+}
+
+.newClue-mask {
+    width: 100%;
+    height: 100vh;
+    position: fixed;
+    z-index: 12000;
+    background-color: rgba(0, 0, 0, 0.6);
+}
+
+.newClue-img {
+    opacity: 0;
+    width: 70%;
+}
+
+.newClue-img-A-rotate {
+    transform: rotateY(180deg);
+    opacity: 0;
+}
+
+.newClue-img-B-rotate {
+    transform: rotateY(180deg);
+    opacity: 1;
+}
+
+.hide {
+    opacity: 0;
+}
+
+.newClue-img-A {
+    width: 100%;
+    position: absolute;
+    transition: all 2s;
+    z-index: 1;
+    backface-visibility: hidden;
+}
+
+.newClue-img-B {
+    width: 100%;
+    position: absolute;
+    transition: all 2s;
+    object-fit: contain;
+    /* transform: rotatey(1turn); */
+}
+
+.newClue-title {
+    font-size: 35rpx;
+    margin-top: -20rpx;
+    pointer-events: all;
+}
+
+.newClue {
+    height: 900rpx;
+    width: 90%;
+    background: url('https://applet.cdn.wanjuyuanxian.com/nzgx/static/img/paper5.png') no-repeat;
+    background-size: 100% 100%;
+    background-position: center;
+    padding: 100rpx;
+    box-sizing: border-box;
+}
+
+@keyframes changeShow {
+    0% {
+        opacity: 0;
+    }
+
+    100% {
+        opacity: 1;
+    }
+}
+
+.newClue-btn-text {
+    margin-top: -18rpx;
+    -webkit-text-stroke: 2rpx #670100;
+    -webkit-text-fill-color: #F4E7D3;
+    font-size: 32rpx;
+    color: #fff;
+    font-weight: 400;
+}
+
+.out-btn {
+    position: absolute;
+    margin-top: -80rpx;
+    margin-right: -80rpx;
+    width: 40rpx;
+    height: 40rpx;
+}
 .poster {
     width: 100%;
     height: 100%;

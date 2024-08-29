@@ -17,10 +17,11 @@ export const addNewItem = (userIndex:number,clue: string, type: number, itemType
         memberStore.info.characters[index].cueset[itemType].push(
             {
                 name: clue,
-                isNew: isCurrentRole,
+                isNew: true,
                 deepClue: deepClue,
                 type: type,
-                isRead:false
+                isRead:false,
+                timestamp: Date.now() // 当前时间戳
             }
         );
     }
