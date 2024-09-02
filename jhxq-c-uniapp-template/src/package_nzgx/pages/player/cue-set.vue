@@ -309,6 +309,8 @@ const preview =(url:string) =>{
 .class-name {
     margin-top: -20rpx;
     transform: rotate(2deg);
+    font-weight: 700;
+    font-size: 30rpx;
 }
 
 .class-selected {

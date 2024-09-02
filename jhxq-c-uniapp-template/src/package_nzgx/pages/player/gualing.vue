@@ -239,11 +239,11 @@ const submit = (status: number) => {
                     v-if="glIndex !== -1 && (qaList.qa[glIndex].question === '凶手是谁？' || qaList.qa[glIndex].question === '谁会担心春天举报成功？')">
                     <view>{{ qaList.qa[glIndex].question }}</view>
                     <scroll-view scroll-y style="height: 60vh;">
-                        <img class="clue-selected-border3" v-show="cluesIndex !== -1"
+                        <img class="clue-selected-border3" v-show="cluesIndex !== -1 && cluesIndex <=6 "
                             src="https://applet.cdn.wanjuyuanxian.com/nzgx/static/img/cue_seleted2.png" alt="">
-                        <img v-if="cluesIndex !== -1 && allClues[memberStore.info.characters[memberStore.virtualRoleId - 1].cueset.clues[cluesIndex].name].url"
+                        <img v-if="cluesIndex !== -1 && cluesIndex <=6  &&  allClues[memberStore.info.characters[memberStore.virtualRoleId - 1].cueset.clues[cluesIndex].name].url"
                             class="clue-big-image" :src="allClues[avatarList[cluesIndex]].url + '.png'" alt="">
-                        <view v-if="cluesIndex !== -1" class="flex-row-center clue-text">
+                        <view v-if="cluesIndex !== -1 && cluesIndex <=6 " class="flex-row-center clue-text">
                             {{ allClues[avatarList[cluesIndex]].content1 }}
                             {{ allClues[avatarList[cluesIndex]].name }}
                         </view>

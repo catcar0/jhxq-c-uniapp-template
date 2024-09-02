@@ -101,7 +101,7 @@ const hasUnreadClues = computed(() => {
     position: fixed;
     z-index: 13000;
     left: -140rpx;
-    bottom: 35rpx;
+    bottom: 85rpx;
     transform: rotate(-0deg);
 
 }

@@ -48,7 +48,7 @@ const rankList = computed(() => {
 const dialogObj = ref({
     dialogVisible: false,
     title: '请输入您的昵称',
-    content: '推荐使用昵称不超过五个字',
+    content: '推荐使用昵称不超过十个字',
     confirmText: '确定',
     cancelText: '取消',
     showCancel: false, // 是否显示按钮
@@ -67,7 +67,7 @@ const changeAvatar = () => {
         success: function (tokenRes) {
             if (tokenRes.statusCode === 200) {
                 const token = tokenRes.data.data.token; // 获取到的token
-                
+
                 // 选择图片并上传
                 uni.chooseImage({
                     count: 1, // 只允许选择一张图片
@@ -76,7 +76,7 @@ const changeAvatar = () => {
                     success: function (res) {
                         const tempFilePath = res.tempFilePaths[0];
                         const xFormat = '.png'; // 根据文档，设定文件后缀名
-                        
+
                         // 使用uni.uploadFile上传图片
                         uni.uploadFile({
                             url: 'http://up-z2.qiniup.com/', // 替换为你实际的上传接口URL
@@ -91,7 +91,7 @@ const changeAvatar = () => {
                                     // 解析返回的JSON数据
                                     const responseData = JSON.parse(uploadRes.data);
                                     const uploadedImageUrl = responseData.key; // 从响应中获取图片的URL
-                                    
+
                                     // 保存到 memberStore.avatar
                                     memberStore.avatar = uploadedImageUrl;
                                     memberStore.info.characters[memberStore.virtualRoleId - 1].playerAvatar = uploadedImageUrl;
@@ -128,16 +128,19 @@ const showDialog = (e: any) => {
 <template>
     <view class="team-info">
         <view class="user-avatar" @click="changeAvatar">
-            <img class="user-avatar-img" src="https://applet.cdn.wanjuyuanxian.com/nzgx/static/img/avatar_frame.png" alt="">
+            <img class="user-avatar-img" src="https://applet.cdn.wanjuyuanxian.com/nzgx/static/img/avatar_frame.png"
+                alt="">
             <view
                 style="background-color: black;position: absolute;margin-left: 15rpx;z-index: 1;height: 300rpx;width: 260rpx;margin-top: -360rpx;">
-                <img style="height: 100%;width: 100%;" :src="memberStore.info.characters[memberStore.virtualRoleId - 1].playerAvatar" alt="">
+                <img style="height: 100%;width: 100%;"
+                    :src="memberStore.info.characters[memberStore.virtualRoleId - 1].playerAvatar" alt="">
             </view>
         </view>
         <!-- `https://applet.cdn.wanjuyuanxian.com/nzgx/static/clues/${avatarList[memberStore.virtualRoleId - 1]}.png` -->
         <!-- ${avatarList[memberStore.virtualRoleId - 1]} -->
         <view class="character-avatar">
-            <img class="character-avatar-img" src="https://applet.cdn.wanjuyuanxian.com/nzgx/static/img/avatar_frame.png" alt="">
+            <img class="character-avatar-img"
+                src="https://applet.cdn.wanjuyuanxian.com/nzgx/static/img/avatar_frame.png" alt="">
             <view
                 style="background-color: black;position: absolute;margin-left: 15rpx;z-index: 1;height: 240rpx;width: 200rpx;margin-top: -260rpx;">
                 <img style="height: 100%;width: 100%;"
@@ -156,22 +159,27 @@ const showDialog = (e: any) => {
                 </view>
                 <view class="user-name font-player-gradient1" @tap="modifyDialog">
                     <!-- 厨师沙拉 -->
-                    {{ userInfo!.user }}
-                    <img class="edit-icon" src="https://applet.cdn.wanjuyuanxian.com/nzgx/static/img/edit_icon.png" alt="">
+                    {{ userInfo!.user.slice(0, 10) }}
+                    <img class="edit-icon" src="https://applet.cdn.wanjuyuanxian.com/nzgx/static/img/edit_icon.png"
+                        alt="">
                 </view>
                 <view class="team-name font-player-gradient1">
                     啥都接公司: {{ memberStore.info.teamInfo.name }} 小分队
                 </view>
                 <view class="team-level font-player-gradient1">
                     <text>队伍等级:</text>
-                    <img v-if="teamInfo!.score === 0" class="level-icon" src="https://applet.cdn.wanjuyuanxian.com/nzgx/static/img/wu.png" alt="">
-                    <img v-if="teamInfo!.score === 1" class="level-icon" src="https://applet.cdn.wanjuyuanxian.com/nzgx/static/img/ren.png" alt="">
-                    <img v-if="teamInfo!.score === 2" class="level-icon" src="https://applet.cdn.wanjuyuanxian.com/nzgx/static/img/di.png" alt="">
-                    <img v-if="teamInfo!.score === 3" class="level-icon" src="https://applet.cdn.wanjuyuanxian.com/nzgx/static/img/tian.png" alt="">
+                    <img v-if="teamInfo!.score === 0" class="level-icon"
+                        src="https://applet.cdn.wanjuyuanxian.com/nzgx/static/img/wu.png" alt="">
+                    <img v-if="teamInfo!.score === 1" class="level-icon"
+                        src="https://applet.cdn.wanjuyuanxian.com/nzgx/static/img/ren.png" alt="">
+                    <img v-if="teamInfo!.score === 2" class="level-icon"
+                        src="https://applet.cdn.wanjuyuanxian.com/nzgx/static/img/di.png" alt="">
+                    <img v-if="teamInfo!.score === 3" class="level-icon"
+                        src="https://applet.cdn.wanjuyuanxian.com/nzgx/static/img/tian.png" alt="">
                 </view>
                 <view class="exp font-player-gradient1">
                     <text>个人经验: </text>
-                    <view class="exp-icon"></view>
+                    <view class="exp-icon" :style="{ width: userInfo!.score / 500 * 250 + 'rpx' }"></view>
                     <view class="exp-border flex-row-center">
                         <img v-if="userInfo!.score > 400" class="ding-icon"
                             src="https://applet.cdn.wanjuyuanxian.com/nzgx/static/img/jia.png" alt="">
@@ -203,25 +211,38 @@ const showDialog = (e: any) => {
                                     <view class="font-player-gradient1">分区第 {{ item.rank }} 名</view>
                                     <view v-if="item.status === 1">
                                         <img class="rank-status-icon"
-                                            src="https://applet.cdn.wanjuyuanxian.com/nzgx/static/img/completed_icon.png" alt="">
+                                            src="https://applet.cdn.wanjuyuanxian.com/nzgx/static/img/completed_icon.png"
+                                            alt="">
                                         <text class="font-player-gradient1">完成时间: {{ item.time }}</text>
                                     </view>
                                     <view v-else>
-                                        <img class="rank-status-icon"
-                                            src="https://applet.cdn.wanjuyuanxian.com/nzgx/static/img/underway_icon.png" alt="">
+                                        <img class="rank-status-icon turn"
+                                            src="https://applet.cdn.wanjuyuanxian.com/nzgx/static/img/underway_icon.png"
+                                            alt="">
                                         <text class="underway-text">任务进行中</text>
                                     </view>
                                 </view>
                             </view>
-                            <view  class="team-rank-level "
+                            <view class="team-rank-level "
                                 :class="item.status === 1 ? 'team-rank-level-bg0' : 'team-rank-level-bg1'">
-                                <img v-if="item.level === 0" class="team-rank-level-icon" src="https://applet.cdn.wanjuyuanxian.com/nzgx/static/img/wu.png" alt="">
-                                <img v-if="item.level === 1" class="team-rank-level-icon" src="https://applet.cdn.wanjuyuanxian.com/nzgx/static/img/ren.png" alt="">
-                                <img v-if="item.level === 2" class="team-rank-level-icon" src="https://applet.cdn.wanjuyuanxian.com/nzgx/static/img/di.png" alt="">
-                                <img v-if="item.level === 3" class="team-rank-level-icon" src="https://applet.cdn.wanjuyuanxian.com/nzgx/static/img/tian.png" alt="">
+                                <img v-if="item.level === 0" class="team-rank-level-icon"
+                                    src="https://applet.cdn.wanjuyuanxian.com/nzgx/static/img/wu.png" alt="">
+                                <img v-if="item.level === 1" class="team-rank-level-icon"
+                                    src="https://applet.cdn.wanjuyuanxian.com/nzgx/static/img/ren.png" alt="">
+                                <img v-if="item.level === 2" class="team-rank-level-icon"
+                                    src="https://applet.cdn.wanjuyuanxian.com/nzgx/static/img/di.png" alt="">
+                                <img v-if="item.level === 3" class="team-rank-level-icon"
+                                    src="https://applet.cdn.wanjuyuanxian.com/nzgx/static/img/tian.png" alt="">
                             </view>
                         </view>
-                        <view class="flex-row-center" style="height: 20rpx;" v-if="index === 0">...</view>
+                        <view class="flex-row-center" style="height: 20rpx;" v-if="index === 0">
+                            <view class="loading">
+  <view></view>
+  <view></view>
+  <view></view>
+</view>
+
+                        </view>
                     </view>
                 </view>
             </view>
@@ -427,19 +448,154 @@ const showDialog = (e: any) => {
     width: 20rpx;
     height: 20rpx;
 }
+.turn{
+    animation: turn 2s linear infinite;
+}
+/* 
+turn : 定义的动画名称
+10s : 动画时间
+linear : 动画平滑
+infinite :使动画无限循环
+transform:rotate(旋转角度)
+%0:动画开始
+%100:动画结束
+*/
+@keyframes turn {
+    0% {
+        transform: rotate(0deg);
+    }
+
+    20% {
+        transform: rotate(72deg);
+    }
+
+    40% {
+        transform: rotate(144deg);
+    }
+
+    60% {
+        transform: rotate(216deg);
+    }
+
+    80% {
+        transform: rotate(288deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
+}
 
 .underway-text {
     color: #228300;
 }
+
+.loading,
+.loading > view {
+  position: relative;
+  box-sizing: border-box;
+  margin-bottom: -20rpx;
+}
+
+.loading {
+  display: block;
+  font-size: 0;
+  color: #000;
+}
+
+.loading.la-dark {
+  color: #333;
+}
+
+.loading > view {
+  display: inline-block;
+  float: none;
+  background-color: currentColor;
+  border: 0 solid currentColor;
+}
+
+.loading {
+  width: 54rpx;
+  height: 18rpx;
+}
+
+.loading > view:nth-child(1) {
+  animation-delay: -200ms;
+}
+
+.loading > view:nth-child(2) {
+  animation-delay: -100ms;
+}
+
+.loading > view:nth-child(3) {
+  animation-delay: 0ms;
+}
+
+.loading > view {
+  width: 10rpx;
+  height: 10rpx;
+  margin: 4rpx;
+  border-radius: 100%;
+  animation: ball-pulse 1s ease infinite;
+}
+
+.loading.la-sm {
+  width: 26rpx;
+  height: 8rpx;
+}
+
+.loading.la-sm > view {
+  width: 4rpx;
+  height: 4rpx;
+  margin: 2rpx;
+}
+
+.loading.la-2x {
+  width: 108rpx;
+  height: 36rpx;
+}
+
+.loading.la-2x > view {
+  width: 20rpx;
+  height: 20rpx;
+  margin: 8rpx;
+}
+
+.loading.la-3x {
+  width: 162rpx;
+  height: 54rpx;
+}
+
+.loading.la-3x > view {
+  width: 30rpx;
+  height: 30rpx;
+  margin: 12rpx;
+}
+
+@keyframes ball-pulse {
+  0%,
+  60%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+
+  30% {
+    opacity: 0.1;
+    transform: scale(0.01);
+  }
+}
+
 </style>
 <style>
 @import url("@/package_nzgx/static/fonts/stylesheet.css");
 @import url("@/package_nzgx/styles/common.css");
 
-.almm{
-  font-family: 'Alimama ShuHeiTi';
+.almm {
+    font-family: 'Alimama ShuHeiTi';
 }
-.hyshtj{
-  font-family: 'hyshtj';
+
+.hyshtj {
+    font-family: 'hyshtj';
 }
 </style>

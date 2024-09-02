@@ -110,7 +110,7 @@ const audioList = ref<AudioItem[]>([
             </view>
             <text class="hyshtj font-player-gradient1 dialog-title">{{ dialogObj.title }}</text>
             <view
-                v-show="dialogObj.type === '个人线索发放+个人问题' || dialogObj.type === 'getClues' || dialogObj.type === 'success' || dialogObj.type === 'matchResult' || dialogObj.type === 'error' || dialogObj.type === 'submit' || dialogObj.type==='newReplay'"
+                v-show="dialogObj.type === '个人线索发放+个人问题' || dialogObj.type === 'getClues' || dialogObj.type === 'success' || dialogObj.type === 'matchResult' || dialogObj.type === 'error' || dialogObj.type === 'submit' || dialogObj.type==='newReplay' || dialogObj.type==='changeTeamName'"
                 class="dialog-content font-player-gradient1 ">
                 {{ dialogObj.content }}
             </view>
@@ -121,7 +121,7 @@ const audioList = ref<AudioItem[]>([
             </view>
             <view v-if="dialogObj.type === 'changeTeamName'">
                 <view class="input-box flex-row-center">
-                    <input type="text" style="text-align: center;" v-model="userName">
+                    <input type="text"  maxlength="10" style="text-align: center;" v-model="userName">
                 </view>
             </view>
             <view class="flex-row-center" style="height: 200rpx;" v-if="dialogObj.type === 'voice'">

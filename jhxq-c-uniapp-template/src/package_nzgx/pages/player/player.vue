@@ -27,6 +27,39 @@ const dialogObj = ref({
     clue: 'clue19',
     hideCloseIcon: false
 })
+const isArrayEqual = (a:[], b:[])=> {
+  // 判断数组长度是否相等
+  if (a.length !== b.length) return false;
+
+  // 深度比较每个对象
+  return a.every((item, index) => isObjectEqual(item, b[index]));
+}
+
+function isObjectEqual(obj1, obj2) {
+  // 如果两个对象是同一个引用，则相等
+  if (obj1 === obj2) return true;
+
+  // 如果类型不同，则不相等
+  if (typeof obj1 !== 'object' || typeof obj2 !== 'object' || obj1 === null || obj2 === null) {
+    return false;
+  }
+
+  // 获取对象的键数组
+  const keys1 = Object.keys(obj1);
+  const keys2 = Object.keys(obj2);
+
+  // 比较键的长度
+  if (keys1.length !== keys2.length) return false;
+
+  // 逐个比较每个键和值
+  for (let key of keys1) {
+    if (!keys2.includes(key) || !isObjectEqual(obj1[key], obj2[key])) {
+      return false;
+    }
+  }
+
+  return true;
+}
 const closeDialog = (val: any) => {
     console.log(val)
     dialogObj.value.dialogVisible = false
@@ -52,8 +85,10 @@ const pageJump = (val: any) => {
     currentPage.value = val
 }
 watch(() => memberStore.info.teamInfo.replay, (a, b) => {
+    if (currentPage.value === 'RoomNumber') return
+    if (isArrayEqual(a, b)) return
     console.log(a, b);
-    if (JSON.stringify(a) !== JSON.stringify(b) && a!==undefined &&b!==undefined) {
+    if (JSON.stringify(a) !== JSON.stringify(b) && a !== undefined && b !== undefined) {
         dialogObj.value.dialogVisible = true;
         dialogObj.value.title = '你收到新的复盘记录';
         dialogObj.value.content = '需要查看复盘记录吗';
@@ -107,9 +142,15 @@ watch(() => memberStore.info.characters[memberStore.virtualRoleId - 1].mask, (a,
 const getContent = (title: string) => {
     return computed(() => memberStore.info?.flow[memberStore.info.teamInfo.flowIndex].inner?.find((item: { title: string; }) => item.title === title)?.content ?? null);
 };
+const getStatus = (title: string) => {
+    return computed(() => memberStore.info?.flow[memberStore.info.teamInfo.flowIndex].inner?.find((item: { title: string; }) => item.title === title)?.status ?? null);
+};
 const glContent = getContent('卦灵');
-watch(() => glContent.value.status, (a, b) => {
-    if (glContent.value.status === 2) {
+const glStatus = getStatus('卦灵');
+watch(() => glStatus.value, (a, b) => {
+    console.log('glstatus', glStatus.value)
+    if (a === b) return
+    if (glStatus.value === 2) {
         currentPage.value = 'Gualing'
     }
 
@@ -158,6 +199,8 @@ const updateClues = () => {
     updateInfo(newInfo)
 }
 const ani = () => {
+    if (inAni.value) return
+    inAni.value = true
     setTimeout(() => {
         isRotate.value = !isRotate.value
     }, 1000);
@@ -165,11 +208,17 @@ const ani = () => {
         isScale.value = !isScale.value
     }, 2000);
 }
-watch(() => memberStore.info.characters[userIndex.value].cueset.clues, () => {
+const inAni = ref(false)
+
+watch(() => memberStore.info.characters[userIndex.value].cueset.clues, (a, b) => {
+    console.log('isclues', a, b)
     const newclue = memberStore.info.characters[userIndex.value].cueset.clues.slice(-1)[0];
     if (!newclue) {
         return
     }
+    if (isArrayEqual(a, b) && newclue.type !== 2 &&newclue.type !== 0) return
+    console.log('ab不等')
+    if (currentPage.value === 'RoomNumber') return
     const clues = memberStore.info.characters[userIndex.value].cueset.clues;
 
     // 检查 cueset.clues 是否包含 name 为 clue1 到 clue4 的所有线索
@@ -202,6 +251,7 @@ watch(() => memberStore.info.characters[userIndex.value].cueset.clues, () => {
                 newClueSrc.value = `https://applet.cdn.wanjuyuanxian.com/nzgx/static/clues/${newclue.name}.png`;
                 break;
             case 1:
+                console.log('个人线索')
                 dialogObj.value.title = '获得新线索';
                 dialogObj.value.content = '您获得新的6条个人线索，请前往线索集查看';
                 dialogObj.value.type = 'getClues';
@@ -210,6 +260,7 @@ watch(() => memberStore.info.characters[userIndex.value].cueset.clues, () => {
                 break;
             case 2:
                 console.log('2')
+                inAni.value = false
                 isRotate.value = false
                 isScale.value = false
                 isNewClueShow.value = true;
@@ -222,9 +273,10 @@ watch(() => memberStore.info.characters[userIndex.value].cueset.clues, () => {
                 dialogObj.value.content = '获得一条深入线索';
                 dialogObj.value.type = 'success';
                 dialogObj.value.confirmText = '查看';
-                // memberStore.info.characters[userIndex.value].cueset.clues.slice(-1)[0].type = 2
-                memberStore.info.characters[userIndex.value].mask.slice(-1)[0].type = 2;
                 dialogObj.value.dialogVisible = true
+                // memberStore.info.characters[userIndex.value].cueset.clues.slice(-1)[0].type = 2
+                console.log(memberStore.info.characters[userIndex.value].mask.slice(-1)[0].type)
+                if (memberStore.info.characters[userIndex.value].mask.slice(-1)[0].type !== -1) memberStore.info.characters[userIndex.value].mask.slice(-1)[0].type = 2;
                 break;
             default:
                 // 处理未定义的类型
@@ -232,7 +284,7 @@ watch(() => memberStore.info.characters[userIndex.value].cueset.clues, () => {
         }
     }
 },
-    { deep: true })
+{ immediate: true })
 onMounted(async () => {
     // 获取最新的原始流程信息和线索集信息
     uni.showLoading({
@@ -253,6 +305,7 @@ onMounted(async () => {
     wsService.onError = (error) => {
         console.error("WebSocket 连接失败", error);
         uni.showToast({ icon: 'none', title: '数据异常，连接失败，请重新扫码' })
+        memberStore.roomId = ''
         uni.exitMiniProgram({
             success: function () {
                 uni.clearStorageSync();
@@ -297,7 +350,10 @@ onMounted(async () => {
     wsService.connect()
     // 监听 WebSocket 连接成功事件
     wsService.onOpen = () => {
-        // uni.showToast({ icon: 'none', title: '你已经成功连接' })
+        if (webSocketStore.messages.slice(-1)[0] && webSocketStore.messages.slice(-1)[0].type && webSocketStore.messages.slice(-1)[0].type === 'error') {
+            return
+        }
+        uni.showToast({ icon: 'none', title: '你已经成功连接' })
         console.log("WebSocket 连接成功");
         currentPage.value = 'TeamInfo'
         // 连接成功后执行后续操作
@@ -347,8 +403,8 @@ onUnmounted(() => {
         </view>
         <dmDialog v-if="memberStore.info" :dialogObj="dialogObj" @cancel="closeDialog" @confirm="confirm"
             @page="pageJump" :userInfo="userInfo" />
-        <jump v-if="memberStore.info.flow[0].status !== 1 && memberStore.roomId !== ''" :hide-index="currentPage"
-            @page="pageJump" :flow="flow" :userInfo="userInfo" />
+        <jump v-if="memberStore.info.flow[0].status !== 1 && memberStore.roomId !== '' && currentPage !== 'RoomNumber'"
+            :hide-index="currentPage" @page="pageJump" :flow="flow" :userInfo="userInfo" />
 
         <RoomNumber v-show="currentPage === 'RoomNumber'" :dialog-obj="dialogObj" @updateDialogObj="updateDialogObj"
             @page="pageJump" />
@@ -389,6 +445,7 @@ onUnmounted(() => {
     background-position: center;
     filter: brightness(100) contrast(100%) opacity(0.5);
 }
+
 .show {
     opacity: 1;
     animation: 1s changeShow;
@@ -491,6 +548,7 @@ onUnmounted(() => {
     width: 40rpx;
     height: 40rpx;
 }
+
 .poster {
     width: 100%;
     height: 100%;
