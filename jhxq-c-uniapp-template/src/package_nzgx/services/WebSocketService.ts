@@ -1,8 +1,8 @@
 import { useWebSocketStore } from '@/package_nzgx/stores';
 import { useMainAuthStore } from '@/stores/auth';
 
-const DM_Api_Url = 'wss://nzgx.api.wanjuyuanxian.com/ws/?';
-const DM_TEST_Api_Url = 'wss://mn.nzgx.api.wanjuyuanxian.com/ws/?';
+const Api_Url = 'wss://nzgx.api.wanjuyuanxian.com/ws/?';
+const TEST_Api_Url = 'wss://mn.nzgx.api.wanjuyuanxian.com/ws/?';
 
 export class WebSocketService {
   private url: string;
@@ -18,7 +18,7 @@ export class WebSocketService {
 
   constructor(url: string, reconnectInterval: number = 5000,heartbeatInterval: number = 30000) {
     let IsTestPlay = useMainAuthStore().IsTestPlay;
-    this.url = (IsTestPlay ? DM_TEST_Api_Url : DM_Api_Url) + url;
+    this.url = (IsTestPlay ? TEST_Api_Url : Api_Url) + url;
     // this.url = 'ws://132.232.57.64:8030/?' + url;
     this.reconnectInterval = reconnectInterval;
     this.heartbeatInterval = heartbeatInterval;

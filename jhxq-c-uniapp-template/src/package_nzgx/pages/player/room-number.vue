@@ -10,6 +10,7 @@ const emit = defineEmits(["page"]);
 const memberStore = useMemberStore()
 const MainAuthStore = useMainAuthStore()
 const webSocketStore = useWebSocketStore();
+const RoleId = computed(() => MainAuthStore.RoleId);
 const IsTestPlay = computed(() => MainAuthStore.IsTestPlay);
 const keys = ['壹', '贰', '叁', '肆', '伍', '陆', '柒', '捌', '玖', 'clear', '零', 'backspace', '启']
 const roomNumber = ref('')
@@ -29,7 +30,7 @@ const toPlay = () => {
     loginVisible.value = true;
 }
 
-const play = ({ avatar, nickname }: { avatar: string, nickname: string }) => {
+const play = async({ avatar, nickname }: { avatar: string, nickname: string }) => {
     const token = LemToken.get();
     let avatarUrl = avatar;
     let nickName = nickname;
@@ -37,6 +38,7 @@ const play = ({ avatar, nickname }: { avatar: string, nickname: string }) => {
     console.log('微信昵称:', nickName);
     memberStore.avatar = avatarUrl;
     const _roomId = roomId.value;
+    await MainAuthStore.JoinRoom(RoleId.value, _roomId);
     memberStore.setRoomId(_roomId);
     memberStore.setProfile({ token });
     memberStore.setVirtualRoleId(MainAuthStore.RoleId);
