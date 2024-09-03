@@ -375,8 +375,8 @@ onUnmounted(() => {
 });
 const isPosterShow = ref(false)
 watch(() => memberStore.info.flow[3].send, (a, b) => {
-    console.log('aabb')
-    if (a !== b ) {
+    if (a !== b && a!==undefined && b!==undefined) {
+        console.log('show',a,b)
         isPosterShow.value = true
     }
 })
@@ -450,8 +450,8 @@ const getCurrentFormattedDate = ()=>{
             <!-- <image src="https://img520.com/NWEhqh.jpg" mode="fill" /> -->
             <view class="poster-bg" ref="contentView" id="content-view">
                 <view style="position: fixed;top:48.5vh;width: 75%;display: flex;flex-wrap: wrap;margin-left: 12.5%;">
-                    <view class="poster-info">{{ userInfo!.user.slice(0, 10) }}</view>
-                    <view class="poster-info" style="padding-left: 6.5%;">{{ memberStore.info.characters[memberStore.virtualRoleId - 1].name }}</view>
+                    <view class="poster-info">{{ userInfo?.user.slice(0, 10) }}</view>
+                    <view class="poster-info" style="padding-left: 6.5%;">{{ memberStore.info.characters[memberStore.virtualRoleId - 1]?.name }}</view>
                     <view class="poster-info" style="padding-left: 6.5%;">{{ getCurrentFormattedDate() }}</view>
                     <view class="poster-info" style="margin-top: 4.5vh;">{{ memberStore.info.teamInfo.location }}</view>
                     <view class="poster-info" style="margin-top: 4.5vh;padding-left: 6.5%;">{{ memberStore.info.teamInfo.dmName }}</view>
