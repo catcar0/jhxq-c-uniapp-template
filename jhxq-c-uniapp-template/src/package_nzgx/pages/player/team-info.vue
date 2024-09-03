@@ -1,6 +1,6 @@
 <script setup lang='ts'>
 import { computed, ref } from 'vue';
-import { defineProps, defineEmits } from 'vue';
+import {  defineEmits } from 'vue';
 import { useMemberStore } from '@/package_nzgx/stores'
 import { useWebSocketStore } from '@/package_nzgx/stores'
 const memberStore = useMemberStore()
@@ -8,12 +8,8 @@ const webSocketStore = useWebSocketStore();
 
 
 
-const props = defineProps({
-    dialogObj: Object,
-    userInfo: Object,
-    teamInfo: Object
-});
-
+const teamInfo = computed(() => memberStore.info?.teamInfo)
+const userInfo = computed(() => memberStore.info?.characters[memberStore.virtualRoleId - 1])
 const emit = defineEmits(['updateDialogObj']);
 
 const modifyDialog = () => {
@@ -179,7 +175,7 @@ const showDialog = (e: any) => {
                 </view>
                 <view class="exp font-player-gradient1">
                     <text>个人经验: </text>
-                    <view class="exp-icon" :style="{ width: userInfo!.score / 500 * 250 + 'rpx' }"></view>
+                    <view class="exp-icon" :style="{ width: ((userInfo!.score + 100) % 100) * 2.5 + 'rpx' }"></view>
                     <view class="exp-border flex-row-center">
                         <img v-if="userInfo!.score > 400" class="ding-icon"
                             src="https://applet.cdn.wanjuyuanxian.com/nzgx/static/img/jia.png" alt="">
