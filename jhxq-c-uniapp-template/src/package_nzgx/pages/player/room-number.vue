@@ -71,8 +71,8 @@ const play = ({ avatar, nickname }: { avatar: string, nickname: string }) => {
     // 监听 WebSocket 连接断开事件
     wsService.onClose = () => {
         // 在这里添加断开连接后的处理逻辑，例如重新连接或通知用户
-        uni.showToast({ icon: 'none', title: '你已经断开连接' })
-        if ((webSocketStore.messages.slice(-1)[0] && webSocketStore.messages.slice(-1)[0].type && webSocketStore.messages.slice(-1)[0].type === 'kicked') || connectCount.value ===3) {
+        // uni.showToast({ icon: 'none', title: '你已经断开连接' })
+        if ((webSocketStore.messages.slice(-1)[0] && webSocketStore.messages.slice(-1)[0].type && webSocketStore.messages.slice(-1)[0].type === 'kicked')) {
             emit('page', 'RoomNumber')
             memberStore.roomId = ''
             uni.showModal({

@@ -12,6 +12,7 @@ import { useWebSocketStore } from '@/package_nzgx/stores'
 import { WebSocketService } from '@/package_nzgx/services/WebSocketService';
 import { initAllInfo, updateOriFlowInfo } from '@/package_nzgx/services/initInfo';
 import { allClues, updateOriClueInfo } from '@/package_nzgx/services/clues';
+import { saveViewAsImage } from '@/package_nzgx/utils/saveViewAsImage';
 const memberStore = useMemberStore()
 const webSocketStore = useWebSocketStore();
 const currentPage = ref('RoomNumber')
@@ -27,38 +28,38 @@ const dialogObj = ref({
     clue: 'clue19',
     hideCloseIcon: false
 })
-const isArrayEqual = (a:[], b:[])=> {
-  // 判断数组长度是否相等
-  if (a.length !== b.length) return false;
+const isArrayEqual = (a: [], b: []) => {
+    // 判断数组长度是否相等
+    if (a.length !== b.length) return false;
 
-  // 深度比较每个对象
-  return a.every((item, index) => isObjectEqual(item, b[index]));
+    // 深度比较每个对象
+    return a.every((item, index) => isObjectEqual(item, b[index]));
 }
 
 function isObjectEqual(obj1, obj2) {
-  // 如果两个对象是同一个引用，则相等
-  if (obj1 === obj2) return true;
+    // 如果两个对象是同一个引用，则相等
+    if (obj1 === obj2) return true;
 
-  // 如果类型不同，则不相等
-  if (typeof obj1 !== 'object' || typeof obj2 !== 'object' || obj1 === null || obj2 === null) {
-    return false;
-  }
-
-  // 获取对象的键数组
-  const keys1 = Object.keys(obj1);
-  const keys2 = Object.keys(obj2);
-
-  // 比较键的长度
-  if (keys1.length !== keys2.length) return false;
-
-  // 逐个比较每个键和值
-  for (let key of keys1) {
-    if (!keys2.includes(key) || !isObjectEqual(obj1[key], obj2[key])) {
-      return false;
+    // 如果类型不同，则不相等
+    if (typeof obj1 !== 'object' || typeof obj2 !== 'object' || obj1 === null || obj2 === null) {
+        return false;
     }
-  }
 
-  return true;
+    // 获取对象的键数组
+    const keys1 = Object.keys(obj1);
+    const keys2 = Object.keys(obj2);
+
+    // 比较键的长度
+    if (keys1.length !== keys2.length) return false;
+
+    // 逐个比较每个键和值
+    for (let key of keys1) {
+        if (!keys2.includes(key) || !isObjectEqual(obj1[key], obj2[key])) {
+            return false;
+        }
+    }
+
+    return true;
 }
 const closeDialog = (val: any) => {
     console.log(val)
@@ -216,7 +217,7 @@ watch(() => memberStore.info.characters[userIndex.value].cueset.clues, (a, b) =>
     if (!newclue) {
         return
     }
-    if (isArrayEqual(a, b) && newclue.type !== 2 &&newclue.type !== 0) return
+    if (isArrayEqual(a, b) && newclue.type !== 2 && newclue.type !== 0) return
     console.log('ab不等')
     if (currentPage.value === 'RoomNumber') return
     const clues = memberStore.info.characters[userIndex.value].cueset.clues;
@@ -284,7 +285,7 @@ watch(() => memberStore.info.characters[userIndex.value].cueset.clues, (a, b) =>
         }
     }
 },
-{ immediate: true })
+    { immediate: true })
 onMounted(async () => {
     // 获取最新的原始流程信息和线索集信息
     uni.showLoading({
@@ -372,6 +373,34 @@ onMounted(async () => {
 onUnmounted(() => {
     webSocketStore.gameClose();
 });
+const isPosterShow = ref(false)
+watch(() => memberStore.info.flow[3].send, (a, b) => {
+    console.log('aabb')
+    if (a !== b ) {
+        isPosterShow.value = true
+    }
+})
+const back = () => {
+    console.log('back')
+    isPosterShow.value = false
+}
+const handleSaveImage = async () => {
+    try {
+        await saveViewAsImage('content-view', 'contentCanvas');
+        console.log('图片已成功保存到相册');
+    } catch (error) {
+        console.error('保存图片时出错：', error);
+    }
+};
+const getCurrentFormattedDate = ()=>{
+  const now = new Date();
+  
+  const year = now.getFullYear();
+  const month = now.getMonth() + 1; // getMonth() 返回的月份是从 0 开始的，所以需要加 1
+  const day = now.getDate();
+
+  return `${year}/${month}/${day}`;
+}
 </script>
 
 <template>
@@ -416,13 +445,51 @@ onUnmounted(() => {
             @updateDialogObj="updateDialogObj" />
         <CueSet v-if="memberStore.info" v-show="currentPage === 'CueSet'" :dialog-obj="dialogObj" :teamInfo="teamInfo"
             :newReplay="newReplay" :currentPage="currentPage" :userInfo="userInfo" @updateDialogObj="updateDialogObj" />
-        <view v-show="memberStore.info.flow[3].send !== 0" class="poster">
-            <image src="https://applet.cdn.wanjuyuanxian.com/nzgx/static/img/haibao.png" mode="fill" />
+        <view v-if="isPosterShow" class="poster">
+            <!-- <image src="https://applet.cdn.wanjuyuanxian.com/nzgx/static/img/haibao.png" mode="fill" /> -->
+            <!-- <image src="https://img520.com/NWEhqh.jpg" mode="fill" /> -->
+            <view class="poster-bg" ref="contentView" id="content-view">
+                <view style="position: fixed;top:48.5vh;width: 75%;display: flex;flex-wrap: wrap;margin-left: 12.5%;">
+                    <view class="poster-info">{{ userInfo!.user.slice(0, 10) }}</view>
+                    <view class="poster-info" style="padding-left: 6.5%;">{{ memberStore.info.characters[memberStore.virtualRoleId - 1].name }}</view>
+                    <view class="poster-info" style="padding-left: 6.5%;">{{ getCurrentFormattedDate() }}</view>
+                    <view class="poster-info" style="margin-top: 4.5vh;">{{ memberStore.info.teamInfo.location }}</view>
+                    <view class="poster-info" style="margin-top: 4.5vh;padding-left: 6.5%;">{{ memberStore.info.teamInfo.dmName }}</view>
+                </view>
+                <view class="flex-row-center" style="position: fixed;bottom: 6vh;width: 100%;">
+                    <view @tap="back" class="hide-btn">返回</view>
+                    <view @tap="handleSaveImage" class="hide-btn">保存</view>
+                </view>
+            </view>
+            <canvas canvas-id="contentCanvas" ref="contentCanvas"></canvas>
         </view>
     </view>
 </template>
 
 <style scoped>
+.poster-info {
+    width: 33%;
+    padding-left: 5%;
+    box-sizing: border-box;
+    font-size: 23rpx;
+    font-weight: 700;
+}
+
+.hide-btn {
+    height: 6vh;
+    background-color: #670100;
+    width: 40%;
+    opacity: 0;
+}
+
+.poster-bg {
+    background: url('https://applet.cdn.wanjuyuanxian.com/nzgx/static/img/haibao.png');
+    width: 100%;
+    height: 100vh;
+    background-size: 100% 100%;
+    background-position: center;
+}
+
 .theme-button2 {
     width: 245rpx;
     position: relative;

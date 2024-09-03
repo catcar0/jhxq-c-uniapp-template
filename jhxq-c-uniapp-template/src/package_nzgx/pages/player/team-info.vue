@@ -33,11 +33,11 @@ const rankList = computed(() => {
             level: 3
         },
         {
-            name: props.teamInfo!.name + '小分队',
+            name: teamInfo.value!.name + '小分队',
             rank: 10,
             status: 0,
             time: '2024.09.09',
-            level: props.teamInfo!.score
+            level: teamInfo.value!.score
         }
     ]
 })
@@ -155,7 +155,7 @@ const showDialog = (e: any) => {
                 </view>
                 <view class="user-name font-player-gradient1" @tap="modifyDialog">
                     <!-- 厨师沙拉 -->
-                    {{ userInfo!.user.slice(0, 10) }}
+                    {{ userInfo?.user.slice(0, 10) }}
                     <img class="edit-icon" src="https://applet.cdn.wanjuyuanxian.com/nzgx/static/img/edit_icon.png"
                         alt="">
                 </view>
