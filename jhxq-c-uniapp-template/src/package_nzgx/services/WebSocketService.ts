@@ -10,19 +10,27 @@ export class WebSocketService {
   private heartbeatInterval: number;
   private socketTask: UniApp.SocketTask | null = null;
   private heartbeatTimer: number | null = null;
+  private maxReconnectAttempts: number; // 最大重连次数
+  private reconnectAttempts: number; // 当前重连次数
+  private isConnectedFlag: boolean = false;
 
   // 定义 onOpen、onError 和 onClose 回调函数
   public onOpen: (() => void) | null = null;
   public onError: ((error: any) => void) | null = null;
   public onClose: (() => void) | null = null;
 
-  constructor(url: string, reconnectInterval: number = 5000,heartbeatInterval: number = 30000) {
+  constructor(url: string, reconnectInterval: number = 2000,heartbeatInterval: number = 30000,    maxReconnectAttempts: number = 3) {
     let IsTestPlay = useMainAuthStore().IsTestPlay;
     this.url = (IsTestPlay ? TEST_Api_Url : Api_Url) + url;
     // this.url = 'ws://132.232.57.64:8030/?' + url;
     this.reconnectInterval = reconnectInterval;
     this.heartbeatInterval = heartbeatInterval;
+    this.maxReconnectAttempts = maxReconnectAttempts;
+    this.reconnectAttempts = 0;
   }
+  public isConnected(): boolean {
+    return this.isConnectedFlag;
+}
 
   public connect() {
     if (this.socketTask) {
@@ -45,6 +53,7 @@ export class WebSocketService {
 
     this.socketTask.onOpen(() => {
       console.log('WebSocket connection opened');
+      this.isConnectedFlag = true;  // 设置为已连接状态
       if (this.onOpen) {
         this.onOpen();
       }
@@ -67,6 +76,7 @@ export class WebSocketService {
 
     this.socketTask.onError((error) => {
       console.error('WebSocket error:', error);
+      this.isConnectedFlag = false;  // 出现错误，设置为未连接状态
       if (this.onError) {
         this.onError(error);
       }
@@ -74,13 +84,21 @@ export class WebSocketService {
     });
 
     this.socketTask.onClose(() => {
-      console.log('WebSocket connection closed, reconnecting...');
+      console.log('WebSocket connection closed');
       this.socketTask = null;
-      if (this.onClose) {
-        this.onClose();
-      }
       this.stopHeartbeat();
-      // setTimeout(() => this.connect(), this.reconnectInterval);
+      this.isConnectedFlag = false;  // 连接关闭，设置为未连接状态
+      if (this.reconnectAttempts < this.maxReconnectAttempts) {
+        console.log(`Reconnecting attempt ${this.reconnectAttempts + 1}/${this.maxReconnectAttempts}...`);
+        this.reconnectAttempts++;
+        this.connect()
+        // setTimeout(() => this.connect(), this.reconnectInterval);
+      } else {
+        console.warn('Max reconnect attempts reached, no longer trying to reconnect');
+        if (this.onClose) {
+          this.onClose();
+        }
+      }
     });
   }
 
@@ -121,6 +139,7 @@ export class WebSocketService {
         data: message,
         success: () => {
           console.log('Message sent');
+          this.reconnectAttempts = 0; // 重置重连次数
         },
         fail: (error) => {
           console.error('Message sending failed:', error);

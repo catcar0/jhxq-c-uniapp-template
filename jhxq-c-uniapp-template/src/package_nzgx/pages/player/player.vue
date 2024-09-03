@@ -293,12 +293,21 @@ onMounted(async () => {
     });
     await updateOriFlowInfo()
     await updateOriClueInfo()
-    uni.hideLoading()
 
 
     if (!memberStore.info) memberStore.setInfo(initAllInfo)
     // 创建 WebSocket 连接
+    // 检查是否已经存在WebSocket连接
+    if (webSocketStore.gameWebSocketService && webSocketStore.gameWebSocketService.isConnected()) {
+        console.log("WebSocket 已经连接，无需重新连接");
+        uni.showToast({ icon: 'none', title: '你已经成功重新连接' })
+        console.log("WebSocket 连接成功");
+        currentPage.value = 'TeamInfo'
+        uni.hideLoading()
+        return;
+    }
     if (!(memberStore.profile.token && memberStore.roomId && memberStore.virtualRoleId)) {
+        uni.hideLoading()
         return
     }
     const wsService = new WebSocketService(`token=${memberStore.profile.token}&room_id=${memberStore.roomId}&virtual_role_id=${memberStore.virtualRoleId}`);
@@ -367,7 +376,7 @@ onMounted(async () => {
 
     };
 
-
+    uni.hideLoading()
 });
 
 onUnmounted(() => {
