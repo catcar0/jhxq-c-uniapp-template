@@ -30,7 +30,7 @@ const getContent = (title: string) => {
 };
 const btnText = computed(() => {
     console.log(qaList.value.usersSubmit[memberStore.virtualRoleId - 1])
-    if (qaList.value.usersSubmit[memberStore.virtualRoleId - 1] === 0 || qaList.value.qa[0].usersAnswer[memberStore.virtualRoleId - 1].status === 3) {
+    if (qaList.value.usersSubmit[memberStore.virtualRoleId - 1] === 0 || qaList.value.qa[0].usersAnswer[memberStore.virtualRoleId - 1].status === 3 || qaList.value.qa[0].usersAnswer[memberStore.virtualRoleId - 1].status === 2) {
         return '确定'
     } else return '再次提交'
 })
@@ -44,14 +44,14 @@ const isgualingShow = computed(() => {
     if (glContent.value.xa.status === 1 && glContent.value.hy.status !== 1) {
         if (glContent.value.hy.qa[0].usersAnswer[memberStore.virtualRoleId - 1].status !== 3) {
             return false;
-        }else if (isgualingShowB.value && glContent.value.hy.qa[0].usersAnswer[memberStore.virtualRoleId - 1].status === 3){
+        }else if (isgualingShowB.value && (glContent.value.hy.qa[0].usersAnswer[memberStore.virtualRoleId - 1].status === 2 ||glContent.value.hy.qa[0].usersAnswer[memberStore.virtualRoleId - 1].status === 3)){
             return true;
         }        
     } else if (glContent.value.xa.status === 2) {
-        if (glContent.value.xa.qa[0].usersAnswer[memberStore.virtualRoleId - 1].status !== 3) {
+        if (glContent.value.xa.qa[0].usersAnswer[memberStore.virtualRoleId - 1].status !== 3 && glContent.value.xa.qa[0].usersAnswer[memberStore.virtualRoleId - 1].status !== 2) {
             isgualingShowB.value = false
             return false;
-        }else if (isgualingShowB.value && glContent.value.xa.qa[0].usersAnswer[memberStore.virtualRoleId - 1].status === 3){
+        }else if (isgualingShowB.value  && (glContent.value.hy.qa[0].usersAnswer[memberStore.virtualRoleId - 1].status === 2 ||glContent.value.hy.qa[0].usersAnswer[memberStore.virtualRoleId - 1].status === 3)){
             return true;
         }   
     } else {
@@ -100,7 +100,7 @@ const updateInfo = (info: any) => {
 const isgualingShowB  = ref(false)
 const submit = (status: number) => {
     console.log('aa')
-    if (qaList.value.qa[0].usersAnswer[memberStore.virtualRoleId - 1].status === 3) {
+    if (qaList.value.qa[0].usersAnswer[memberStore.virtualRoleId - 1].status === 3 || qaList.value.qa[0].usersAnswer[memberStore.virtualRoleId - 1].status === 2) {
         isgualingShowB.value = true
         return
     }
@@ -193,22 +193,26 @@ const submit = (status: number) => {
                 </view>
 
                 <view class="select-clue"
-                    v-if="glIndex !== -1 && qaList.qa[glIndex].question !== '凶手是谁？' && qaList.qa[glIndex].question !== '谁会担心春天举报成功？'">
+                    v-if="glIndex !== -1 && qaList.qa[glIndex].question !== '凶手是谁？' && qaList.qa[glIndex].question !== '谁会担心春天举报成功？' && qaList.qa[glIndex].question !==  '林佳李梦怀孕，孩子可能是谁的？'&& qaList.qa[0].usersAnswer[memberStore.virtualRoleId - 1].status !== 3 && qaList.qa[0].usersAnswer[memberStore.virtualRoleId - 1].status !== 2">
                     <view>{{ qaList.qa[glIndex].question }}</view>
-                    <scroll-view scroll-y style="height: 60vh;">
-                        <img mode="heightFix"
+                <view class="clue-big-image-border">
+                    <img mode="heightFix"
                             v-if="cluesIndex !== -1 && allClues[memberStore.info.characters[memberStore.virtualRoleId - 1].cueset.clues[cluesIndex].name].url"
                             class="clue-big-image"
                             :src="allClues[memberStore.info.characters[memberStore.virtualRoleId - 1].cueset.clues[cluesIndex].name].url + '.png'"
                             alt="">
-                        <view
+                </view>
+                        <scroll-view scroll-y :style="{ height: cluesIndex === -1 ? '0vh' : '7vh' }">
+                            <view
                             v-if="cluesIndex !== -1 && allClues[memberStore.info.characters[memberStore.virtualRoleId - 1].cueset.clues[cluesIndex].name].url"
                             class="flex-row-center clue-text">
                             {{ allClues[memberStore.info.characters[memberStore.virtualRoleId -
-                                1].cueset.clues[cluesIndex].name].content1 }}
-                            {{ allClues[memberStore.info.characters[memberStore.virtualRoleId -
-                                1].cueset.clues[cluesIndex].name].name }}
+                                1].cueset.clues[cluesIndex].name].content2 }}
+                            <!-- {{ allClues[memberStore.info.characters[memberStore.virtualRoleId -
+                                1].cueset.clues[cluesIndex].name].name }} -->
                         </view>
+                        </scroll-view>
+                        <scroll-view scroll-y :style="{ maxHeight: cluesIndex === -1 ? '60vh' : '27vh' }">
                         <view class="clues-box flex-row-center">
                             <!-- <view class="make-old2"></view> -->
                             <view
@@ -236,9 +240,8 @@ const submit = (status: number) => {
                 </view>
 
                 <view class="select-clue"
-                    v-if="glIndex !== -1 && (qaList.qa[glIndex].question === '凶手是谁？' || qaList.qa[glIndex].question === '谁会担心春天举报成功？')">
+                    v-if="glIndex !== -1 && (qaList.qa[glIndex].question === '凶手是谁？' || qaList.qa[glIndex].question === '谁会担心春天举报成功？' || qaList.qa[glIndex].question ===  '林佳李梦怀孕，孩子可能是谁的？') && qaList.qa[glIndex].question !==  '林佳李梦怀孕，孩子可能是谁的？'&& qaList.qa[0].usersAnswer[memberStore.virtualRoleId - 1].status !== 3 && qaList.qa[0].usersAnswer[memberStore.virtualRoleId - 1].status !== 2">
                     <view>{{ qaList.qa[glIndex].question }}</view>
-                    <scroll-view scroll-y style="height: 60vh;">
                         <img class="clue-selected-border3" v-show="cluesIndex !== -1 && cluesIndex <=6 "
                             src="https://applet.cdn.wanjuyuanxian.com/nzgx/static/img/cue_seleted2.png" alt="">
                         <img v-if="cluesIndex !== -1 && cluesIndex <=6  &&  allClues[memberStore.info.characters[memberStore.virtualRoleId - 1].cueset.clues[cluesIndex].name].url"
@@ -247,6 +250,7 @@ const submit = (status: number) => {
                             {{ allClues[avatarList[cluesIndex]].content1 }}
                             {{ allClues[avatarList[cluesIndex]].name }}
                         </view>
+                        <scroll-view scroll-y :style="{ maxHeight: cluesIndex === -1 ? '60vh' : '27vh' }">
                         <view class="clues-box flex-row-center">
                             <!-- <view class="make-old2"></view> -->
                             <view v-for="(item, index) in avatarList" :key="index">
@@ -312,10 +316,11 @@ const submit = (status: number) => {
     width: 90%;
     font-size: 23rpx;
     font-weight: 600;
-    height: 80rpx;
+    height: 100%;
     line-height: 170%;
     text-align: center;
     margin-top: 10rpx;
+    padding-top: 10rpx;
 }
 
 .clue-selected-border1 {
@@ -377,8 +382,16 @@ const submit = (status: number) => {
     background: url('https://applet.cdn.wanjuyuanxian.com/nzgx/static/img/paper6.jpg') repeat;
     background-size: 100% 100%;
 }
-
+.clue-big-image-border{
+    transform: rotate(-2deg);
+    background: url('https://applet.cdn.wanjuyuanxian.com/nzgx/static/img/cue_seleted2.png');
+    padding: 10rpx;
+    background-size:100% 100%; /* 或者使用 cover */
+    background-repeat: no-repeat;
+    display: inline-block; /* 或者适合子元素布局的其他显示样式 */
+}
 .clue-big-image {
+    transform: rotate(1deg);
     /* margin-left: 150rpx; */
     margin-top: 20rpx;
     width: 270rpx;

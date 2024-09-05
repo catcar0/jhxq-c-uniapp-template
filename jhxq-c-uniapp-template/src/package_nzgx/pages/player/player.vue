@@ -1,6 +1,7 @@
 <script setup lang='ts'>
 import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
 import dmDialog from '@/package_nzgx/components/playerDialog.vue';
+import fourInOne from '@/package_nzgx/pages/player/components/fourInOne.vue';
 import jump from '@/package_nzgx/pages/player/components/jump.vue';
 import RoomNumber from './room-number.vue'
 import TeamInfo from './team-info.vue'
@@ -13,6 +14,7 @@ import { WebSocketService } from '@/package_nzgx/services/WebSocketService';
 import { initAllInfo, updateOriFlowInfo } from '@/package_nzgx/services/initInfo';
 import { allClues, updateOriClueInfo } from '@/package_nzgx/services/clues';
 import { saveViewAsImage } from '@/package_nzgx/utils/saveViewAsImage';
+import { addNewItem } from '@/package_nzgx/services/info';
 const memberStore = useMemberStore()
 const webSocketStore = useWebSocketStore();
 const currentPage = ref('RoomNumber')
@@ -100,6 +102,7 @@ watch(() => memberStore.info.teamInfo.replay, (a, b) => {
 },
     { deep: true })
 watch(() => memberStore.info.characters[memberStore.virtualRoleId - 1].mask, (a, b) => {
+    if (currentPage.value === 'RoomNumber') return
     console.log(a, b)
     if (a.length === 0 || b.length === 0) {
         return
@@ -170,83 +173,51 @@ const isScale = ref(false)
 const clue5 = ref(false)
 const userIndex = computed(() => memberStore.virtualRoleId - 1)
 const sortedClues = ref();
-const sortClues = () => {
-    console.log('排序')
-    const clues = memberStore.info.characters[memberStore.virtualRoleId - 1].cueset.clues;
-
-    // 创建新数组并排序
-    sortedClues.value = [...clues].sort((a, b) => {
-        // 先按照是否已读排序，未读的排在前面
-        if (a.isRead === b.isRead) {
-            // 如果 isRead 相同，则按时间戳排序，时间戳大的（新的）排在前面
-            return b.timestamp - a.timestamp;
-        } else if (a.isRead === false && b.isRead === true) {
-            return -1; // a 排在 b 之前
-        } else {
-            return 1; // b 排在 a 之前
-        }
-    });
-
-    // 更新排序后的线索列表
-    memberStore.info.characters[memberStore.virtualRoleId - 1].cueset.clues = sortedClues.value;
-};
 const updateClues = () => {
     const newInfo = memberStore.info
     newInfo.characters[userIndex.value].cueset.clues.forEach(element => {
         element.isNew = false
-        element.type = 0
+        element.type = 4
     });
-    sortClues()
     updateInfo(newInfo)
 }
 const ani = () => {
-    if (inAni.value) return
+    if (inAni.value === true) return
     inAni.value = true
+    isRotate.value = true
     setTimeout(() => {
-        isRotate.value = !isRotate.value
+        isScale.value = true
     }, 1000);
-    setTimeout(() => {
-        isScale.value = !isScale.value
-    }, 2000);
 }
 const inAni = ref(false)
-
+watch(() => memberStore.info.flow[0].inner[1].status, (a, b) => {
+    console.log(a, b)
+    if (a === 3 && b == 2) {
+        setTimeout(() => {
+            isNewClueShow.value = false
+            isFourInOneShow.value = true
+            setTimeout(() => {
+                isNewClueShow.value = true
+                isFourInOneShow.value = false
+                addNewItem(0, 'clue5', 0, 'clues', '')
+            }, 3000)
+        }, 3000);
+    }
+}, { deep: true })
 watch(() => memberStore.info.characters[userIndex.value].cueset.clues, (a, b) => {
+    if (currentPage.value === 'RoomNumber') return
     console.log('isclues', a, b)
     const newclue = memberStore.info.characters[userIndex.value].cueset.clues.slice(-1)[0];
     if (!newclue) {
         return
     }
-    if (isArrayEqual(a, b) && newclue.type !== 2 && newclue.type !== 0) return
+    if (isArrayEqual(a, b) && newclue.type !== 2  && newclue.type !== 0) return
     console.log('ab不等')
-    if (currentPage.value === 'RoomNumber') return
-    const clues = memberStore.info.characters[userIndex.value].cueset.clues;
-
-    // 检查 cueset.clues 是否包含 name 为 clue1 到 clue4 的所有线索
-    const hasAllClues = requiredClues.every(clueName =>
-        clues.some(clue => clue.name === clueName)
-    );
-
-    // 检查 cueset.clues 是否已经包含 clue5
-    const hasClue5 = clues.some(clue => clue.name === 'clue5');
-
-    if (hasAllClues && !hasClue5 && !clue5.value && newclue.name !== 'clue5') {
-        clue5.value = true
-        setTimeout(() => {
-            // addNewItem(-1, 'clue5', 0, 'clues', '');
-            memberStore.info.characters[userIndex.value].cueset.clues.push({
-                name: 'clue5',
-                isNew: true,
-                isRead: false,
-                type: 0,
-                timestamp: Date.now() // 当前时间戳
-            })
-            // sortClues()
-        }, 3000);
-    }
-    if (newclue.isNew) {
+    if (!newclue.isRead && newclue.isNew) {
         switch (newclue.type) {
             case 0:
+                if(memberStore.info.characters[userIndex.value].cueset.clues.length > 9 && newclue.name === 'clue1') return
+                isNewClueShow.value = false;
                 isNewClueShow.value = true;
                 isDeepClue.value = false;
                 newClueSrc.value = `https://applet.cdn.wanjuyuanxian.com/nzgx/static/clues/${newclue.name}.png`;
@@ -261,9 +232,11 @@ watch(() => memberStore.info.characters[userIndex.value].cueset.clues, (a, b) =>
                 break;
             case 2:
                 console.log('2')
+                if(newClueSrc.value === allClues[newclue.name].url + '.png') return
                 inAni.value = false
                 isRotate.value = false
                 isScale.value = false
+                isNewClueShow.value = false;
                 isNewClueShow.value = true;
                 isDeepClue.value = true;
                 newClueSrc.value = allClues[newclue.name].url + '.png';
@@ -285,7 +258,7 @@ watch(() => memberStore.info.characters[userIndex.value].cueset.clues, (a, b) =>
         }
     }
 },
-    { immediate: true })
+    { deep: true })
 onMounted(async () => {
     // 获取最新的原始流程信息和线索集信息
     uni.showLoading({
@@ -381,8 +354,8 @@ onUnmounted(() => {
 });
 const isPosterShow = ref(false)
 watch(() => memberStore.info.flow[3].send, (a, b) => {
-    if (a !== b && a!==undefined && b!==undefined) {
-        console.log('show',a,b)
+    if (a !== b && a !== undefined && b !== undefined) {
+        console.log('show', a, b)
         isPosterShow.value = true
     }
 })
@@ -391,22 +364,28 @@ const back = () => {
     isPosterShow.value = false
 }
 const handleSaveImage = async () => {
+    uni.showLoading({
+        title: '正在生成'
+    })
     try {
-        await saveViewAsImage('content-view', 'contentCanvas');
+        await saveViewAsImage('content-view', 'contentCanvas',userInfo?.value.user.slice(0, 10),memberStore.info.characters[memberStore.virtualRoleId - 1]?.name,getCurrentFormattedDate(),memberStore.info.teamInfo.location,memberStore.info.teamInfo.dmName);
+        uni.hideLoading()
         console.log('图片已成功保存到相册');
     } catch (error) {
+        uni.hideLoading()
         console.error('保存图片时出错：', error);
     }
 };
-const getCurrentFormattedDate = ()=>{
-  const now = new Date();
-  
-  const year = now.getFullYear();
-  const month = now.getMonth() + 1; // getMonth() 返回的月份是从 0 开始的，所以需要加 1
-  const day = now.getDate();
+const getCurrentFormattedDate = () => {
+    const now = new Date();
 
-  return `${year}/${month}/${day}`;
+    const year = now.getFullYear();
+    const month = now.getMonth() + 1; // getMonth() 返回的月份是从 0 开始的，所以需要加 1
+    const day = now.getDate();
+
+    return `${year}/${month}/${day}`;
 }
+const isFourInOneShow = ref(false)
 </script>
 
 <template>
@@ -423,6 +402,9 @@ const getCurrentFormattedDate = ()=>{
                         :src="newClueSrc" alt="">
                 </view>
             </view>
+            <view v-show="!isScale && isDeepClue"
+                style="color: white;width: 100%;text-align: center;position: fixed;bottom: 200rpx;">
+                点击图片翻转</view>
             <view class="newClue flex-column-sb-center" :class="isDeepClue ? isScale ? 'show' : 'hide' : ''">
                 <view class="newClue-title hyshtj">
                     {{ isDeepClue ? " 获得一条深入线索" : " 获得一条新线索" }}
@@ -430,12 +412,13 @@ const getCurrentFormattedDate = ()=>{
                 <img class="newClue-img" :style="{ opacity: isDeepClue ? '0' : '1' }" :src="newClueSrc" alt=""
                     mode="aspectFit">
                 <view style="">这里看起来似乎有些不同寻常</view>
-                <view class="theme-button2 button" @tap="isNewClueShow = false; updateClues()">
+                <view class="theme-button2 button" @tap="isNewClueShow = false;updateClues()">
                     <view class="theme-button-clear"></view>
                     <view class="newClue-btn-text hyshtj">收入线索集</view>
                 </view>
             </view>
         </view>
+        <fourInOne v-if="isFourInOneShow" />
         <dmDialog v-if="memberStore.info" :dialogObj="dialogObj" @cancel="closeDialog" @confirm="confirm"
             @page="pageJump" :userInfo="userInfo" />
         <jump v-if="memberStore.info.flow[0].status !== 1 && memberStore.roomId !== '' && currentPage !== 'RoomNumber'"
@@ -451,23 +434,25 @@ const getCurrentFormattedDate = ()=>{
             @updateDialogObj="updateDialogObj" />
         <CueSet v-if="memberStore.info" v-show="currentPage === 'CueSet'" :dialog-obj="dialogObj" :teamInfo="teamInfo"
             :newReplay="newReplay" :currentPage="currentPage" :userInfo="userInfo" @updateDialogObj="updateDialogObj" />
-        <view v-if="isPosterShow" class="poster">
+        <view v-if="isPosterShow"  class="poster">
             <!-- <image src="https://applet.cdn.wanjuyuanxian.com/nzgx/static/img/haibao.png" mode="fill" /> -->
             <!-- <image src="https://img520.com/NWEhqh.jpg" mode="fill" /> -->
             <view class="poster-bg" ref="contentView" id="content-view">
                 <view style="position: fixed;top:48.5vh;width: 75%;display: flex;flex-wrap: wrap;margin-left: 12.5%;">
                     <view class="poster-info">{{ userInfo?.user.slice(0, 10) }}</view>
-                    <view class="poster-info" style="padding-left: 6.5%;">{{ memberStore.info.characters[memberStore.virtualRoleId - 1]?.name }}</view>
+                    <view class="poster-info" style="padding-left: 6.5%;">{{
+                        memberStore.info.characters[memberStore.virtualRoleId - 1]?.name }}</view>
                     <view class="poster-info" style="padding-left: 6.5%;">{{ getCurrentFormattedDate() }}</view>
                     <view class="poster-info" style="margin-top: 4.5vh;">{{ memberStore.info.teamInfo.location }}</view>
-                    <view class="poster-info" style="margin-top: 4.5vh;padding-left: 6.5%;">{{ memberStore.info.teamInfo.dmName }}</view>
+                    <view class="poster-info" style="margin-top: 4.5vh;padding-left: 6.5%;">{{
+                        memberStore.info.teamInfo.dmName }}</view>
                 </view>
                 <view class="flex-row-center" style="position: fixed;bottom: 6vh;width: 100%;">
                     <view @tap="back" class="hide-btn">返回</view>
-                    <view @tap="handleSaveImage" class="hide-btn">保存</view>
+                    <view @tap="handleSaveImage()" class="hide-btn">保存</view>
                 </view>
             </view>
-            <canvas canvas-id="contentCanvas" ref="contentCanvas"></canvas>
+            <canvas style="width: 1080px;height: 1920px;"canvas-id="contentCanvas" ref="contentCanvas"></canvas>
         </view>
     </view>
 </template>
@@ -540,7 +525,7 @@ const getCurrentFormattedDate = ()=>{
     width: 100%;
     height: 100vh;
     position: fixed;
-    z-index: 12000;
+    z-index: 99999;
     background-color: rgba(0, 0, 0, 0.6);
 }
 
@@ -566,7 +551,7 @@ const getCurrentFormattedDate = ()=>{
 .newClue-img-A {
     width: 100%;
     position: absolute;
-    transition: all 2s;
+    transition: all 1s;
     z-index: 1;
     backface-visibility: hidden;
 }
@@ -574,7 +559,7 @@ const getCurrentFormattedDate = ()=>{
 .newClue-img-B {
     width: 100%;
     position: absolute;
-    transition: all 2s;
+    transition: all 1s;
     object-fit: contain;
     /* transform: rotatey(1turn); */
 }

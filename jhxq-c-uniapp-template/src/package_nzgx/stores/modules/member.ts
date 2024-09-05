@@ -15,6 +15,7 @@ export const useMemberStore = defineStore(
     const playerInfo = ref<any>()
     const startTime = ref<any>()
     const endTime = ref<any>()
+    const rankList = ref<any>()
     // 保存会员信息，登录时使用
     const setProfile = (val: any) => {
       profile.value = val
@@ -34,6 +35,9 @@ export const useMemberStore = defineStore(
     }
     const setAvatar = (val: any) => {
       avatar.value = val
+    }
+    const setRankList = (val: any) => {
+      rankList.value = val
     }
     const setPlayerInfo = (val: any) => {
       playerInfo.value = val
@@ -55,6 +59,7 @@ export const useMemberStore = defineStore(
       playerInfo,
       startTime,
       endTime,
+      rankList,
       setInfo,
       setPlayerInfo,
       setRoomId,
@@ -63,6 +68,7 @@ export const useMemberStore = defineStore(
       setAvatar,
       clearProfile,
       setTime,
+      setRankList 
     }
   },
   // TODO: 持久化

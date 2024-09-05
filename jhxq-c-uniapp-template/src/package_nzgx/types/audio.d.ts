@@ -6,6 +6,7 @@ interface AudioItem {
     location: string;
     content: string;
     scrollText: string;
+    duration: number;
     scrollPosition: number;
     scrollOffset: number; // 新增
     scrollAnimationFrame: number; // 新增

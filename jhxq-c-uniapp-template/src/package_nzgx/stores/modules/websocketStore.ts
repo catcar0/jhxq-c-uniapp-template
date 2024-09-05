@@ -59,6 +59,11 @@ export const useWebSocketStore = defineStore('webSocket', {
                 type: 'get_all_players_info'
             }));
         },
+        getRankInfo() {
+            this.gameWebSocketService.send(JSON.stringify({
+                type: 'get_team_ranking'
+            }));
+        },
         closeRoom() {
             this.gameWebSocketService.send(JSON.stringify({
                 type: 'close_room'
@@ -69,6 +74,7 @@ export const useWebSocketStore = defineStore('webSocket', {
         },
         addMessage(message: any) {
             if (message.players) memberStore.setPlayerInfo(message)
+            if (message.type && message.type === 'team_ranking' && message.data.length > 0) memberStore.setRankList(message.data)
             if (message.type && (message.type === 'error'  || message.type === 'kicked' )) {
                 this.messages.push(message);
                 return

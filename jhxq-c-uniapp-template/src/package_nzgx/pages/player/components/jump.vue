@@ -7,7 +7,7 @@ const webSocketStore = useWebSocketStore();
 const props = defineProps<{ hideIndex: string, flow: any, userInfo: any }>()
 
 const isSpecificFlowActive = computed(() => {
-    return props.flow?.inner.some((item: { title: string,status:number }) => {
+    return memberStore.info?.flow[memberStore.info.teamInfo.flowIndex].inner.some((item: { title: string,status:number }) => {
         return (
             // (item.title === '开启逐风' && item.status === 3) ||
             (

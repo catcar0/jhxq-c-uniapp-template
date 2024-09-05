@@ -1,12 +1,18 @@
 <script setup lang='ts'>
-import { computed, ref } from 'vue';
+import { computed, ref, watch } from 'vue';
 import {  defineEmits } from 'vue';
 import { useMemberStore } from '@/package_nzgx/stores'
 import { useWebSocketStore } from '@/package_nzgx/stores'
 const memberStore = useMemberStore()
 const webSocketStore = useWebSocketStore();
 
-
+const props = defineProps({
+    dialogObj: Object,
+    userInfo: Object,
+    teamInfo: Object,
+    currentPage: String,
+    newReplay: Number
+});
 
 const teamInfo = computed(() => memberStore.info?.teamInfo)
 const userInfo = computed(() => memberStore.info?.characters[memberStore.virtualRoleId - 1])
@@ -17,30 +23,41 @@ const modifyDialog = () => {
     emit('updateDialogObj', dialogObj);
 };
 const rankList = computed(() => {
-    return [
-        {
-            name: '小分队1',
-            rank: 1,
-            status: 1,
-            time: '2024.09.09',
-            level: 2
-        },
-        {
-            name: '小分队2',
-            rank: 9,
-            status: 1,
-            time: '2024.09.09',
-            level: 3
-        },
-        {
-            name: teamInfo.value!.name + '小分队',
-            rank: 10,
-            status: 0,
-            time: '2024.09.09',
-            level: teamInfo.value!.score
-        }
-    ]
-})
+  // 获取 rankList
+  const list = memberStore.rankList;
+
+  // 找到 roomid 为 20 的对象的索引
+  const roomId20Index = list.findIndex(item => item.room_id === memberStore.roomId);
+
+  // 初始化新数组
+  let newList = [];
+
+  // 如果找到 roomid = 20 的对象
+  if (roomId20Index !== -1) {
+    if (roomId20Index === 0) {
+      // 如果 roomid = 20 的对象在第 0 位，取它的后两位
+      newList = list.slice(0, 3); // 获取前3个对象（包括第0位）
+    } else if (roomId20Index === 1) {
+      // 如果 roomid = 20 的对象在第 1 位，取第 0 位和第 2 位
+      newList = [list[0], list[1], list[2]];
+    } else {
+      // 如果 roomid = 20 的对象在其他位置，取它前一个和它本身
+      newList = [list[0], list[roomId20Index - 1], list[roomId20Index]];
+    }
+  }
+
+  // 返回重新排列后的数组
+  console.log(newList)
+  return newList;
+});
+
+watch(() => props.currentPage, (a, b) => {
+    // if (a === 'TeamInfo') {
+    //     webSocketStore.getRankInfo()
+    // }
+    // console.log(props.currentPage, 'ccc')
+},
+    { deep: true })
 const dialogObj = ref({
     dialogVisible: false,
     title: '请输入您的昵称',
@@ -200,12 +217,12 @@ const showDialog = (e: any) => {
                     <view :class="index === 0 ? 'rank-box-item-first' : 'rank-box-item'"
                         v-for="(item, index) in rankList" :key="index">
                         <view class="flex-row-sb"
-                            :class="index + 1 === rankList.length ? 'rank-box-item-me' : 'rank-box-item-other'">
+                            :class="item.room_id === memberStore.roomId ? 'rank-box-item-me' : 'rank-box-item-other'">
                             <view class="flex-column-sb rank-box-left">
-                                <view class="font-player-gradient1">{{ item.name }}</view>
+                                <view class="font-player-gradient1">{{ item.team_name }}</view>
                                 <view>
                                     <view class="font-player-gradient1">分区第 {{ item.rank }} 名</view>
-                                    <view v-if="item.status === 1">
+                                    <view v-if="item.room_id === memberStore.roomId ">
                                         <img class="rank-status-icon"
                                             src="https://applet.cdn.wanjuyuanxian.com/nzgx/static/img/completed_icon.png"
                                             alt="">
@@ -220,14 +237,14 @@ const showDialog = (e: any) => {
                                 </view>
                             </view>
                             <view class="team-rank-level "
-                                :class="item.status === 1 ? 'team-rank-level-bg0' : 'team-rank-level-bg1'">
+                                :class="item.room_id === memberStore.roomId  ? 'team-rank-level-bg0' : 'team-rank-level-bg1'">
                                 <img v-if="item.level === 0" class="team-rank-level-icon"
                                     src="https://applet.cdn.wanjuyuanxian.com/nzgx/static/img/wu.png" alt="">
-                                <img v-if="item.level === 1" class="team-rank-level-icon"
+                                <img v-if="item.level === 6" class="team-rank-level-icon"
                                     src="https://applet.cdn.wanjuyuanxian.com/nzgx/static/img/ren.png" alt="">
-                                <img v-if="item.level === 2" class="team-rank-level-icon"
+                                <img v-if="item.level === 12" class="team-rank-level-icon"
                                     src="https://applet.cdn.wanjuyuanxian.com/nzgx/static/img/di.png" alt="">
-                                <img v-if="item.level === 3" class="team-rank-level-icon"
+                                <img v-if="item.level === 18" class="team-rank-level-icon"
                                     src="https://applet.cdn.wanjuyuanxian.com/nzgx/static/img/tian.png" alt="">
                             </view>
                         </view>

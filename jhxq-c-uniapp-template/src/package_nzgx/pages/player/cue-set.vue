@@ -15,8 +15,8 @@ const props = defineProps({
     dialogObj: Object,
     userInfo: Object,
     teamInfo: Object,
-    currentPage:Object,
-    newReplay:Number
+    currentPage: String,
+    newReplay: Number
 });
 
 const audioList = ref([])
@@ -30,6 +30,7 @@ watch(
             src: allClues[audio.name].url + '.mp3',
             isPlaying: false,
             context: null,
+            duration:null,
             scrollText: allClues[audio.name].content2,
             scrollPosition: 0,
             scrollOffset: 0,
@@ -43,28 +44,35 @@ watch(
 const replayIndex = ref(-1)
 
 const sortedClues = ref();
-watch(() => memberStore.info.characters[memberStore.virtualRoleId - 1].cueset.clues, (a,b) => {
-    console.log(a,b,'新线索排序')
-    if (a.length !== b.length && a[a.length - 1].type !== 2 && a[a.length - 1].type !== 3) {
-        console.log('有新线索，触发排序')
-        setTimeout(() => {
-            sortClues()
-        }, 500);
+// watch(() => memberStore.info.characters[memberStore.virtualRoleId - 1].cueset.clues, (a,b) => {
+//     console.log(a,b,'新线索排序')
+//     if (a.length !== b.length && a[a.length - 1].type !== 2 && a[a.length - 1].type !== 3) {
+//         console.log('有新线索，触发排序')
+//         setTimeout(() => {
+//             sortClues()
+//         }, 500);
+//     }
+// },
+// { deep: true })
+watch(() => props.currentPage, (a, b) => {
+    if (a === 'CueSet') sortClues()
+    if (a === 'TeamInfo') {
+        webSocketStore.getRankInfo()
     }
 },
-{ deep: true })
-watch(() => props.currentPage, (a,b) => {
-    sortClues()
-    console.log(props.currentPage,'ccc')
-},
-{ deep: true })
-watch(() => props.newReplay, (a,b) => {
+    { deep: true })
+watch(() => props.newReplay, (a, b) => {
     classIndex.value = 2
 },
-{ deep: true })
-const sortClues = () => {
+    { deep: true })
+    const sortClues = () => {
     console.log('排序')
-    const clues = memberStore.info.characters[memberStore.virtualRoleId - 1].cueset.clues;
+    let clues = memberStore.info.characters[memberStore.virtualRoleId - 1].cueset.clues;
+
+    // 去掉 name 相同的重复线索，保留第一个出现的
+    clues = clues.filter((clue, index, self) => 
+        index === self.findIndex((c) => c.name === clue.name)
+    );
 
     // 创建新数组并排序
     sortedClues.value = [...clues].sort((a, b) => {
@@ -82,6 +90,7 @@ const sortClues = () => {
     // 更新排序后的线索列表
     memberStore.info.characters[memberStore.virtualRoleId - 1].cueset.clues = sortedClues.value;
 };
+
 
 const updateInfo = (info: any) => {
     webSocketStore.gameSend(
@@ -114,7 +123,7 @@ const firstClue = (index: number, name: string) => {
     updateInfo(memberStore.info)
 }
 
-const preview =(url:string) =>{
+const preview = (url: string) => {
     uni.previewImage({
         urls: [url],
         current: 0
@@ -124,31 +133,39 @@ const preview =(url:string) =>{
 
 <template>
     <view class="cue-set">
+        <view class="set-class flex-row-sb" style="z-index: 9999;">
+            <view @tap="classIndex = index" v-for="(item, index) in setClass" :key="item"
+                style="width: 150rpx;height: 100rpx;">
+
+            </view>
+        </view>
         <view class="set-class flex-row-sb">
             <view @tap="classIndex = index" v-for="(item, index) in setClass" :key="item" class="flex-row-center"
                 :class="index === classIndex ? 'class-selected' : 'class-not-selected'">
                 <text class="class-name">{{ item }}</text>
+                <!-- <view @tap="classIndex = index" style="background-color: aliceblue;position: absolute;width: 150rpx;height: 100rpx;z-index: 13000;pointer-events: all;"></view> -->
             </view>
         </view>
         <view class="paper">
             <view v-show="classIndex !== 0" class="make-old"></view>
             <!-- 物品 -->
-            <view class="class-inner" v-show="classIndex === 0" >
+            <view class="class-inner" v-show="classIndex === 0">
                 <view class="player-title hyshtj ">
-                    <view class="font-player-gradient1" >线索集</view>
+                    <view class="font-player-gradient1">线索集</view>
                 </view>
-                    <view v-if="cluesIndex !== -1" class="clue-big-image flex-row-center">
-                        <img mode="heightFix"
-                            :src="allClues[memberStore.info.characters[memberStore.virtualRoleId - 1].cueset.clues[cluesIndex].name].url + '.png'"
-                            alt="" @tap="preview(allClues[memberStore.info.characters[memberStore.virtualRoleId - 1].cueset.clues[cluesIndex].name].url + '.png')">
-                    </view>
-                    <view v-if="cluesIndex !== -1" class="flex-row-center clue-text">
-                        {{ allClues[memberStore.info.characters[memberStore.virtualRoleId -
-                            1].cueset.clues[cluesIndex].name].content2 }}
-                        <!-- {{ allClues[memberStore.info.characters[memberStore.virtualRoleId -
+                <view v-if="cluesIndex !== -1" class="clue-big-image flex-row-center">
+                    <img mode="heightFix"
+                        :src="allClues[memberStore.info.characters[memberStore.virtualRoleId - 1].cueset.clues[cluesIndex].name].url + '.png'"
+                        alt=""
+                        @tap="preview(allClues[memberStore.info.characters[memberStore.virtualRoleId - 1].cueset.clues[cluesIndex].name].url + '.png')">
+                </view>
+                <view v-if="cluesIndex !== -1" class="flex-row-center clue-text">
+                    {{ allClues[memberStore.info.characters[memberStore.virtualRoleId -
+                        1].cueset.clues[cluesIndex].name].content2 }}
+                    <!-- {{ allClues[memberStore.info.characters[memberStore.virtualRoleId -
                             1].cueset.clues[cluesIndex].name].name }} -->
-                    </view>
-                    <scroll-view scroll-y  :style="{maxHeight: cluesIndex === -1? '71vh':'29vh'}">
+                </view>
+                <scroll-view scroll-y :style="{ maxHeight: cluesIndex === -1 ? '71vh' : '29vh' }">
                     <view class="clues-box flex-row-center">
                         <!-- <view class="make-old2"></view> -->
                         <view
@@ -190,8 +207,9 @@ const preview =(url:string) =>{
                     <view class="font-player-gradient1">调查记录</view>
                 </view>
                 <scroll-view scroll-y style="width: 625rpx;height: 71vh;padding-top: 20rpx;">
-                    <view @tap="replayIndex = index" v-if="replayIndex === -1" v-show="item.hy.length !== 0 || item.xa.length !== 0"
-                        class="audio-box flex-row-sb" v-for="(item, index) in memberStore.info?.teamInfo.replay" :key="index">
+                    <view @tap="replayIndex = index" v-if="replayIndex === -1"
+                        v-show="item.hy.length !== 0 || item.xa.length !== 0" class="audio-box flex-row-sb"
+                        v-for="(item, index) in memberStore.info?.teamInfo.replay" :key="index">
                         {{ item.name }}
                     </view>
                     <view v-if="replayIndex !== -1"
@@ -219,7 +237,7 @@ const preview =(url:string) =>{
                                 </view>
                             </view>
                             <view style="height: 70vh;width: 100rpx;" class="flex-row-center">
-                                <img v-show="replayIndex !== memberStore.info?.teamInfo.replay.length && memberStore.info?.teamInfo.replay.length > 1 && memberStore.info?.teamInfo.replay[replayIndex + 1].hy.length !== 0"
+                                <img v-if="replayIndex !== memberStore.info?.teamInfo.replay.length && memberStore.info?.teamInfo.replay.length > 1 && memberStore.info?.teamInfo.replay[replayIndex + 1].hy && memberStore.info?.teamInfo.replay[replayIndex + 1].hy.length !== 0"
                                     style="height: 80rpx;width: 50rpx;transform: rotate(180deg);" @tap="replayIndex++"
                                     src="https://applet.cdn.wanjuyuanxian.com/nzgx/static/img/left.png" alt="">
                             </view>
@@ -289,6 +307,7 @@ const preview =(url:string) =>{
 }
 
 .cue-set {
+    overflow: hidden;
     color: #333333;
     width: 100%;
     height: 100vh;
@@ -298,6 +317,7 @@ const preview =(url:string) =>{
 }
 
 .set-class {
+    pointer-events: all;
     color: black;
     position: fixed;
     width: 80%;
@@ -491,10 +511,11 @@ const preview =(url:string) =>{
 @import url("@/package_nzgx/static/fonts/stylesheet.css");
 @import url("@/package_nzgx/styles/common.css");
 
-.almm{
-  font-family: 'Alimama ShuHeiTi';
+.almm {
+    font-family: 'Alimama ShuHeiTi';
 }
-.hyshtj{
-  font-family: 'hyshtj';
+
+.hyshtj {
+    font-family: 'hyshtj';
 }
 </style>

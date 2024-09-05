@@ -14,24 +14,71 @@ const updatePlayingState = (index: number, isPlaying: boolean) => {
 const updateScrollPosition = (index: number) => {
     const audio = props.audioList[index];
     if (audio.context) {
-        const duration = audio.context.duration;
-        const currentTime = audio.context.currentTime;
+        const duration = audio.context.duration; // 获取音频总时长
+        const currentTime = audio.context.currentTime; // 获取当前播放时间
         audio.scrollPosition = (currentTime / duration) * 100;
 
-        // 更新 scrollOffset
-        const textWidth = 315; // 根据 audio-content 的宽度
-        const scrollSpeed = 1; // 你可以调整这个值来改变滚动速度
-        audio.scrollOffset = (currentTime / duration) * (textWidth + audio.scrollText.length * 10) * scrollSpeed;
+        // 计算滚动偏移量
+        const containerWidth = 315; // 假设 audio-content 宽度为 315px
+        const textWidth = audio.scrollText.length * 10; // 字幕文本的宽度估计
+        const totalScrollDistance = textWidth + containerWidth; // 总滚动距离
+
+        // 根据播放进度动态设置滚动偏移量
+        audio.scrollOffset = (currentTime / duration) * totalScrollDistance;
         console.log(`Scroll Offset for index ${index}:`, audio.scrollOffset);
     }
 };
+const initializeAudioContext = (audio, index) => {
+    return new Promise<void>((resolve, reject) => {
+        try {
+            const context = uni.createInnerAudioContext();
+            context.src = audio.src;
+            // 监听音频可播放事件，确保获取到音频时长
+            context.onCanplay(() => {
+                audio.duration = context.duration; // 获取音频总时长
+                console.log(`Audio duration for index ${index}: ${audio.duration}`);
+            });
+            context.onPlay(() => {
+                updatePlayingState(index, true);
+                startScrollAnimation(index); // 开始滚动动画
+            });
+            context.onPause(() => {
+                updatePlayingState(index, false);
+                clearTimeout(audio.scrollAnimationFrame); // 停止滚动动画
+            });
+            context.onStop(() => {
+                updatePlayingState(index, false);
+                clearTimeout(audio.scrollAnimationFrame); // 停止滚动动画
+            });
+            context.onEnded(() => {
+                updatePlayingState(index, false);
+                clearTimeout(audio.scrollAnimationFrame); // 停止滚动动画
+            });
+            context.onTimeUpdate(() => {
+                updateScrollPosition(index);
+            });
+            audio.context = context;
+            audio.scrollOffset = 0; // 初始化滚动偏移量
 
-const togglePlayPause = (index: number) => {
+            resolve(); // 初始化成功，继续执行
+        } catch (error) {
+            console.error(`Failed to initialize audio context for index ${index}:`, error);
+            reject(error); // 出现错误，拒绝 Promise
+        }
+    });
+};
+const togglePlayPause = async (index: number) => {
     console.log('aa')
     const audio = props.audioList[index];
     if (!audio.context) {
-        console.error(`Audio context for index ${index} is not initialized.`);
-        return;
+        // console.error(`Audio context for index ${index} is not initialized.`);
+        await Promise.all(props.audioList.map((audio, idx) => {
+            if (!audio.context) {
+                return initializeAudioContext(audio, idx);
+            }
+            return Promise.resolve(); // 如果已经初始化，直接跳过
+        }));
+        // return;
     }
 
     if (audio.isPlaying) {
@@ -52,17 +99,27 @@ const togglePlayPause = (index: number) => {
 
 const startScrollAnimation = (index: number) => {
     const audio = props.audioList[index];
+    const duration = audio.duration; // 音频的总时长
+
+    // 计算滚动所需的每帧步进值，使字幕正好在音频结束时完成滚动
+    const containerWidth = 315; // audio-content 的宽度
+    const textWidth = audio.scrollText.length * 10; // 字幕的宽度估计
+    const totalScrollDistance = textWidth + containerWidth; // 总滚动距离
+    const fps = 60; // 每秒 60 帧
+    const totalFrames = duration * fps; // 总帧数（音频播放期间）
+    const scrollStep = totalScrollDistance / totalFrames; // 每帧的滚动距离
+
     const step = () => {
         if (audio.isPlaying) {
-            audio.scrollOffset += 1; // 你可以调整这个值来改变滚动速度
+            audio.scrollOffset += scrollStep; // 每帧移动 scrollStep 的距离
             console.log(`Animating scroll for index ${index}, offset: ${audio.scrollOffset}`);
-            if (audio.scrollOffset > 315) { // 根据 audio-content 的宽度
-                audio.scrollOffset = -audio.scrollText.length * 10; // 重置滚动偏移量
+            if (audio.scrollOffset > totalScrollDistance) {
+                audio.scrollOffset = -textWidth; // 重置滚动偏移量
             }
-            audio.scrollAnimationFrame = setTimeout(step, 16); // 模拟 60FPS，每帧约 16ms
+            audio.scrollAnimationFrame = setTimeout(step, 1000 / fps); // 模拟 60FPS
         }
     };
-    audio.scrollAnimationFrame = setTimeout(step, 16);
+    audio.scrollAnimationFrame = setTimeout(step, 1000 / fps); // 开始动画
 };
 onMounted(() => {
     console.log('mounted')
@@ -76,9 +133,14 @@ watch(() => props.audioList.length, (newLength, oldLength) => {
     props.audioList.forEach((audio, index) => {
         const context = uni.createInnerAudioContext();
         context.src = audio.src;
+        // 监听音频可播放事件，确保获取到音频时长
+        context.onCanplay(() => {
+            audio.duration = context.duration; // 获取音频总时长
+            console.log(`Audio duration for index ${index}: ${audio.duration}`);
+        });
         context.onPlay(() => {
             updatePlayingState(index, true);
-            startScrollAnimation(index); // 开始滚动动画
+            // startScrollAnimation(index); // 开始滚动动画
         });
         context.onPause(() => {
             updatePlayingState(index, false);
@@ -116,7 +178,8 @@ onBeforeUnmount(() => {
         :key="index">
         <view class="audio-icon1 flex-row-center" @tap="togglePlayPause(index)">
             <img class="audio-icon1-img"
-                :src="`https://applet.cdn.wanjuyuanxian.com/nzgx/static/img/${item.isPlaying ? 'pause' : 'play'}.png`" alt="">
+                :src="`https://applet.cdn.wanjuyuanxian.com/nzgx/static/img/${item.isPlaying ? 'pause' : 'play'}.png`"
+                alt="">
         </view>
         <view class="flex-column-sb audio-info">
             <text class="audio-roles">{{ item.roles }}</text>
@@ -126,8 +189,8 @@ onBeforeUnmount(() => {
             <view v-show="item.isPlaying" class="audio-content">
                 <view :style="{ transform: `translateX(-${item.scrollOffset}px)` }"> {{ item.scrollText }} </view>
             </view>
-            <img v-show="!item.isPlaying" class="audio-icon2" src="https://applet.cdn.wanjuyuanxian.com/nzgx/static/img/voice_icon.png"
-                alt="">
+            <img v-show="!item.isPlaying" class="audio-icon2"
+                src="https://applet.cdn.wanjuyuanxian.com/nzgx/static/img/voice_icon.png" alt="">
         </view>
     </view>
 </template>
