@@ -214,7 +214,7 @@ const mapSerch = (clue: string, id: number, isShow: boolean) => {
 
                     <view class="flex-row-sb avatar-box">
                         <view class="avatar flex-row-center" v-for="(item, index) in 2" :key="index">
-                            <view @tap="updateYpUsers(ypUsers[index], userIndex, voiceIndex, index)"class="flex-row-center" style="width: 80rpx;height: 80rpx;"
+                            <view @tap="updateYpUsers(ypUsers[index], userIndex, voiceIndex, index)" class="flex-row-center" style="width: 80rpx;height: 80rpx;"
                                 v-if="ypUsers[index] === -1">+
                             </view>
                             <img v-if="memberStore.info.characters[ypUsers[index]] && ypUsers[index] !== -1"

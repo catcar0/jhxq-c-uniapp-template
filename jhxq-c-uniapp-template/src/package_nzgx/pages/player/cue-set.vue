@@ -108,18 +108,18 @@ const firstClue = (index: number, name: string) => {
     readClue(name)
     // if (classIndex.value === index) return
     // classIndex.value = 0
-    console.log('indexindex', index)
-    if (index !== 0) {
-        const clues = memberStore.info.characters[memberStore.virtualRoleId - 1].cueset.clues;
+    // console.log('indexindex', index)
+    // if (index !== 0) {
+    //     const clues = memberStore.info.characters[memberStore.virtualRoleId - 1].cueset.clues;
 
-        // 移动选中的元素到数组的第一个位置
-        const selectedClue = clues.splice(index, 1)[0]; // 删除并获取目标元素
-        clues.unshift(selectedClue); // 将目标元素插入到第一个位置
+    //     // 移动选中的元素到数组的第一个位置
+    //     const selectedClue = clues.splice(index, 1)[0]; // 删除并获取目标元素
+    //     clues.unshift(selectedClue); // 将目标元素插入到第一个位置
 
-        // 更新原始数组（假设 memberStore.info.characters[userIndex.value].cueset.clues 是响应式的）
-        memberStore.info.characters[memberStore.virtualRoleId - 1].cueset.clues = clues;
-    }
-    cluesIndex.value === index ? cluesIndex.value = -1 : cluesIndex.value = 0;
+    //     // 更新原始数组（假设 memberStore.info.characters[userIndex.value].cueset.clues 是响应式的）
+    //     memberStore.info.characters[memberStore.virtualRoleId - 1].cueset.clues = clues;
+    // }
+    cluesIndex.value === index ? cluesIndex.value = -1 : cluesIndex.value = index;
     updateInfo(memberStore.info)
 }
 

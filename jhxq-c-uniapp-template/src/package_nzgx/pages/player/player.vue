@@ -199,7 +199,6 @@ watch(() => memberStore.info.flow[0].inner[1].status, (a, b) => {
             setTimeout(() => {
                 isNewClueShow.value = true
                 isFourInOneShow.value = false
-                addNewItem(0, 'clue5', 0, 'clues', '')
             }, 3000)
         }, 3000);
     }
@@ -452,7 +451,7 @@ const isFourInOneShow = ref(false)
                     <view @tap="handleSaveImage()" class="hide-btn">保存</view>
                 </view>
             </view>
-            <canvas style="width: 1080px;height: 1920px;"canvas-id="contentCanvas" ref="contentCanvas"></canvas>
+            <canvas style="width: 1080px;height: 1920px;" canvas-id="contentCanvas" ref="contentCanvas"></canvas>
         </view>
     </view>
 </template>
