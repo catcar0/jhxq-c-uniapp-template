@@ -19,6 +19,7 @@ const memberStore = useMemberStore()
 const webSocketStore = useWebSocketStore();
 const currentPage = ref('RoomNumber')
 const newReplay = ref(0)
+const canDialog = ref(true)
 const dialogObj = ref({
     dialogVisible: false,
     title: '请输入您的昵称',
@@ -88,7 +89,7 @@ const pageJump = (val: any) => {
     currentPage.value = val
 }
 watch(() => memberStore.info.teamInfo.replay, (a, b) => {
-    if (currentPage.value === 'RoomNumber') return
+    if (currentPage.value === 'RoomNumber' || !canDialog.value) return
     if (isArrayEqual(a, b)) return
     console.log(a, b);
     if (JSON.stringify(a) !== JSON.stringify(b) && a !== undefined && b !== undefined) {
@@ -102,7 +103,7 @@ watch(() => memberStore.info.teamInfo.replay, (a, b) => {
 },
     { deep: true })
 watch(() => memberStore.info.characters[memberStore.virtualRoleId - 1].mask, (a, b) => {
-    if (currentPage.value === 'RoomNumber') return
+    if (currentPage.value === 'RoomNumber' || !canDialog.value) return
     console.log(a, b)
     if (a.length === 0 || b.length === 0) {
         return
@@ -204,7 +205,7 @@ watch(() => memberStore.info.flow[0].inner[1].status, (a, b) => {
     }
 }, { deep: true })
 watch(() => memberStore.info.characters[userIndex.value].cueset.clues, (a, b) => {
-    if (currentPage.value === 'RoomNumber') return
+    if (currentPage.value === 'RoomNumber' || !canDialog.value) return
     console.log('isclues', a, b)
     const newclue = memberStore.info.characters[userIndex.value].cueset.clues.slice(-1)[0];
     if (!newclue) {
@@ -266,7 +267,6 @@ onMounted(async () => {
     await updateOriFlowInfo()
     await updateOriClueInfo()
     uni.hideLoading()
-
     if (!memberStore.info) memberStore.setInfo(initAllInfo)
     // 创建 WebSocket 连接
     // 检查是否已经存在WebSocket连接
@@ -343,7 +343,10 @@ onMounted(async () => {
         setTimeout(() => {
             webSocketStore.gameplayerFirstSend()
         }, 500);
-
+        canDialog.value = false
+        setTimeout(() => {
+            canDialog.value = true
+        }, 2000);
 
     };
 });
@@ -397,7 +400,7 @@ const isFourInOneShow = ref(false)
                     :src="oldClueSrc" alt="">
                 <view
                     style="transform: rotateY(180deg);width: 100%;height: 100%;display: flex;align-items: center;justify-content: center;">
-                    <img mode='aspectFit' class="newClue-img-B" :class="isRotate ? 'newClue-img-B-rotate' : 'hide'"
+                    <img mode='aspectFit' class="newClue-img-B" :style="{width: newClueSrc === 'https://applet.cdn.wanjuyuanxian.com/nzgx/static/clues/clue49.png'? '70%' :'100%' }" :class="isRotate ? 'newClue-img-B-rotate' : 'hide'"
                         :src="newClueSrc" alt="">
                 </view>
             </view>
@@ -408,7 +411,7 @@ const isFourInOneShow = ref(false)
                 <view class="newClue-title hyshtj">
                     {{ isDeepClue ? " 获得一条深入线索" : " 获得一条新线索" }}
                 </view>
-                <img class="newClue-img" :style="{ opacity: isDeepClue ? '0' : '1' }" :src="newClueSrc" alt=""
+                <img class="newClue-img"  :style="{ opacity: isDeepClue ? '0' : '1'}" :src="newClueSrc" alt=""
                     mode="aspectFit">
                 <view style="">这里看起来似乎有些不同寻常</view>
                 <view class="theme-button2 button" @tap="isNewClueShow = false;updateClues()">

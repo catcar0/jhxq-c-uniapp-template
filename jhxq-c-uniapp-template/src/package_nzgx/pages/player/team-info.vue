@@ -1,6 +1,6 @@
 <script setup lang='ts'>
 import { computed, ref, watch } from 'vue';
-import {  defineEmits } from 'vue';
+import { defineEmits } from 'vue';
 import { useMemberStore } from '@/package_nzgx/stores'
 import { useWebSocketStore } from '@/package_nzgx/stores'
 const memberStore = useMemberStore()
@@ -23,32 +23,32 @@ const modifyDialog = () => {
     emit('updateDialogObj', dialogObj);
 };
 const rankList = computed(() => {
-  // 获取 rankList
-  const list = memberStore.rankList;
+    // 获取 rankList
+    const list = memberStore.rankList;
 
-  // 找到 roomid 为 20 的对象的索引
-  const roomId20Index = list.findIndex(item => item.room_id === memberStore.roomId);
+    // 找到 roomid 为 20 的对象的索引
+    const roomId20Index = list.findIndex(item => item.room_id === memberStore.roomId);
 
-  // 初始化新数组
-  let newList = [];
+    // 初始化新数组
+    let newList = [];
 
-  // 如果找到 roomid = 20 的对象
-  if (roomId20Index !== -1) {
-    if (roomId20Index === 0) {
-      // 如果 roomid = 20 的对象在第 0 位，取它的后两位
-      newList = list.slice(0, 3); // 获取前3个对象（包括第0位）
-    } else if (roomId20Index === 1) {
-      // 如果 roomid = 20 的对象在第 1 位，取第 0 位和第 2 位
-      newList = [list[0], list[1], list[2]];
-    } else {
-      // 如果 roomid = 20 的对象在其他位置，取它前一个和它本身
-      newList = [list[0], list[roomId20Index - 1], list[roomId20Index]];
+    // 如果找到 roomid = 20 的对象
+    if (roomId20Index !== -1) {
+        if (roomId20Index === 0) {
+            // 如果 roomid = 20 的对象在第 0 位，取它的后两位
+            newList = list.slice(0, 3); // 获取前3个对象（包括第0位）
+        } else if (roomId20Index === 1) {
+            // 如果 roomid = 20 的对象在第 1 位，取第 0 位和第 2 位
+            newList = [list[0], list[1], list[2]];
+        } else {
+            // 如果 roomid = 20 的对象在其他位置，取它前一个和它本身
+            newList = [list[0], list[roomId20Index - 1], list[roomId20Index]];
+        }
     }
-  }
 
-  // 返回重新排列后的数组
-  console.log(newList)
-  return newList;
+    // 返回重新排列后的数组
+    console.log(newList)
+    return newList;
 });
 
 watch(() => props.currentPage, (a, b) => {
@@ -183,11 +183,11 @@ const showDialog = (e: any) => {
                     <text>队伍等级:</text>
                     <img v-if="teamInfo!.score === 0" class="level-icon"
                         src="https://applet.cdn.wanjuyuanxian.com/nzgx/static/img/wu.png" alt="">
-                    <img v-if="teamInfo!.score === 1" class="level-icon"
+                    <img v-if="teamInfo!.score === 6" class="level-icon"
                         src="https://applet.cdn.wanjuyuanxian.com/nzgx/static/img/ren.png" alt="">
-                    <img v-if="teamInfo!.score === 2" class="level-icon"
+                    <img v-if="teamInfo!.score === 12" class="level-icon"
                         src="https://applet.cdn.wanjuyuanxian.com/nzgx/static/img/di.png" alt="">
-                    <img v-if="teamInfo!.score === 3" class="level-icon"
+                    <img v-if="teamInfo!.score === 18" class="level-icon"
                         src="https://applet.cdn.wanjuyuanxian.com/nzgx/static/img/tian.png" alt="">
                 </view>
                 <view class="exp font-player-gradient1">
@@ -222,7 +222,7 @@ const showDialog = (e: any) => {
                                 <view class="font-player-gradient1">{{ item.team_name }}</view>
                                 <view>
                                     <view class="font-player-gradient1">分区第 {{ item.rank }} 名</view>
-                                    <view v-if="item.room_id === memberStore.roomId ">
+                                    <view v-if="item.room_id !== memberStore.roomId">
                                         <img class="rank-status-icon"
                                             src="https://applet.cdn.wanjuyuanxian.com/nzgx/static/img/completed_icon.png"
                                             alt="">
@@ -237,7 +237,7 @@ const showDialog = (e: any) => {
                                 </view>
                             </view>
                             <view class="team-rank-level "
-                                :class="item.room_id === memberStore.roomId  ? 'team-rank-level-bg0' : 'team-rank-level-bg1'">
+                                :class="item.room_id !== memberStore.roomId ? 'team-rank-level-bg0' : 'team-rank-level-bg1'">
                                 <img v-if="item.level === 0" class="team-rank-level-icon"
                                     src="https://applet.cdn.wanjuyuanxian.com/nzgx/static/img/wu.png" alt="">
                                 <img v-if="item.level === 6" class="team-rank-level-icon"
@@ -249,12 +249,12 @@ const showDialog = (e: any) => {
                             </view>
                         </view>
                         <view class="flex-row-center" style="height: 20rpx;" v-if="index === 0">
-                            <view class="loading">
-  <view></view>
-  <view></view>
-  <view></view>
-</view>
-
+                            <!-- <view class="loading">
+                                <view></view>
+                                <view></view>
+                                <view></view>
+                            </view> -->
+                            <view>···</view>
                         </view>
                     </view>
                 </view>
@@ -461,9 +461,11 @@ const showDialog = (e: any) => {
     width: 20rpx;
     height: 20rpx;
 }
-.turn{
+
+.turn {
     animation: turn 2s linear infinite;
 }
+
 /* 
 turn : 定义的动画名称
 10s : 动画时间
@@ -504,101 +506,101 @@ transform:rotate(旋转角度)
 }
 
 .loading,
-.loading > view {
-  position: relative;
-  box-sizing: border-box;
-  margin-bottom: -20rpx;
+.loading>view {
+    position: relative;
+    box-sizing: border-box;
+    margin-bottom: -20rpx;
 }
 
 .loading {
-  display: block;
-  font-size: 0;
-  color: #000;
+    display: block;
+    font-size: 0;
+    color: #000;
 }
 
 .loading.la-dark {
-  color: #333;
+    color: #333;
 }
 
-.loading > view {
-  display: inline-block;
-  float: none;
-  background-color: currentColor;
-  border: 0 solid currentColor;
+.loading>view {
+    display: inline-block;
+    float: none;
+    background-color: currentColor;
+    border: 0 solid currentColor;
 }
 
 .loading {
-  width: 54rpx;
-  height: 18rpx;
+    width: 54rpx;
+    height: 18rpx;
 }
 
-.loading > view:nth-child(1) {
-  animation-delay: -200ms;
+.loading>view:nth-child(1) {
+    animation-delay: -200ms;
 }
 
-.loading > view:nth-child(2) {
-  animation-delay: -100ms;
+.loading>view:nth-child(2) {
+    animation-delay: -100ms;
 }
 
-.loading > view:nth-child(3) {
-  animation-delay: 0ms;
+.loading>view:nth-child(3) {
+    animation-delay: 0ms;
 }
 
-.loading > view {
-  width: 10rpx;
-  height: 10rpx;
-  margin: 4rpx;
-  border-radius: 100%;
-  animation: ball-pulse 1s ease infinite;
+.loading>view {
+    width: 10rpx;
+    height: 10rpx;
+    margin: 4rpx;
+    border-radius: 100%;
+    animation: ball-pulse 1s ease infinite;
 }
 
 .loading.la-sm {
-  width: 26rpx;
-  height: 8rpx;
+    width: 26rpx;
+    height: 8rpx;
 }
 
-.loading.la-sm > view {
-  width: 4rpx;
-  height: 4rpx;
-  margin: 2rpx;
+.loading.la-sm>view {
+    width: 4rpx;
+    height: 4rpx;
+    margin: 2rpx;
 }
 
 .loading.la-2x {
-  width: 108rpx;
-  height: 36rpx;
+    width: 108rpx;
+    height: 36rpx;
 }
 
-.loading.la-2x > view {
-  width: 20rpx;
-  height: 20rpx;
-  margin: 8rpx;
+.loading.la-2x>view {
+    width: 20rpx;
+    height: 20rpx;
+    margin: 8rpx;
 }
 
 .loading.la-3x {
-  width: 162rpx;
-  height: 54rpx;
+    width: 162rpx;
+    height: 54rpx;
 }
 
-.loading.la-3x > view {
-  width: 30rpx;
-  height: 30rpx;
-  margin: 12rpx;
+.loading.la-3x>view {
+    width: 30rpx;
+    height: 30rpx;
+    margin: 12rpx;
 }
 
 @keyframes ball-pulse {
-  0%,
-  60%,
-  100% {
-    opacity: 1;
-    transform: scale(1);
-  }
 
-  30% {
-    opacity: 0.1;
-    transform: scale(0.01);
-  }
+    0%,
+    60%,
+    100% {
+        opacity: 1;
+        transform: scale(1);
+    }
+
+    30% {
+        opacity: 0.1;
+        transform: scale(0.01);
+    }
 }
-
 </style>
 <style>
 @import url("@/package_nzgx/static/fonts/stylesheet.css");

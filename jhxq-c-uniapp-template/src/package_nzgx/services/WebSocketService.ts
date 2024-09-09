@@ -19,7 +19,7 @@ export class WebSocketService {
   public onError: ((error: any) => void) | null = null;
   public onClose: (() => void) | null = null;
 
-  constructor(url: string, reconnectInterval: number = 2000,heartbeatInterval: number = 30000,    maxReconnectAttempts: number = 3) {
+  constructor(url: string, reconnectInterval: number = 1000,heartbeatInterval: number = 30000,    maxReconnectAttempts: number = 3) {
     let IsTestPlay = useMainAuthStore().IsTestPlay;
     this.url = (IsTestPlay ? TEST_Api_Url : Api_Url) + url;
     // this.url = 'ws://132.232.57.64:8030/?' + url;
@@ -90,16 +90,16 @@ export class WebSocketService {
       this.socketTask = null;
       this.stopHeartbeat();
       this.isConnectedFlag = false;  // 连接关闭，设置为未连接状态
+      if (this.onClose) {
+        this.onClose();
+      }
       if (this.reconnectAttempts < this.maxReconnectAttempts) {
         console.log(`Reconnecting attempt ${this.reconnectAttempts + 1}/${this.maxReconnectAttempts}...`);
         this.reconnectAttempts++;
-        this.connect()
-        // setTimeout(() => this.connect(), this.reconnectInterval);
+        // this.connect()
+        setTimeout(() => this.connect(), this.reconnectInterval);
       } else {
         console.warn('Max reconnect attempts reached, no longer trying to reconnect');
-        if (this.onClose) {
-          this.onClose();
-        }
       }
     });
   }
