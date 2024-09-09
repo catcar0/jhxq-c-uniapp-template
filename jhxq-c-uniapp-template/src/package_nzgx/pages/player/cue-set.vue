@@ -19,11 +19,6 @@ const props = defineProps({
     currentPage: String,
     newReplay: Number
 });
-onMounted(() => {
-    memberStore.setInfo(initAllInfo)
-    memberStore.setVirtualRoleId(1)
-})
-const a = 'clue20'
 const durationList = {
     clue19:{duration:15},
     clue20:{duration:13},
@@ -33,19 +28,6 @@ const durationList = {
     clue41:{duration:12},
 }
 const audioList = ref([
-    // {
-    //     roles: allClues[a].name,
-    //     location: allClues[a].content1,
-    //     content: allClues[a].content2,
-    //     src: allClues[a].url + '.mp3',
-    //     isPlaying: false,
-    //     context: null,
-    //     duration: 15,
-    //     scrollText: allClues[a].content2,
-    //     scrollPosition: 0,
-    //     scrollOffset: 0,
-    //     scrollAnimationFrame: 0,
-    // }
 ])
 watch(
     () => memberStore.info.characters[memberStore.virtualRoleId - 1].cueset.audio,
@@ -139,10 +121,14 @@ const readReplay = (index: number) => {
     updateInfo(memberStore.info)
 }
 const haveNotReadClue = computed(() => {
-    return memberStore.info.characters[memberStore.virtualRoleId - 1].cueset.clues.filter(clue => clue.isRead === false).length
+    if(memberStore.info.characters[memberStore.virtualRoleId - 1].cueset.clues !== 0) {
+        return memberStore.info.characters[memberStore.virtualRoleId - 1].cueset.clues.filter(clue => clue.isRead === false).length
+    } else return 0
 })
 const haveNotReadAudio = computed(() => {
-    return memberStore.info.characters[memberStore.virtualRoleId - 1].cueset.audio.filter(audio => audio.isRead === false).length
+    if (memberStore.info.characters[memberStore.virtualRoleId - 1].cueset.audio !== 0) {
+        return memberStore.info.characters[memberStore.virtualRoleId - 1].cueset.audio.filter(audio => audio.isRead === false).length
+    } else return 0
 })
 const haveNotReadReplay = computed(() => {
     return memberStore.info.teamInfo.replay.filter(replay => replay.userRead[memberStore.virtualRoleId - 1] === 0 && (replay.hy.length !== 0 || replay.xa.length !== 0)).length
