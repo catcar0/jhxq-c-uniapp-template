@@ -68,7 +68,7 @@ watch(() => props.newReplay, (a, b) => {
 const sortClues = () => {
     console.log('排序')
     let clues = memberStore.info.characters[memberStore.virtualRoleId - 1].cueset.clues;
-
+    if (clues.length === 0) return
     // 去掉 name 相同的重复线索，保留第一个出现的
     clues = clues.filter((clue, index, self) =>
         index === self.findIndex((c) => c.name === clue.name)

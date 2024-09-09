@@ -134,7 +134,7 @@ const play = async({ avatar, nickname }: { avatar: string, nickname: string }) =
                 }
             }, 3000);
         }
-    }, 1000);
+    }, 2000);
 }
 </script>
 
