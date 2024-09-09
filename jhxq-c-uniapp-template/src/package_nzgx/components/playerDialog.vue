@@ -85,6 +85,14 @@ const zstselectIndex = ref<number>()
 const zstSelectUser = (index: number) => {
     zstselectIndex.value = index
 }
+const durationList = {
+    clue19: { duration: 15 },
+    clue20: { duration: 13 },
+    clue38: { duration: 24 },
+    clue39: { duration: 8 },
+    clue40: { duration: 10 },
+    clue41: { duration: 12 },
+}
 const audioList = ref<AudioItem[]>([
     {
         roles: allClues[props.dialogObj.clue!].name,
@@ -93,6 +101,8 @@ const audioList = ref<AudioItem[]>([
         src: allClues[props.dialogObj.clue!].url + '.mp3',
         isPlaying: false,
         context: null,
+        isRead: false,
+        duration: durationList[props.dialogObj.clue!]?.duration,
         scrollText: allClues[props.dialogObj.clue!].content2,
         scrollPosition: 0,
         scrollOffset: 0,

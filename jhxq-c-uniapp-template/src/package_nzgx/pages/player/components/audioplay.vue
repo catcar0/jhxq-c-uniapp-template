@@ -117,7 +117,7 @@ const startScrollAnimation = (index: number) => {
     const step = () => {
         if (audio.isPlaying) {
             audio.scrollOffset += scrollStep; // 每帧移动 scrollStep 的距离
-            console.log(`Animating scroll for index ${index}, offset: ${audio.scrollOffset}`);
+            // console.log(`Animating scroll for index ${index}, offset: ${audio.scrollOffset}`);
             // if (audio.scrollOffset > totalScrollDistance * 2) {
             //     console.log('重置滚动偏移量')
             //     audio.scrollOffset = 0; // 重置滚动偏移量

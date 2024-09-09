@@ -191,6 +191,13 @@ const ani = () => {
     }, 1000);
 }
 const inAni = ref(false)
+watch(() => currentPage.value, (a, b) => {
+    if (a === 'TeamInfo') {
+        webSocketStore.getRankInfo()
+    }
+    console.log(currentPage.value, 'ccc')
+},
+    { deep: true })
 watch(() => memberStore.info.flow[0].inner[1].status, (a, b) => {
     console.log(a, b)
     if (a === 3 && b == 2) {
@@ -285,18 +292,6 @@ onMounted(async () => {
     // 监听连接错误或关闭事件
     wsService.onError = (error) => {
         console.error("WebSocket 连接失败", error);
-        uni.showToast({ icon: 'none', title: '数据异常，连接失败，请重新扫码' })
-        memberStore.roomId = ''
-        uni.exitMiniProgram({
-            success: function () {
-                uni.clearStorageSync();
-                console.log('退出小程序成功');
-            },
-            fail: function (err) {
-                console.log('退出小程序失败', err);
-            }
-        })
-        // 在这里可以添加错误处理逻辑
     };
 
     // 监听 WebSocket 连接断开事件
@@ -431,10 +426,10 @@ const isFourInOneShow = ref(false)
         <TeamInfo v-if="memberStore.info" v-show="currentPage === 'TeamInfo'" :dialog-obj="dialogObj"
             :teamInfo="teamInfo" :userInfo="userInfo" @updateDialogObj="updateDialogObj" />
         <ZfMap v-if="memberStore.info" v-show="currentPage === 'ZfMap'" :dialog-obj="dialogObj" @page="pageJump"
-            @updateDialogObj="updateDialogObj" :flow="flow" :userInfo="userInfo" />
-        <Gualing v-if="memberStore.info" v-show="currentPage === 'Gualing'" :dialog-obj="dialogObj"
+            @updateDialogObj="updateDialogObj" :currentPage="currentPage" :flow="flow" :userInfo="userInfo" />
+        <Gualing v-if="memberStore.info"  v-show="currentPage === 'Gualing'" :dialog-obj="dialogObj"
             @updateDialogObj="updateDialogObj" />
-        <CueSet v-if="memberStore.info" v-show="currentPage === 'CueSet'" :dialog-obj="dialogObj" :teamInfo="teamInfo"
+        <CueSet v-if="memberStore.info && memberStore.info.characters[memberStore.virtualRoleId - 1].cueset.clues.length!==0" v-show="currentPage === 'CueSet'" :dialog-obj="dialogObj" :teamInfo="teamInfo"
             :newReplay="newReplay" :currentPage="currentPage" :userInfo="userInfo" @updateDialogObj="updateDialogObj" />
         <view v-if="isPosterShow"  class="poster">
             <!-- <image src="https://applet.cdn.wanjuyuanxian.com/nzgx/static/img/haibao.png" mode="fill" /> -->

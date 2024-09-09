@@ -1,12 +1,9 @@
 <script setup lang='ts'>
-import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue';
+import { computed, ref, watch } from 'vue';
 import audioplay from '@/package_nzgx/pages/player/components/audioplay.vue';
 import { useMemberStore } from '@/package_nzgx/stores'
 import { useWebSocketStore } from '@/package_nzgx/stores'
 import { allClues } from '@/package_nzgx/services/clues';
-import { onShow } from '@dcloudio/uni-app';
-import { addNewItem } from '@/package_nzgx/services/info';
-import { initAllInfo } from '@/package_nzgx/services/initInfo';
 const memberStore = useMemberStore()
 const webSocketStore = useWebSocketStore();
 const setClass = ['物品', '音频', '记录']
@@ -20,45 +17,60 @@ const props = defineProps({
     newReplay: Number
 });
 const durationList = {
-    clue19:{duration:15},
-    clue20:{duration:13},
-    clue38:{duration:24},
-    clue39:{duration:8},
-    clue40:{duration:10},
-    clue41:{duration:12},
+    clue19: { duration: 15 },
+    clue20: { duration: 13 },
+    clue38: { duration: 24 },
+    clue39: { duration: 8 },
+    clue40: { duration: 10 },
+    clue41: { duration: 12 },
 }
+// const audio = { name: 'clue19' }
 const audioList = ref([
+    // {
+    //     roles: allClues[audio.name].name,
+    //     location: allClues[audio.name].content1,
+    //     content: allClues[audio.name].content2,
+    //     src: allClues[audio.name].url + '.mp3',
+    //     isPlaying: false,
+    //     isRead: audio.isRead,
+    //     context: null,
+    //     duration: durationList[audio.name].duration,
+    //     scrollText: allClues[audio.name].content2,
+    //     scrollPosition: 0,
+    //     scrollOffset: 0,
+    //     scrollAnimationFrame: 0,
+    // }
 ])
-watch(
-    () => memberStore.info.characters[memberStore.virtualRoleId - 1].cueset.audio,
-    (newAudioList) => {
-        const characterAudioList = newAudioList.map(audio => ({
-            roles: allClues[audio.name].name,
-            location: allClues[audio.name].content1,
-            content: allClues[audio.name].content2,
-            src: allClues[audio.name].url + '.mp3',
-            isPlaying: false,
-            isRead: audio.isRead,
-            context: null,
-            duration: durationList[audio.name].duration,
-            scrollText: allClues[audio.name].content2,
-            scrollPosition: 0,
-            scrollOffset: 0,
-            scrollAnimationFrame: 0,
-        }));
+    watch(
+        () => memberStore.info?.characters?.[memberStore.virtualRoleId - 1]?.cueset?.audio || [],
+        (newAudioList) => {
+            if (newAudioList.length === 0) return;
+            
+            const characterAudioList = newAudioList.map(audio => ({
+                roles: allClues[audio.name]?.name,
+                location: allClues[audio.name]?.content1,
+                content: allClues[audio.name]?.content2,
+                src: allClues[audio.name]?.url + '.mp3',
+                isPlaying: false,
+                isRead: audio.isRead,
+                context: null,
+                duration: durationList[audio.name]?.duration,
+                scrollText: allClues[audio.name]?.content2,
+                scrollPosition: 0,
+                scrollOffset: 0,
+                scrollAnimationFrame: 0,
+            }));
 
-        audioList.value = characterAudioList;
-    },
-    { immediate: true }
-);
+            audioList.value = characterAudioList;
+        },
+        { deep: true }
+    );
+
 const replayIndex = ref(-1)
 
 const sortedClues = ref();
 watch(() => props.currentPage, (a, b) => {
     if (a === 'CueSet') sortClues()
-    if (a === 'TeamInfo') {
-        webSocketStore.getRankInfo()
-    }
 },
     { deep: true })
 watch(() => props.newReplay, (a, b) => {
@@ -67,9 +79,11 @@ watch(() => props.newReplay, (a, b) => {
     { deep: true })
 const sortClues = () => {
     console.log('排序')
+    if (!memberStore.info) return
     let clues = memberStore.info.characters[memberStore.virtualRoleId - 1].cueset.clues;
     if (clues.length === 0) return
     // 去掉 name 相同的重复线索，保留第一个出现的
+    console.log(clues.length)
     clues = clues.filter((clue, index, self) =>
         index === self.findIndex((c) => c.name === clue.name)
     );
@@ -121,17 +135,19 @@ const readReplay = (index: number) => {
     updateInfo(memberStore.info)
 }
 const haveNotReadClue = computed(() => {
-    if(memberStore.info.characters[memberStore.virtualRoleId - 1].cueset.clues !== 0) {
+    if (memberStore.info && memberStore.info.characters[memberStore.virtualRoleId - 1].cueset.clues && memberStore.info.characters[memberStore.virtualRoleId - 1].cueset.clues.length !== 0) {
         return memberStore.info.characters[memberStore.virtualRoleId - 1].cueset.clues.filter(clue => clue.isRead === false).length
     } else return 0
 })
 const haveNotReadAudio = computed(() => {
-    if (memberStore.info.characters[memberStore.virtualRoleId - 1].cueset.audio !== 0) {
+    if (memberStore.info && memberStore.info.characters[memberStore.virtualRoleId - 1].cueset.audio && memberStore.info.characters[memberStore.virtualRoleId - 1].cueset.audio.length !== 0) {
         return memberStore.info.characters[memberStore.virtualRoleId - 1].cueset.audio.filter(audio => audio.isRead === false).length
     } else return 0
 })
 const haveNotReadReplay = computed(() => {
-    return memberStore.info.teamInfo.replay.filter(replay => replay.userRead[memberStore.virtualRoleId - 1] === 0 && (replay.hy.length !== 0 || replay.xa.length !== 0)).length
+    if (memberStore.info && memberStore.info.teamInfo.replay) {
+        return memberStore.info.teamInfo.replay.filter(replay => replay.userRead[memberStore.virtualRoleId - 1] === 0 && (replay.hy.length !== 0 || replay.xa.length !== 0)).length
+    } else return 0
 })
 const allHaveNotRead = computed(() => {
     return [haveNotReadClue, haveNotReadAudio, haveNotReadReplay]
@@ -170,7 +186,7 @@ const allHaveNotRead = computed(() => {
                 </view>
                 <scroll-view scroll-y :style="{ height: cluesIndex === -1 ? '0vh' : '7vh' }">
                     <view
-                        v-if="cluesIndex !== -1 && allClues[memberStore.info.characters[memberStore.virtualRoleId - 1].cueset.clues[cluesIndex].name].url"
+                        v-if="cluesIndex !== -1 && memberStore.info && allClues[memberStore.info.characters[memberStore.virtualRoleId - 1].cueset.clues[cluesIndex].name].url"
                         class="flex-row-center clue-text">
                         {{ allClues[memberStore.info.characters[memberStore.virtualRoleId -
                             1].cueset.clues[cluesIndex].name].content2 }}
@@ -179,7 +195,7 @@ const allHaveNotRead = computed(() => {
                     </view>
                 </scroll-view>
                 <scroll-view scroll-y :style="{ maxHeight: cluesIndex === -1 ? '71vh' : '29vh' }">
-                    <view class="clues-box flex-row-center">
+                    <view class="clues-box flex-row-center" v-if="memberStore.info">
                         <!-- <view class="make-old2"></view> -->
                         <view
                             v-for="(item, index) in memberStore.info.characters[memberStore.virtualRoleId - 1].cueset.clues"
@@ -235,7 +251,7 @@ const allHaveNotRead = computed(() => {
                         style="display: flex;flex-direction: column;justify-content: space-between;">
                         <view style="display: flex;height: 50%;">
                             <view style="max-height: 70vh;width: 100rpx;" class="flex-row-center">
-                                <img style="height: 100rpx;width: 50rpx;" @tap="replayIndex--;readReplay(replayIndex)"
+                                <img style="height: 100rpx;width: 50rpx;" @tap="replayIndex--; readReplay(replayIndex)"
                                     v-show="replayIndex !== 0 && memberStore.info?.teamInfo.replay.length > 1"
                                     src="https://applet.cdn.wanjuyuanxian.com/nzgx/static/img/left.png" alt="">
                             </view>
@@ -257,7 +273,8 @@ const allHaveNotRead = computed(() => {
                             </view>
                             <view style="max-height: 70vh;width: 100rpx;" class="flex-row-center">
                                 <img v-if="replayIndex !== memberStore.info?.teamInfo.replay.length - 1 && memberStore.info?.teamInfo.replay.length > 1 && memberStore.info?.teamInfo.replay[replayIndex + 1].hy && memberStore.info?.teamInfo.replay[replayIndex + 1].hy.length !== 0"
-                                    style="height: 80rpx;width: 50rpx;transform: rotate(180deg);" @tap="replayIndex++;readReplay(replayIndex)"
+                                    style="height: 80rpx;width: 50rpx;transform: rotate(180deg);"
+                                    @tap="replayIndex++; readReplay(replayIndex)"
                                     src="https://applet.cdn.wanjuyuanxian.com/nzgx/static/img/left.png" alt="">
                             </view>
                         </view>

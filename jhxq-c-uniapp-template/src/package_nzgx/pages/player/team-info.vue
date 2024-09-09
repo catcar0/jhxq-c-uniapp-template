@@ -23,6 +23,7 @@ const modifyDialog = () => {
     emit('updateDialogObj', dialogObj);
 };
 const rankList = computed(() => {
+    if (!memberStore.rankList) return []
     // 获取 rankList
     const list = memberStore.rankList;
 
@@ -51,13 +52,7 @@ const rankList = computed(() => {
     return newList;
 });
 
-watch(() => props.currentPage, (a, b) => {
-    // if (a === 'TeamInfo') {
-    //     webSocketStore.getRankInfo()
-    // }
-    // console.log(props.currentPage, 'ccc')
-},
-    { deep: true })
+
 const dialogObj = ref({
     dialogVisible: false,
     title: '请输入您的昵称',

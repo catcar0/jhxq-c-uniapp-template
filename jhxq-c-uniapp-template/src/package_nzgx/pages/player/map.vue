@@ -10,7 +10,8 @@ import { addNewItem } from '@/package_nzgx/services/info';
 const props = defineProps({
     dialogObj: Object,
     userInfo: Object,
-    flow: Object
+    flow: Object,
+    currentPage: String,
 });
 
 const emit = defineEmits(['updateDialogObj', "page"]);
@@ -107,6 +108,13 @@ const oldClueSrc = ref('https://applet.cdn.wanjuyuanxian.com/nzgx/static/img/clu
 watch(() => canJoin, () => {
     console.log(canJoin)
 })
+watch(() => props.currentPage, (a, b) => {
+    if (a === 'TeamInfo') {
+        webSocketStore.getRankInfo()
+    }
+    console.log(props.currentPage, 'ccc')
+},
+    { deep: true })
 watch(() => memberStore.info.flow[memberStore.info.teamInfo.flowIndex].inner.find((item: { title: string; }) => item.title === '音频搜证').content[userJoinRoom.value], (a, b) => {
     // console.log(a, b, userJoinRoom.value)
     if (!a || !a.result || a.result === '' || (a !== undefined && b === undefined) || (a.users[0] === -1 || a.users[1] === -1)) {

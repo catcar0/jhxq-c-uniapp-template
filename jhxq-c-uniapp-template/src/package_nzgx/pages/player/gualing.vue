@@ -55,7 +55,7 @@ const isgualingShow = computed(() => {
             return true;
         }
     } else {
-        return false; // 或者根据需要返回 undefined
+        return true; // 或者根据需要返回 undefined
     }
 })
 const qaList = computed(() => {
@@ -433,7 +433,7 @@ const submit = (status: number) => {
 
 .theme-button {
     margin-left: 190rpx;
-    margin-top: 40rpx;
+    margin-top: 20rpx;
     width: 245rpx;
     line-height: 94.5rpx;
     font-size: 28rpx;
