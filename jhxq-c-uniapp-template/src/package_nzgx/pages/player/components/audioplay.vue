@@ -75,31 +75,33 @@ const togglePlayPause = async (index: number) => {
         memberStore.info.characters[memberStore.virtualRoleId - 1].cueset.audio[index].isRead = true;
         webSocketStore.gameSend(memberStore.info)
     }
-    // if (!audio.context) {
-    //     console.error(`Audio context for index ${index} is not initialized.`);
-    //     await Promise.all(props.audioList.map((audio, idx) => {
-    //         if (!audio.context) {
-    //             return initializeAudioContext(audio, idx);
-    //         }
-    //         return Promise.resolve(); // 如果已经初始化，直接跳过
-    //     }));
-    //     // return;
-    // }
-
-    if (audio.isPlaying) {
-        audio.context.pause();
-        clearTimeout(audio.scrollAnimationFrame); // 停止滚动动画
-    } else {
-        // 先暂停所有其他音频
-        props.audioList.forEach((audioItem, idx) => {
-            if (idx !== index && audioItem.isPlaying) {
-                audioItem.context?.pause();
-                clearTimeout(audioItem.scrollAnimationFrame); // 停止滚动动画
+    if (!audio.context) {
+        console.error(`Audio context for index ${index} is not initialized.`);
+        await Promise.all(props.audioList.map((audio, idx) => {
+            if (!audio.context) {
+                return initializeAudioContext(audio, idx);
             }
-        });
-        audio.context.play();
-        startScrollAnimation(index); // 开始滚动动画
+            return Promise.resolve(); // 如果已经初始化，直接跳过
+        }));
+        togglePlayPause(index);
+        // return;
+    } else {
+        if (audio.isPlaying) {
+            audio.context.pause();
+            clearTimeout(audio.scrollAnimationFrame); // 停止滚动动画
+        } else {
+            // 先暂停所有其他音频
+            props.audioList.forEach((audioItem, idx) => {
+                if (idx !== index && audioItem.isPlaying) {
+                    audioItem.context?.pause();
+                    clearTimeout(audioItem.scrollAnimationFrame); // 停止滚动动画
+                }
+            });
+            audio.context.play();
+            startScrollAnimation(index); // 开始滚动动画
+        }
     }
+
 };
 
 const startScrollAnimation = (index: number) => {

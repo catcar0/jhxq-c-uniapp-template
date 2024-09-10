@@ -180,8 +180,16 @@ const glStatus = getStatus('卦灵');
     watch(() => memberStore.info.teamInfo.replay, (a, b) => {
         if (currentPage.value === 'RoomNumber' || !canDialog.value) return
         if (isArrayEqual(a, b)) return
-        if (!isArrayEqual(a.userRead, b.userRead)) return
-        console.log(a, b);
+        // if (!isArrayEqual(a.userRead, b.userRead)) return
+        // 遍历比较每组 userRead
+        const isEqual = a.every((newGroup, index) => {
+            const oldGroup = b[index];
+            // 比较新旧 userRead 是否相等
+            return newGroup.userRead.length === oldGroup.userRead.length &&
+                newGroup.userRead.every((val, i) => val === oldGroup.userRead[i]);
+        });
+        console.log(a, b, isEqual);
+        if (!isEqual) return
         if (JSON.stringify(a) !== JSON.stringify(b) && a !== undefined && b !== undefined) {
             dialogObj.value.dialogVisible = true;
             dialogObj.value.title = '你收到新的复盘记录';
