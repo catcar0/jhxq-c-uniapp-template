@@ -71,7 +71,7 @@ const togglePlayPause = async (index: number) => {
     console.log('aa')
 
     const audio = props.audioList[index];
-    if (audio.context === null) {
+    if (!audio.context) {
         console.error(`Audio context for index ${index} is not initialized.`);
         await Promise.all(props.audioList.map((audio, idx) => {
             if (!audio.context) {
@@ -79,8 +79,7 @@ const togglePlayPause = async (index: number) => {
             }
             return Promise.resolve(); // 如果已经初始化，直接跳过
         }));
-        uni.showToast({ icon: 'none', title: '音频初始化完毕请再点击一次' })
-        return;
+        // return;
     }
 
     if (audio.isPlaying) {
@@ -156,14 +155,13 @@ onMounted(() => {
         audio.context = context;
         audio.scrollOffset = 0; // 初始化滚动偏移量
     });
-    console.log('mounted1')
 });
 onShow(() => {
     console.log('show')
 });
 watch(() => props.audioList.length, (newLength, oldLength) => {
     console.log('11');
-
+    if (newLength === oldLength) return
     props.audioList.forEach((audio, index) => {
         const context = uni.createInnerAudioContext();
         context.src = audio.src;
