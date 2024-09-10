@@ -75,16 +75,16 @@ const togglePlayPause = async (index: number) => {
         memberStore.info.characters[memberStore.virtualRoleId - 1].cueset.audio[index].isRead = true;
         webSocketStore.gameSend(memberStore.info)
     }
-    if (!audio.context) {
-        // console.error(`Audio context for index ${index} is not initialized.`);
-        await Promise.all(props.audioList.map((audio, idx) => {
-            if (!audio.context) {
-                return initializeAudioContext(audio, idx);
-            }
-            return Promise.resolve(); // 如果已经初始化，直接跳过
-        }));
-        // return;
-    }
+    // if (!audio.context) {
+    //     console.error(`Audio context for index ${index} is not initialized.`);
+    //     await Promise.all(props.audioList.map((audio, idx) => {
+    //         if (!audio.context) {
+    //             return initializeAudioContext(audio, idx);
+    //         }
+    //         return Promise.resolve(); // 如果已经初始化，直接跳过
+    //     }));
+    //     // return;
+    // }
 
     if (audio.isPlaying) {
         audio.context.pause();

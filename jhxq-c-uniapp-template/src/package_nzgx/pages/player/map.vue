@@ -248,7 +248,7 @@ const mapSerch = (clue: string, id: number, isShow: boolean) => {
 
         <!-- 个人任务 -->
         <view class="FAQ" @tap="faq(userInfo!.mask.slice(-1)[0])"
-            v-if="userInfo!.mask.slice(-1)[0] && userInfo!.mask.slice(-1)[0].type === 0">
+            v-if="userInfo && userInfo!.mask.slice(-1)[0] && userInfo!.mask.slice(-1)[0].type === 0">
         </view>
 
         <!-- 开启逐风 -->

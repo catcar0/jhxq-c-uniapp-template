@@ -14,8 +14,8 @@ const props = defineProps({
     newReplay: Number
 });
 
-const teamInfo = computed(() => memberStore.info?.teamInfo)
-const userInfo = computed(() => memberStore.info?.characters[memberStore.virtualRoleId - 1])
+const teamInfo = computed(() => memberStore.info?.teamInfo?? 0)
+const userInfo = computed(() => memberStore.info?.characters[memberStore.virtualRoleId - 1]?? 0)
 const emit = defineEmits(['updateDialogObj']);
 
 const modifyDialog = () => {
@@ -139,8 +139,8 @@ const showDialog = (e: any) => {
             <img class="user-avatar-img" src="https://applet.cdn.wanjuyuanxian.com/nzgx/static/img/avatar_frame.png"
                 alt="">
             <view
-                style="background-color: black;position: absolute;margin-left: 15rpx;z-index: 1;height: 300rpx;width: 260rpx;margin-top: -360rpx;">
-                <img style="height: 100%;width: 100%;"
+                style="background-color: black;position: absolute;margin-left: 15rpx;z-index: 1;height: 300rpx;width: 260rpx;margin-top: -330rpx;">
+                <img style="height: 100%;width: 100%;" v-if="memberStore.info.characters[memberStore.virtualRoleId - 1]"
                     :src="memberStore.info.characters[memberStore.virtualRoleId - 1].playerAvatar" alt="">
             </view>
         </view>
@@ -165,7 +165,7 @@ const showDialog = (e: any) => {
                 <view class="player-title hyshtj ">
                     <view class="font-player-gradient1">职员信息</view>
                 </view>
-                <view class="user-name font-player-gradient1" @tap="modifyDialog">
+                <view class="user-name font-player-gradient1" @tap="modifyDialog" v-if="userInfo && userInfo.user">
                     <!-- 厨师沙拉 -->
                     {{ userInfo?.user.slice(0, 10) }}
                     <img class="edit-icon" src="https://applet.cdn.wanjuyuanxian.com/nzgx/static/img/edit_icon.png"

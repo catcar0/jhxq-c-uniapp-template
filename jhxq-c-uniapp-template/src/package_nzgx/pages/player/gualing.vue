@@ -41,6 +41,7 @@ const isgualingShow = computed(() => {
     if (!glContent.value) {
         return true
     }
+    console.log('---',glContent.value.xa.status)
     if (glContent.value.xa.status === 1 && glContent.value.hy.status !== 1) {
         if (glContent.value.hy.qa[0].usersAnswer[memberStore.virtualRoleId - 1].status !== 3) {
             return false;
@@ -51,7 +52,7 @@ const isgualingShow = computed(() => {
         if (glContent.value.xa.qa[0].usersAnswer[memberStore.virtualRoleId - 1].status !== 3 && glContent.value.xa.qa[0].usersAnswer[memberStore.virtualRoleId - 1].status !== 2) {
             isgualingShowB.value = false
             return false;
-        } else if (isgualingShowB.value && (glContent.value.hy.qa[0].usersAnswer[memberStore.virtualRoleId - 1].status === 2 || glContent.value.hy.qa[0].usersAnswer[memberStore.virtualRoleId - 1].status === 3)) {
+        } else if (isgualingShowB.value && (glContent.value.xa.qa[0].usersAnswer[memberStore.virtualRoleId - 1].status === 2 || glContent.value.xa.qa[0].usersAnswer[memberStore.virtualRoleId - 1].status === 3)) {
             return true;
         }
     } else {
@@ -102,6 +103,7 @@ const submit = (status: number) => {
     console.log('aa')
     if (qaList.value.qa[0].usersAnswer[memberStore.virtualRoleId - 1].status === 3 || qaList.value.qa[0].usersAnswer[memberStore.virtualRoleId - 1].status === 2) {
         isgualingShowB.value = true
+        console.log('bb')
         return
     }
     if (qaList.value.canReplay) return

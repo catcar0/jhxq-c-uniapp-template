@@ -24,7 +24,7 @@ const durationList = {
     clue40: { duration: 10 },
     clue41: { duration: 12 },
 }
-// const audio = { name: 'clue19' }
+const audio = { name: 'clue19' }
 const audioList = ref([
     // {
     //     roles: allClues[audio.name].name,
@@ -65,6 +65,7 @@ const audioList = ref([
         },
         { deep: true }
     );
+
 
 const replayIndex = ref(-1)
 
@@ -343,6 +344,7 @@ const allHaveNotRead = computed(() => {
 }
 
 .cue-set {
+    position: fixed;
     overflow: hidden;
     color: #333333;
     width: 100%;
@@ -389,6 +391,7 @@ const allHaveNotRead = computed(() => {
 }
 
 .paper {
+    overflow: hidden;
     display: flex;
     flex-direction: column;
     /* align-items: center; */
