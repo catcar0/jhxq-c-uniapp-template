@@ -429,7 +429,7 @@ const isFourInOneShow = ref(false)
             @updateDialogObj="updateDialogObj" :currentPage="currentPage" :flow="flow" :userInfo="userInfo" />
         <Gualing v-if="memberStore.info"  v-show="currentPage === 'Gualing'" :dialog-obj="dialogObj"
             @updateDialogObj="updateDialogObj" />
-        <CueSet v-if="memberStore.info && memberStore.info.characters[memberStore.virtualRoleId - 1].cueset.clues.length!==0" v-show="currentPage === 'CueSet'" :dialog-obj="dialogObj" :teamInfo="teamInfo"
+        <CueSet v-if="memberStore.info" v-show="currentPage === 'CueSet'" :dialog-obj="dialogObj" :teamInfo="teamInfo"
             :newReplay="newReplay" :currentPage="currentPage" :userInfo="userInfo" @updateDialogObj="updateDialogObj" />
         <view v-if="isPosterShow"  class="poster">
             <!-- <image src="https://applet.cdn.wanjuyuanxian.com/nzgx/static/img/haibao.png" mode="fill" /> -->
