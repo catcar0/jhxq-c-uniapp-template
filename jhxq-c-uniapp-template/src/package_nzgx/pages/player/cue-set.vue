@@ -221,7 +221,7 @@ const allHaveNotRead = computed(() => {
 
             </view>
             <!-- 音频 -->
-            <view class="class-inner" v-show="classIndex === 1">
+            <view class="class-inner" v-if="classIndex === 1">
                 <view class="player-title hyshtj ">
                     <view class="font-player-gradient1">调查记录</view>
                 </view>

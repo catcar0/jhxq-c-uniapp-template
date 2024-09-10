@@ -71,11 +71,7 @@ const togglePlayPause = async (index: number) => {
     console.log('aa')
 
     const audio = props.audioList[index];
-    if (!audio.isRead) {
-        memberStore.info.characters[memberStore.virtualRoleId - 1].cueset.audio[index].isRead = true;
-        webSocketStore.gameSend(memberStore.info)
-    }
-    if (!audio.context) {
+    if (audio.context === null) {
         console.error(`Audio context for index ${index} is not initialized.`);
         await Promise.all(props.audioList.map((audio, idx) => {
             if (!audio.context) {
@@ -83,25 +79,28 @@ const togglePlayPause = async (index: number) => {
             }
             return Promise.resolve(); // 如果已经初始化，直接跳过
         }));
-        togglePlayPause(index);
-        // return;
-    } else {
-        if (audio.isPlaying) {
-            audio.context.pause();
-            clearTimeout(audio.scrollAnimationFrame); // 停止滚动动画
-        } else {
-            // 先暂停所有其他音频
-            props.audioList.forEach((audioItem, idx) => {
-                if (idx !== index && audioItem.isPlaying) {
-                    audioItem.context?.pause();
-                    clearTimeout(audioItem.scrollAnimationFrame); // 停止滚动动画
-                }
-            });
-            audio.context.play();
-            startScrollAnimation(index); // 开始滚动动画
-        }
+        uni.showToast({ icon: 'none', title: '音频初始化完毕请再点击一次' })
+        return;
     }
 
+    if (audio.isPlaying) {
+        audio.context.pause();
+        clearTimeout(audio.scrollAnimationFrame); // 停止滚动动画
+    } else {
+        // 先暂停所有其他音频
+        props.audioList.forEach((audioItem, idx) => {
+            if (idx !== index && audioItem.isPlaying) {
+                audioItem.context?.pause();
+                clearTimeout(audioItem.scrollAnimationFrame); // 停止滚动动画
+            }
+        });
+        audio.context.play();
+        startScrollAnimation(index); // 开始滚动动画
+    }
+    if (!audio.isRead) {
+        memberStore.info.characters[memberStore.virtualRoleId - 1].cueset.audio[index].isRead = true;
+        webSocketStore.gameSend(memberStore.info)
+    }
 };
 
 const startScrollAnimation = (index: number) => {
@@ -131,6 +130,33 @@ const startScrollAnimation = (index: number) => {
 };
 onMounted(() => {
     console.log('mounted')
+    props.audioList.forEach((audio, index) => {
+        const context = uni.createInnerAudioContext();
+        context.src = audio.src;
+        context.onPlay(() => {
+            updatePlayingState(index, true);
+            startScrollAnimation(index); // 开始滚动动画
+        });
+        context.onPause(() => {
+            updatePlayingState(index, false);
+            clearTimeout(audio.scrollAnimationFrame); // 停止滚动动画
+        });
+        context.onStop(() => {
+            updatePlayingState(index, false);
+            clearTimeout(audio.scrollAnimationFrame); // 停止滚动动画
+        });
+        context.onEnded(() => {
+            audio.scrollOffset = 0; // 重置滚动偏移量
+            updatePlayingState(index, false);
+            clearTimeout(audio.scrollAnimationFrame); // 停止滚动动画
+        });
+        context.onTimeUpdate(() => {
+            // updateScrollPosition(index);
+        });
+        audio.context = context;
+        audio.scrollOffset = 0; // 初始化滚动偏移量
+    });
+    console.log('mounted1')
 });
 onShow(() => {
     console.log('show')
