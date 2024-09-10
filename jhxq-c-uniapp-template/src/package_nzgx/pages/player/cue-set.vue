@@ -1,5 +1,5 @@
 <script setup lang='ts'>
-import { computed, ref, watch } from 'vue';
+import { computed, onMounted, ref, watch } from 'vue';
 import audioplay from '@/package_nzgx/pages/player/components/audioplay.vue';
 import { useMemberStore } from '@/package_nzgx/stores'
 import { useWebSocketStore } from '@/package_nzgx/stores'
@@ -41,30 +41,30 @@ const audioList = ref([
     //     scrollAnimationFrame: 0,
     // }
 ])
-    watch(
-        () => memberStore.info?.characters?.[memberStore.virtualRoleId - 1]?.cueset?.audio || [],
-        (newAudioList) => {
-            if (newAudioList.length === 0) return;
-            
-            const characterAudioList = newAudioList.map(audio => ({
-                roles: allClues[audio.name]?.name,
-                location: allClues[audio.name]?.content1,
-                content: allClues[audio.name]?.content2,
-                src: allClues[audio.name]?.url + '.mp3',
-                isPlaying: false,
-                isRead: audio.isRead,
-                context: null,
-                duration: durationList[audio.name]?.duration,
-                scrollText: allClues[audio.name]?.content2,
-                scrollPosition: 0,
-                scrollOffset: 0,
-                scrollAnimationFrame: 0,
-            }));
+watch(
+    () => memberStore.info?.characters?.[memberStore.virtualRoleId - 1]?.cueset?.audio || [],
+    (a,b) => {
+        if (a.length === 0) return;
+        if (a.length === b.length)return;
+        const characterAudioList = newAudioList.map(audio => ({
+            roles: allClues[audio.name]?.name,
+            location: allClues[audio.name]?.content1,
+            content: allClues[audio.name]?.content2,
+            src: allClues[audio.name]?.url + '.mp3',
+            isPlaying: false,
+            isRead: audio.isRead,
+            context: null,
+            duration: durationList[audio.name]?.duration,
+            scrollText: allClues[audio.name]?.content2,
+            scrollPosition: 0,
+            scrollOffset: 0,
+            scrollAnimationFrame: 0,
+        }));
 
-            audioList.value = characterAudioList;
-        },
-        { deep: true }
-    );
+        audioList.value = characterAudioList;
+    },
+    { deep: true }
+);
 
 
 const replayIndex = ref(-1)
@@ -543,8 +543,7 @@ const allHaveNotRead = computed(() => {
     align-items: center; */
 }
 
-.audio-info {
-    height: 85rpx;
+.audio-info {    height: 85rpx;
 }
 </style>
 <style>

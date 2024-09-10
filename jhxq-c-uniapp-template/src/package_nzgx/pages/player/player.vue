@@ -469,7 +469,7 @@ const isFourInOneShow = ref(false)
                     <view @tap="handleSaveImage()" class="hide-btn">保存</view>
                 </view>
             </view>
-            <canvas style="width: 1080px;height: 1920px;" canvas-id="contentCanvas" ref="contentCanvas"></canvas>
+            <canvas style="position: fixed;left: 99999rpx;;width: 1080px;height: 1920px;" canvas-id="contentCanvas" type="2d" id="contentCanvas" ref="contentCanvas"></canvas>
         </view>
     </view>
 </template>

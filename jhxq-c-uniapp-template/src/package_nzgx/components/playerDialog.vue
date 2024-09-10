@@ -93,8 +93,8 @@ const durationList = {
     clue40: { duration: 10 },
     clue41: { duration: 12 },
 }
-const audioList = ref<AudioItem[]>([
-    {
+const audioList = computed(() => {
+    return     [{
         roles: allClues[props.dialogObj.clue!].name,
         location: allClues[props.dialogObj.clue!].content1,
         content: allClues[props.dialogObj.clue!].content2,
@@ -107,8 +107,8 @@ const audioList = ref<AudioItem[]>([
         scrollPosition: 0,
         scrollOffset: 0,
         scrollAnimationFrame: 0
-    }
-])
+    }]
+})
 </script>
 
 <template>

@@ -110,7 +110,7 @@ const startScrollAnimation = (index: number) => {
     const containerWidth = 0; // audio-content 的宽度
     const textWidth = audio.scrollText.length * 12; // 字幕的宽度估计
     const totalScrollDistance = textWidth + containerWidth; // 总滚动距离
-    const fps = 10; // 每秒 60 帧
+    const fps = 60; // 每秒 60 帧
     const totalFrames = duration * fps; // 总帧数（音频播放期间）
     const scrollStep = totalScrollDistance / totalFrames; // 每帧的滚动距离
 
