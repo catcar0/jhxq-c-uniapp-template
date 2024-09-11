@@ -7,37 +7,52 @@ export function saveViewAsImage(viewId: string, canvasId: string, user: string, 
         if (downloadResult.statusCode === 200) {
           uni.createSelectorQuery()
             .select(`#${canvasId}`) // 获取 WXML 中的 Canvas 节点
-            .node(({ node: canvas }) => {
-              // 设置 canvas 的宽高，确保和绘制内容一致
-              canvas.width = 1080;
-              canvas.height = 1920;
-              const ctx = canvas.getContext('2d'); // 获取 2D 渲染上下文
+            .fields({ node: true, size: true })
+            .exec((res) => {
+              // 获取 Canvas 对象和实际宽高
+              const canvas = res[0].node;
+              const renderWidth = res[0].width;
+              const renderHeight = res[0].height;
 
-              // 绘制背景
-              ctx.fillStyle = '#fff'; // 设置背景色
-              ctx.fillRect(0, 0, 1080, 1920); // 填充背景色
+              // 获取设备像素比 (dpr) 并调整 canvas 尺寸
+              const dpr = wx.getWindowInfo().pixelRatio;
+              canvas.width = renderWidth * dpr;
+              canvas.height = renderHeight * dpr;
+
+              // 获取 2D 绘制上下文，并设置缩放比例
+              const ctx = canvas.getContext('2d');
+              ctx.scale(dpr, dpr);
+
+              // 绘制背景色
+              ctx.fillStyle = '#fff';
+              ctx.fillRect(0, 0, renderWidth, renderHeight);
+
+              // 设置字体样式
               ctx.font = "bold 28px PingFang SC";
               ctx.fillStyle = '#000000';
 
-              // 使用本地临时路径绘制图片
-              const img = canvas.createImage(); // 创建一个图片对象
-              img.src = downloadResult.tempFilePath; // 使用下载的图片临时路径
+              // 创建图片对象并加载图片
+              const img = canvas.createImage();
+              img.src = downloadResult.tempFilePath;
 
               img.onload = () => {
-                ctx.drawImage(img, 0, 0, 1080, 1920); // 绘制图片
+                // 绘制下载的图片
+                ctx.drawImage(img, 0, 0, renderWidth, renderHeight);
 
+                // 绘制文本
                 ctx.fillText(user, 170, 1122);
                 ctx.fillText(role, 455, 1122);
                 ctx.fillText(time, 730, 1122);
                 ctx.fillText(location, 170, 1288);
                 ctx.fillText(dm, 455, 1288);
 
+                // 将 canvas 内容保存为图片
                 uni.canvasToTempFilePath({
-                  canvas: canvas, // 使用刚刚获取的 canvas 对象
+                  canvas: canvas,
                   success: (res) => {
                     const tempFilePath = res.tempFilePath;
 
-                    // 保存到相册
+                    // 保存图片到相册
                     uni.saveImageToPhotosAlbum({
                       filePath: tempFilePath,
                       success: () => {
@@ -53,13 +68,13 @@ export function saveViewAsImage(viewId: string, canvasId: string, user: string, 
                           icon: 'none',
                         });
                         console.error(err);
-                        reject(err);
+                        reject('保存图片到相册失败');
                       },
                     });
                   },
                   fail: (err) => {
-                    console.error(err);
-                    reject(err);
+                    console.error('canvas 转换图片失败:', err);
+                    reject('canvas 转换图片失败');
                   }
                 });
               };
@@ -68,10 +83,9 @@ export function saveViewAsImage(viewId: string, canvasId: string, user: string, 
                 console.error('图片加载失败:', err);
                 reject('图片加载失败');
               };
-            })
-            .exec();
+            });
         } else {
-          reject('图片下载失败');
+          reject('图片下载失败，状态码错误');
         }
       },
       fail: (err) => {
