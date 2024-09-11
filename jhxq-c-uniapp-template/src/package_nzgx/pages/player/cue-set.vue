@@ -46,7 +46,8 @@ watch(
     (a,b) => {
         if (a.length === 0) return;
         if (a.length === b.length)return;
-        const characterAudioList = newAudioList.map(audio => ({
+        if (a.length === audioList.value.length)return;
+        const characterAudioList = a.map(audio => ({
             roles: allClues[audio.name]?.name,
             location: allClues[audio.name]?.content1,
             content: allClues[audio.name]?.content2,

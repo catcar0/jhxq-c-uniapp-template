@@ -17,7 +17,10 @@ const roomNumber = ref('')
 const roomId = ref('')
 const loginVisible = ref<boolean>(false);
 const connectCount = ref<number>(0)
-const currentRoomId = (index: number) => {
+const currentRoomId = (index: number,item:any) => {
+    if (roomNumber.value.length < 8){
+        roomNumber.value += item; 
+    } else return
     if (index >= 0 && index < 9) {
         roomId.value += index + 1 + ''
     } else if (index = 10) {
@@ -27,6 +30,7 @@ const currentRoomId = (index: number) => {
 
 
 const toPlay = () => {
+    console.log(roomNumber.value,roomId.value)
     loginVisible.value = true;
 }
 
@@ -148,7 +152,7 @@ const play = async({ avatar, nickname }: { avatar: string, nickname: string }) =
             <view class="num-key">
                 <view v-for="(item, index) in keys" :key="index">
                     <view v-show="item !== 'clear' && item !== 'backspace' && item !== '启'"
-                        class="num-key-btn flex-row-center" @tap="roomNumber += item; currentRoomId(index)">
+                        class="num-key-btn flex-row-center" @tap="currentRoomId(index,item)">
                         <text class="number">{{ item }}</text>
                     </view>
                     <view v-show="item === 'backspace'" class="num-key-btn flex-row-center"
