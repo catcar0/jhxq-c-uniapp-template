@@ -26,20 +26,6 @@ const durationList = {
 }
 const audio = { name: 'clue19' }
 const audioList = ref([
-    // {
-    //     roles: allClues[audio.name].name,
-    //     location: allClues[audio.name].content1,
-    //     content: allClues[audio.name].content2,
-    //     src: allClues[audio.name].url + '.mp3',
-    //     isPlaying: false,
-    //     isRead: audio.isRead,
-    //     context: null,
-    //     duration: durationList[audio.name].duration,
-    //     scrollText: allClues[audio.name].content2,
-    //     scrollPosition: 0,
-    //     scrollOffset: 0,
-    //     scrollAnimationFrame: 0,
-    // }
 ])
 watch(
     () => memberStore.info?.characters?.[memberStore.virtualRoleId - 1]?.cueset?.audio || [],
@@ -189,11 +175,11 @@ const allHaveNotRead = computed(() => {
                 <scroll-view scroll-y :style="{ height: cluesIndex === -1 ? '0vh' : '7vh' }">
                     <view
                         v-if="cluesIndex !== -1 && memberStore.info && allClues[memberStore.info.characters[memberStore.virtualRoleId - 1].cueset.clues[cluesIndex].name].url"
-                        class="flex-row-center clue-text">
+                        class="flex-row-center clue-text" :style="{paddingTop:memberStore.info.characters[memberStore.virtualRoleId - 1].cueset.clues[cluesIndex].name === 'clue36'? '28rpx':'10rpx'}">
                         {{ allClues[memberStore.info.characters[memberStore.virtualRoleId -
                             1].cueset.clues[cluesIndex].name].content2 }}
-                        <!-- {{ allClues[memberStore.info.characters[memberStore.virtualRoleId -
-                                1].cueset.clues[cluesIndex].name].name }} -->
+                        <!-- {{ memberStore.info.characters[memberStore.virtualRoleId -
+                                1].cueset.clues[cluesIndex].name }} -->
                     </view>
                 </scroll-view>
                 <scroll-view scroll-y :style="{ maxHeight: cluesIndex === -1 ? '71vh' : '29vh' }">
@@ -245,7 +231,7 @@ const allHaveNotRead = computed(() => {
                             <view>{{ item.name }}</view>
                             <view style="font-size: 34rpx;font-weight: 700;" class="font-player-gradient1">
                                 <text
-                                    v-show="item.userRead[memberStore.virtualRoleId - 1] === 0 && item.xa.length !== 0">有更新</text>
+                                    v-show="item.userRead[memberStore.virtualRoleId - 1] === 0 && item.xa.length !== 0 && item.hy.length !== 0">有更新</text>
                             </view>
                         </view>
                     </view>
@@ -474,8 +460,8 @@ const allHaveNotRead = computed(() => {
     height: 100rpx;
     line-height: 150%;
     text-align: center;
-    margin-top: 0rpx;
-    padding-top: 10rpx;
+    /* margin-top: 0rpx;
+    padding-top: 10rpx; */
 }
 
 .clues-box {

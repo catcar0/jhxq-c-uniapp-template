@@ -469,8 +469,8 @@ const isFourInOneShow = ref(false)
                     <view @tap="handleSaveImage()" class="hide-btn">保存</view>
                 </view>
             </view>
-            <canvas style="position: fixed;left: 99999rpx;;width: 1080px;height: 1920px;" type="2d" id="contentCanvas" ></canvas>
         </view>
+        <canvas style="position: fixed;left: 99999rpx;;width: 1080px;height: 1920px;" type="2d" id="contentCanvas" ></canvas>
     </view>
 </template>
 
@@ -548,7 +548,7 @@ const isFourInOneShow = ref(false)
 
 .newClue-img {
     opacity: 0;
-    width: 70%;
+    width: 455rpx;
 }
 
 .newClue-img-A-rotate {
@@ -574,7 +574,7 @@ const isFourInOneShow = ref(false)
 }
 
 .newClue-img-B {
-    width: 100%;
+    width: 45rpx;
     position: absolute;
     transition: all 1s;
     object-fit: contain;
