@@ -145,7 +145,8 @@ const submit = (status: number) => {
                 <view class="class-title hyshtj">
                     卦灵
                 </view>
-                <view class="qa-box" v-if="glIndex === -1 || qaList.qa[0].usersAnswer[memberStore.virtualRoleId - 1].status === 3 || qaList.qa[0].usersAnswer[memberStore.virtualRoleId - 1].status === 2">
+                <view class="qa-box"
+                    v-if="glIndex === -1 || qaList.qa[0].usersAnswer[memberStore.virtualRoleId - 1].status === 3 || qaList.qa[0].usersAnswer[memberStore.virtualRoleId - 1].status === 2">
                     <view v-for="(item, index) in qaList.qa" :key="index">
                         <view class="question">{{ item.question }}</view>
                         <view class="answer">
@@ -190,11 +191,10 @@ const submit = (status: number) => {
                                 src="https://applet.cdn.wanjuyuanxian.com/nzgx/static/img/gl_select_icon.png" alt="">
                         </view>
                     </view>
-                    <view @tap="submit(qaList.usersSubmit[memberStore.virtualRoleId - 1])" class="theme-button button"
-                        style="margin-top: 100rpx;">
+                    <!-- <view @tap="submit(qaList.usersSubmit[memberStore.virtualRoleId - 1])" class="theme-button button">
                         <view class="theme-button-clear"></view>
                         <view>{{ btnText }}</view>
-                    </view>
+                    </view> -->
                 </view>
 
                 <view class="select-clue"
@@ -239,13 +239,13 @@ const submit = (status: number) => {
                             </view>
                         </view>
                     </scroll-view>
-                    <view v-show="cluesIndex !== -1"
+                    <!-- <view v-show="cluesIndex !== -1"
                         @tap="updateClue(memberStore.info.characters[memberStore.virtualRoleId - 1].cueset.clues[cluesIndex].name)"
                         class="theme-button button">选择
                     </view>
                     <view v-show="cluesIndex === -1"
                         class="theme-button button">选择
-                    </view>
+                    </view> -->
                 </view>
 
                 <view class="select-clue"
@@ -289,12 +289,37 @@ const submit = (status: number) => {
                             </view>
                         </view>
                     </scroll-view>
-                    <view v-show="cluesIndex !== -1" @tap="updateClue(avatarList[cluesIndex])" class="theme-button button">选择
+                    <!-- <view v-show="cluesIndex !== -1" @tap="updateClue(avatarList[cluesIndex])" class="theme-button button">选择
                     </view>
                     <view v-show="cluesIndex === -1"  class="theme-button button">选择
-                    </view>
+                    </view> -->
                 </view>
+            </view>
+            <view
+                v-if="glIndex === -1 || qaList.qa[0].usersAnswer[memberStore.virtualRoleId - 1].status === 3 || qaList.qa[0].usersAnswer[memberStore.virtualRoleId - 1].status === 2">
+                <view @tap="submit(qaList.usersSubmit[memberStore.virtualRoleId - 1])" class="theme-button button">
+                    <view class="theme-button-clear"></view>
+                    <view>{{ btnText }}</view>
+                </view>
+            </view>
 
+            <view
+                v-if="glIndex !== -1 && qaList.qa[glIndex].question !== '凶手是谁？' && qaList.qa[glIndex].question !== '谁会担心春天举报成功？' && qaList.qa[glIndex].question !== '林佳李梦怀孕，孩子可能是谁的？' && qaList.qa[0].usersAnswer[memberStore.virtualRoleId - 1].status !== 3 && qaList.qa[0].usersAnswer[memberStore.virtualRoleId - 1].status !== 2">
+                <view v-show="cluesIndex !== -1"
+                    @tap="updateClue(memberStore.info.characters[memberStore.virtualRoleId - 1].cueset.clues[cluesIndex].name)"
+                    class="theme-button button">选择
+                </view>
+                <view v-show="cluesIndex === -1" class="theme-button button">选择
+                </view>
+            </view>
+
+            <view
+                v-if="glIndex !== -1 && (qaList.qa[glIndex].question === '凶手是谁？' || qaList.qa[glIndex].question === '谁会担心春天举报成功？' || qaList.qa[glIndex].question === '林佳李梦怀孕，孩子可能是谁的？') && qaList.qa[0].usersAnswer[memberStore.virtualRoleId - 1].status !== 3 && qaList.qa[0].usersAnswer[memberStore.virtualRoleId - 1].status !== 2">
+                <view v-show="cluesIndex !== -1" @tap="updateClue(avatarList[cluesIndex])" class="theme-button button">
+                    选择
+                </view>
+                <view v-show="cluesIndex === -1" class="theme-button button">选择
+                </view>
             </view>
         </view>
     </view>
@@ -448,8 +473,10 @@ const submit = (status: number) => {
 }
 
 .theme-button {
+    position: fixed;
+    bottom: 8vh;
     margin-left: 190rpx;
-    margin-top: 40rpx;
+    /* margin-top: 40rpx; */
     width: 245rpx;
     line-height: 94.5rpx;
     font-size: 28rpx;

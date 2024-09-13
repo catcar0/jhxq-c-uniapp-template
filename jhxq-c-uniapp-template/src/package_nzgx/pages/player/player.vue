@@ -15,6 +15,7 @@ import { initAllInfo, updateOriFlowInfo } from '@/package_nzgx/services/initInfo
 import { allClues, updateOriClueInfo } from '@/package_nzgx/services/clues';
 import { saveViewAsImage } from '@/package_nzgx/utils/saveViewAsImage';
 import { addNewItem } from '@/package_nzgx/services/info';
+import { onHide, onShow } from '@dcloudio/uni-app';
 const memberStore = useMemberStore()
 const webSocketStore = useWebSocketStore();
 const currentPage = ref('RoomNumber')
@@ -96,168 +97,168 @@ const getStatus = (title: string) => {
 };
 const glContent = getContent('卦灵');
 const glStatus = getStatus('卦灵');
-const haveNewMission= ref([false,false,false])
-const haveNewMission2= ref([false,false,false])
-    watch(() => memberStore.info.flow[3].send, (a, b) => {
-        if (a !== b && a !== undefined && b !== undefined) {
-            console.log('show', a, b)
-            isPosterShow.value = true
-        }
-    })
-    watch(() => currentPage.value, (a, b) => {
-        if (a === 'TeamInfo') {
-            webSocketStore.getRankInfo()
-        }
-        console.log(currentPage.value, 'ccc')
-    },
-        { deep: true })
-    watch(() => memberStore.info.flow[0].inner[1].status, (a, b) => {
-        console.log(a, b)
-        if (a === 3 && b == 2) {
+const haveNewMission = ref([false, false, false])
+const haveNewMission2 = ref([false, false, false])
+watch(() => memberStore.info.flow[3].send, (a, b) => {
+    if (a !== b && a !== undefined && b !== undefined) {
+        console.log('show', a, b)
+        isPosterShow.value = true
+    }
+})
+watch(() => currentPage.value, (a, b) => {
+    if (a === 'TeamInfo') {
+        webSocketStore.getRankInfo()
+    }
+    console.log(currentPage.value, 'ccc')
+},
+    { deep: true })
+watch(() => memberStore.info.flow[0].inner[1].status, (a, b) => {
+    console.log(a, b)
+    if (a === 3 && b == 2) {
+        setTimeout(() => {
+            isNewClueShow.value = false
+            isFourInOneShow.value = true
             setTimeout(() => {
-                isNewClueShow.value = false
-                isFourInOneShow.value = true
-                setTimeout(() => {
-                    isNewClueShow.value = true
-                    isFourInOneShow.value = false
-                }, 3000)
-            }, 3000);
-        }
-    }, { deep: true })
-    watch(() => memberStore.info.characters[userIndex.value].cueset.clues, (a, b) => {
-        if (currentPage.value === 'RoomNumber' || !canDialog.value) return
-        console.log('isclues', a, b)
-        const newclue = memberStore.info.characters[userIndex.value].cueset.clues.slice(-1)[0];
-        if (!newclue) {
-            return
-        }
-        if (isArrayEqual(a, b) && newclue.type !== 2 && newclue.type !== 0) return
-        console.log('ab不等')
-        if (!newclue.isRead && newclue.isNew) {
-            switch (newclue.type) {
-                case 0:
-                    if (memberStore.info.characters[userIndex.value].cueset.clues.length > 9 && newclue.name === 'clue1') return
-                    if (newClueSrc.value === `https://applet.cdn.wanjuyuanxian.com/nzgx/static/clues/${newclue.name}.png`) return
-                    isNewClueShow.value = false;
-                    isNewClueShow.value = true;
-                    isDeepClue.value = false;
-                    newClueSrc.value = `https://applet.cdn.wanjuyuanxian.com/nzgx/static/clues/${newclue.name}.png`;
-                    break;
-                case 1:
-                    console.log('个人线索')
-                    if(haveNewMission.value[memberStore.info.teamInfo.flowIndex]) return
-                    haveNewMission.value[memberStore.info.teamInfo.flowIndex] = true
-                    dialogObj.value.title = '获得新线索';
-                    dialogObj.value.content = '您获得新的6条个人线索，请前往线索集查看';
-                    dialogObj.value.type = 'getClues';
-                    dialogObj.value.confirmText = '查看';
-                    dialogObj.value.dialogVisible = true
-                    break;
-                case 2:
-                    console.log('2')
-                    if (newClueSrc.value === allClues[newclue.name].url + '.png') return
-                    inAni.value = false
-                    isRotate.value = false
-                    isScale.value = false
-                    isNewClueShow.value = false;
-                    isNewClueShow.value = true;
-                    isDeepClue.value = true;
-                    newClueSrc.value = allClues[newclue.name].url + '.png';
-                    oldClueSrc.value = allClues[newclue.deepClue].url + '.png';
-                    break;
-                case 3:
-                    if (newClueSrc.value === allClues[newclue.name].url + '.png') return
-                    dialogObj.value.title = '个人任务成功';
-                    dialogObj.value.content = '获得一条深入线索';
-                    dialogObj.value.type = 'success';
-                    dialogObj.value.confirmText = '查看';
-                    dialogObj.value.dialogVisible = true
-                    // memberStore.info.characters[userIndex.value].cueset.clues.slice(-1)[0].type = 2
-                    console.log(memberStore.info.characters[userIndex.value].mask.slice(-1)[0].type)
-                    if (memberStore.info.characters[userIndex.value].mask.slice(-1)[0].type !== -1) memberStore.info.characters[userIndex.value].mask.slice(-1)[0].type = 2;
-                    break;
-                default:
-                    // 处理未定义的类型
-                    console.warn('未处理的线索类型:', newclue.type);
-            }
-        }
-    },
-        { deep: true })
-    watch(() => memberStore.info.teamInfo.replay, (a, b) => {
-        if (currentPage.value === 'RoomNumber' || !canDialog.value) return
-        if (isArrayEqual(a, b)) return
-        // if (!isArrayEqual(a.userRead, b.userRead)) return
-        // 遍历比较每组 userRead
-        const isEqual = a.every((newGroup, index) => {
-            const oldGroup = b[index];
-            // 比较新旧 userRead 是否相等
-            return newGroup.userRead.length === oldGroup.userRead.length &&
-                newGroup.userRead.every((val, i) => val === oldGroup.userRead[i]);
-        });
-        console.log(a, b, isEqual);
-        if (!isEqual) return
-        if (JSON.stringify(a) !== JSON.stringify(b) && a !== undefined && b !== undefined) {
-            dialogObj.value.dialogVisible = true;
-            dialogObj.value.title = '你收到新的复盘记录';
-            dialogObj.value.content = '需要查看复盘记录吗';
-            dialogObj.value.confirmText = '确定';
-            dialogObj.value.hideCloseIcon = false;
-            dialogObj.value.type = 'newReplay';
-        }
-    },
-        { deep: true })
-    watch(() => memberStore.info.characters[memberStore.virtualRoleId - 1].mask, (a, b) => {
-        if (currentPage.value === 'RoomNumber' || !canDialog.value) return
-        console.log(a, b)
-        if (a.length === 0 || b.length === 0) {
-            return
-        }
-        const newqa = memberStore.info.characters[memberStore.virtualRoleId - 1].mask.slice(-1)[0]
-        if (newqa.type === 0) {
-            if (newqa.isError) {
+                isNewClueShow.value = true
+                isFourInOneShow.value = false
+            }, 3000)
+        }, 3000);
+    }
+}, { deep: true })
+watch(() => memberStore.info.characters[userIndex.value].cueset.clues, (a, b) => {
+    if (currentPage.value === 'RoomNumber' || !canDialog.value) return
+    console.log('isclues', a, b)
+    const newclue = memberStore.info.characters[userIndex.value].cueset.clues.slice(-1)[0];
+    if (!newclue) {
+        return
+    }
+    if (isArrayEqual(a, b) && newclue.type !== 2 && newclue.type !== 0) return
+    console.log('ab不等')
+    if (!newclue.isRead && newclue.isNew) {
+        switch (newclue.type) {
+            case 0:
+                if (memberStore.info.characters[userIndex.value].cueset.clues.length > 9 && newclue.name === 'clue1') return
+                if (newClueSrc.value === `https://applet.cdn.wanjuyuanxian.com/nzgx/static/clues/${newclue.name}.png`) return
+                isNewClueShow.value = false;
+                isNewClueShow.value = true;
+                isDeepClue.value = false;
+                newClueSrc.value = `https://applet.cdn.wanjuyuanxian.com/nzgx/static/clues/${newclue.name}.png`;
+                break;
+            case 1:
+                console.log('个人线索')
+                if (haveNewMission.value[memberStore.info.teamInfo.flowIndex]) return
+                haveNewMission.value[memberStore.info.teamInfo.flowIndex] = true
+                dialogObj.value.title = '获得新线索';
+                dialogObj.value.content = '您获得新的6条个人线索，请前往线索集查看';
+                dialogObj.value.type = 'getClues';
+                dialogObj.value.confirmText = '查看';
                 dialogObj.value.dialogVisible = true
-                dialogObj.value.title = '个人任务失败'
-                dialogObj.value.content = '询问一下同伴吧'
-                dialogObj.value.confirmText = '确定'
-                dialogObj.value.hideCloseIcon = true
-                dialogObj.value.type = 'error'
-            }
-            if (newqa.isNew) {
-                if(haveNewMission2.value[memberStore.info.teamInfo.flowIndex]) return
-                haveNewMission2.value[memberStore.info.teamInfo.flowIndex] = true
-                let newContent = '';
-                // 遍历 qalist 数组
-                newqa.qa.forEach(item => {
-                    // 使用正则表达式去掉序号部分
-                    const questionText = item.question.replace(/^\d+\.\s*/, '');
-                    // 将问题拼接到 newContent 中，并添加换行符
-                    newContent += questionText + '\n';
-                });
+                break;
+            case 2:
+                console.log('2')
+                if (newClueSrc.value === allClues[newclue.name].url + '.png') return
+                inAni.value = false
+                isRotate.value = false
+                isScale.value = false
+                isNewClueShow.value = false;
+                isNewClueShow.value = true;
+                isDeepClue.value = true;
+                newClueSrc.value = allClues[newclue.name].url + '.png';
+                oldClueSrc.value = allClues[newclue.deepClue].url + '.png';
+                break;
+            case 3:
+                if (newClueSrc.value === allClues[newclue.name].url + '.png') return
+                dialogObj.value.title = '个人任务成功';
+                dialogObj.value.content = '获得一条深入线索';
+                dialogObj.value.type = 'success';
+                dialogObj.value.confirmText = '查看';
                 dialogObj.value.dialogVisible = true
-                dialogObj.value.title = '你当前收到一条个人任务'
-                dialogObj.value.confirmText = '确定'
-                dialogObj.value.content = newContent
-                dialogObj.value.hideCloseIcon = true
-                dialogObj.value.type = 'newTask'
-            }
-        } else if (newqa.type === -1) {
-            setTimeout(() => {
-                memberStore.info.characters[memberStore.virtualRoleId - 1].mask.slice(-1)[0].type = 0
-                updateInfo(memberStore.info)
-            }, 5000);
+                // memberStore.info.characters[userIndex.value].cueset.clues.slice(-1)[0].type = 2
+                console.log(memberStore.info.characters[userIndex.value].mask.slice(-1)[0].type)
+                if (memberStore.info.characters[userIndex.value].mask.slice(-1)[0].type !== -1) memberStore.info.characters[userIndex.value].mask.slice(-1)[0].type = 2;
+                break;
+            default:
+                // 处理未定义的类型
+                console.warn('未处理的线索类型:', newclue.type);
         }
-
-    },
-        { deep: true })
-    watch(() => glStatus.value, (a, b) => {
-        console.log('glstatus', glStatus.value)
-        if (a === b) return
-        if (glStatus.value === 2) {
-            currentPage.value = 'Gualing'
+    }
+},
+    { deep: true })
+watch(() => memberStore.info.teamInfo.replay, (a, b) => {
+    if (currentPage.value === 'RoomNumber' || !canDialog.value) return
+    if (isArrayEqual(a, b)) return
+    // if (!isArrayEqual(a.userRead, b.userRead)) return
+    // 遍历比较每组 userRead
+    const isEqual = a.every((newGroup, index) => {
+        const oldGroup = b[index];
+        // 比较新旧 userRead 是否相等
+        return newGroup.userRead.length === oldGroup.userRead.length &&
+            newGroup.userRead.every((val, i) => val === oldGroup.userRead[i]);
+    });
+    console.log(a, b, isEqual);
+    if (!isEqual) return
+    if (JSON.stringify(a) !== JSON.stringify(b) && a !== undefined && b !== undefined) {
+        dialogObj.value.dialogVisible = true;
+        dialogObj.value.title = '你收到新的复盘记录';
+        dialogObj.value.content = '需要查看复盘记录吗';
+        dialogObj.value.confirmText = '确定';
+        dialogObj.value.hideCloseIcon = false;
+        dialogObj.value.type = 'newReplay';
+    }
+},
+    { deep: true })
+watch(() => memberStore.info.characters[memberStore.virtualRoleId - 1].mask, (a, b) => {
+    if (currentPage.value === 'RoomNumber' || !canDialog.value) return
+    console.log(a, b)
+    if (a.length === 0 || b.length === 0) {
+        return
+    }
+    const newqa = memberStore.info.characters[memberStore.virtualRoleId - 1].mask.slice(-1)[0]
+    if (newqa.type === 0) {
+        if (newqa.isError) {
+            dialogObj.value.dialogVisible = true
+            dialogObj.value.title = '个人任务失败'
+            dialogObj.value.content = '询问一下同伴吧'
+            dialogObj.value.confirmText = '确定'
+            dialogObj.value.hideCloseIcon = true
+            dialogObj.value.type = 'error'
         }
+        if (newqa.isNew) {
+            if (haveNewMission2.value[memberStore.info.teamInfo.flowIndex]) return
+            haveNewMission2.value[memberStore.info.teamInfo.flowIndex] = true
+            let newContent = '';
+            // 遍历 qalist 数组
+            newqa.qa.forEach(item => {
+                // 使用正则表达式去掉序号部分
+                const questionText = item.question.replace(/^\d+\.\s*/, '');
+                // 将问题拼接到 newContent 中，并添加换行符
+                newContent += questionText + '\n';
+            });
+            dialogObj.value.dialogVisible = true
+            dialogObj.value.title = '你当前收到一条个人任务'
+            dialogObj.value.confirmText = '确定'
+            dialogObj.value.content = newContent
+            dialogObj.value.hideCloseIcon = true
+            dialogObj.value.type = 'newTask'
+        }
+    } else if (newqa.type === -1) {
+        setTimeout(() => {
+            memberStore.info.characters[memberStore.virtualRoleId - 1].mask.slice(-1)[0].type = 0
+            updateInfo(memberStore.info)
+        }, 5000);
+    }
 
-    },
-        { deep: true })
+},
+    { deep: true })
+watch(() => glStatus.value, (a, b) => {
+    console.log('glstatus', glStatus.value)
+    if (a === b) return
+    if (glStatus.value === 2) {
+        currentPage.value = 'Gualing'
+    }
+
+},
+    { deep: true })
 const teamInfo = computed(() => memberStore.info?.teamInfo)
 const userInfo = computed(() => memberStore.info?.characters[memberStore.virtualRoleId - 1])
 const flow = computed(() => memberStore.info?.flow[memberStore.info.teamInfo.flowIndex])
@@ -298,7 +299,7 @@ onMounted(async () => {
     await updateOriFlowInfo()
     await updateOriClueInfo()
     uni.hideLoading()
-    if (!memberStore.info){
+    if (!memberStore.info) {
         memberStore.setInfo(initAllInfo)
         // memberStore.setVirtualRoleId(0)
     }
@@ -388,7 +389,7 @@ const handleSaveImage = async () => {
     })
     try {
         console.log(memberStore.info?.characters[memberStore.virtualRoleId - 1].user.slice(0, 10), memberStore.info.characters[memberStore.virtualRoleId - 1]?.name, getCurrentFormattedDate(), memberStore.info.teamInfo.location, memberStore.info.teamInfo.dmName)
-        await saveViewAsImage('content-view', 'contentCanvas',memberStore.info?.characters[memberStore.virtualRoleId - 1].user.slice(0, 10)??'', memberStore.info.characters[memberStore.virtualRoleId - 1]?.name??'', getCurrentFormattedDate(), memberStore.info.teamInfo.location??'', memberStore.info.teamInfo.dmName??'');
+        await saveViewAsImage('content-view', 'contentCanvas', memberStore.info?.characters[memberStore.virtualRoleId - 1].user.slice(0, 10) ?? '', memberStore.info.characters[memberStore.virtualRoleId - 1]?.name ?? '', getCurrentFormattedDate(), memberStore.info.teamInfo.location ?? '', memberStore.info.teamInfo.dmName ?? '');
         uni.hideLoading()
         console.log('图片已成功保存到相册');
     } catch (error) {
@@ -410,7 +411,57 @@ const otherClick = ref(0)
 const handleOutsideTap = () => {
     console.log('点击其他地方')
     otherClick.value++
-    };
+};
+// onShow(() => {
+//     uni.onUserCaptureScreen(function () {
+//         isMaskShow.value = true
+//         setTimeout(() => {
+//             isMaskShow.value = false
+//         }, 3000);
+//         console.log('用户截屏了');
+//         // 可以执行一些操作，比如显示提示或隐藏敏感信息
+//         uni.showToast({
+//             title: '请勿截屏分享',
+//             icon: 'error'
+//         });
+//     });
+
+//     if (uni.setVisualEffectOnCapture) {
+//         uni.setVisualEffectOnCapture({
+//             visualEffect: 'hidden',
+//             complete: function (res) {
+//             }
+//         })
+//     }
+
+//     if (uni.getScreenRecordingState) {
+//         uni.getScreenRecordingState({
+//             success: res => {
+//                 console.log(res.state)
+//             }
+//         })
+//     }
+//     if (uni.onScreenRecordingStateChanged) {
+//         uni.onScreenRecordingStateChanged(res => {
+//             console.log(res.state)
+//         })
+//     }
+// })
+// onHide(() => {
+
+//     if (uni.setVisualEffectOnCapture) {
+//         uni.setVisualEffectOnCapture({
+//             visualEffect: 'none',
+//             complete: function (res) {
+//             }
+//         })
+//     }
+    
+//     if(uni.offScreenRecordingStateChanged){
+//         // 取消录屏监听事件
+//         uni.offScreenRecordingStateChanged()
+//     }
+// })
 </script>
 
 <template>
@@ -453,14 +504,15 @@ const handleOutsideTap = () => {
 
         <RoomNumber v-show="currentPage === 'RoomNumber'" :dialog-obj="dialogObj" @updateDialogObj="updateDialogObj"
             @page="pageJump" />
-        <TeamInfo v-if="memberStore.info && memberStore.virtualRoleId" v-show="currentPage === 'TeamInfo'" :dialog-obj="dialogObj"
-            :teamInfo="teamInfo" :userInfo="userInfo" @updateDialogObj="updateDialogObj" />
-        <ZfMap v-if="memberStore.info && memberStore.virtualRoleId" v-show="currentPage === 'ZfMap'" :dialog-obj="dialogObj" @page="pageJump"
-            @updateDialogObj="updateDialogObj" :currentPage="currentPage" :flow="flow" :userInfo="userInfo" />
+        <TeamInfo v-if="memberStore.info && memberStore.virtualRoleId" v-show="currentPage === 'TeamInfo'"
+            :dialog-obj="dialogObj" :teamInfo="teamInfo" :userInfo="userInfo" @updateDialogObj="updateDialogObj" />
+        <ZfMap v-if="memberStore.info && memberStore.virtualRoleId" v-show="currentPage === 'ZfMap'"
+            :dialog-obj="dialogObj" @page="pageJump" @updateDialogObj="updateDialogObj" :currentPage="currentPage"
+            :flow="flow" :userInfo="userInfo" />
         <Gualing v-if="memberStore.info" v-show="currentPage === 'Gualing'" :dialog-obj="dialogObj"
             @updateDialogObj="updateDialogObj" />
         <CueSet
-            v-if="memberStore.info && memberStore.virtualRoleId && memberStore.info.characters[memberStore.virtualRoleId - 1].cueset.clues.length!==0"
+            v-if="memberStore.info && memberStore.virtualRoleId && memberStore.info.characters[memberStore.virtualRoleId - 1].cueset.clues.length !== 0"
             v-show="currentPage === 'CueSet'" :dialog-obj="dialogObj" :teamInfo="teamInfo" :newReplay="newReplay"
             :currentPage="currentPage" :userInfo="userInfo" @updateDialogObj="updateDialogObj" />
         <view v-if="isPosterShow" class="poster">
@@ -482,11 +534,13 @@ const handleOutsideTap = () => {
                 </view>
             </view>
         </view>
-        <canvas style="position: fixed;left: 99999rpx;;width: 1080px;height: 1920px;" type="2d" id="contentCanvas" ></canvas>
+        <canvas style="position: fixed;left: 99999rpx;;width: 1080px;height: 1920px;" type="2d"
+            id="contentCanvas"></canvas>
     </view>
 </template>
 
 <style scoped>
+
 .poster-info {
     width: 33%;
     padding-left: 5%;
@@ -646,7 +700,8 @@ const handleOutsideTap = () => {
     background-color: aliceblue;
 }
 
-.poster image {    width: 100%;
+.poster image {
+    width: 100%;
     height: 100%;
 }
 </style>
