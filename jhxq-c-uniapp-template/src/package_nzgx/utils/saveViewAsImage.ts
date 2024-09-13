@@ -5,7 +5,7 @@ export function saveViewAsImage(viewId: string, canvasId: string, user: string, 
       url: 'https://applet.cdn.wanjuyuanxian.com/nzgx/static/img/pg.png', // 你要绘制的网络图片地址
       success: (downloadResult) => {
         if (downloadResult.statusCode === 200) {
-          uni.createSelectorQuery()
+          uni.createSelectorQuery().in(this)
             .select(`#${canvasId}`) // 获取 WXML 中的 Canvas 节点
             .fields({ node: true, size: true })
             .exec((res) => {
@@ -15,7 +15,7 @@ export function saveViewAsImage(viewId: string, canvasId: string, user: string, 
               const renderHeight = res[0].height;
 
               // 获取设备像素比 (dpr) 并调整 canvas 尺寸
-              const dpr = wx.getWindowInfo().pixelRatio;
+              const dpr = uni.getWindowInfo().pixelRatio;
               canvas.width = renderWidth * dpr;
               canvas.height = renderHeight * dpr;
 
