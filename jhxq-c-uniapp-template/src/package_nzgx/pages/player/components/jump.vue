@@ -4,7 +4,7 @@ import { useMemberStore } from '@/package_nzgx/stores'
 import { useWebSocketStore } from '@/package_nzgx/stores'
 const memberStore = useMemberStore()
 const webSocketStore = useWebSocketStore();
-const props = defineProps<{ hideIndex: string, flow: any, userInfo: any }>()
+const props = defineProps<{ hideIndex: string, flow: any, userInfo: any,otherClick:number }>()
 
 const isSpecificFlowActive = computed(() => {
     return memberStore.info?.flow[memberStore.info.teamInfo.flowIndex].inner.some((item: { title: string,status:number }) => {
@@ -13,7 +13,7 @@ const isSpecificFlowActive = computed(() => {
             (
                 (item.title === '找尸体' ||
                 item.title === '音频搜证' ||
-                item.title === '地图搜证') &&
+                item.title === '地图搜证' || item.title === '卦灵') &&
                 item.status === 2
             )
         );
@@ -63,16 +63,19 @@ const hasUnreadClues = computed(() => {
     // 检查是否存在未读的线索
     return clues.some(clue => clue.isRead === false);
 });
+    watch(() => props.otherClick, (a, b) => {
+      canJump.value = [false, false, false];
+    });
 </script>
 
 <template>
-    <view class="jump-box hyshtj">
-        <view v-show="hideIndex !== item.url" @tap="jump(item.url, item.status, index)" v-for="(item, index) in pages"
+    <view class="jump-box hyshtj" >
+        <view v-show="hideIndex !== item.url" @tap.stop="jump(item.url, item.status, index)" v-for="(item, index) in pages"
             :key="index" class="paper flex-row-center "
             :class="[item.status === '0' ? 'hide' : '', canJump[index] ? 'expand' : '']">
             <text class="font-player-gradient1">{{ item.name }}</text>
             <view v-if="hasUnreadClues && item.name === '线索集'" class="redPoint"></view>
-            <view v-if="isSpecificFlowActive && item.name === '逐风'"
+            <view v-if="isSpecificFlowActive && (item.name === '逐风' || item.name === '卦灵')"
                 class="redPoint"></view>
         </view>
     </view>

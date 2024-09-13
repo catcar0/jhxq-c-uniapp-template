@@ -112,7 +112,7 @@ const audioList = computed(() => {
 </script>
 
 <template>
-    <view class="dialog-mask" :class="{ show: dialogObj.dialogVisible }">
+    <view class="dialog-mask" :class="{ show: dialogObj.dialogVisible }" v-if="dialogObj.dialogVisible">
         <view class="dialog-inner">
             <view class="dialog-header">
                 <image v-if="!dialogObj.hideCloseIcon" class="close-icon" @tap="close"

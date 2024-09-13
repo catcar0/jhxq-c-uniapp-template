@@ -96,6 +96,8 @@ const getStatus = (title: string) => {
 };
 const glContent = getContent('卦灵');
 const glStatus = getStatus('卦灵');
+const haveNewMission= ref([false,false,false])
+const haveNewMission2= ref([false,false,false])
     watch(() => memberStore.info.flow[3].send, (a, b) => {
         if (a !== b && a !== undefined && b !== undefined) {
             console.log('show', a, b)
@@ -135,6 +137,7 @@ const glStatus = getStatus('卦灵');
             switch (newclue.type) {
                 case 0:
                     if (memberStore.info.characters[userIndex.value].cueset.clues.length > 9 && newclue.name === 'clue1') return
+                    if (newClueSrc.value === `https://applet.cdn.wanjuyuanxian.com/nzgx/static/clues/${newclue.name}.png`) return
                     isNewClueShow.value = false;
                     isNewClueShow.value = true;
                     isDeepClue.value = false;
@@ -142,6 +145,8 @@ const glStatus = getStatus('卦灵');
                     break;
                 case 1:
                     console.log('个人线索')
+                    if(haveNewMission.value[memberStore.info.teamInfo.flowIndex]) return
+                    haveNewMission.value[memberStore.info.teamInfo.flowIndex] = true
                     dialogObj.value.title = '获得新线索';
                     dialogObj.value.content = '您获得新的6条个人线索，请前往线索集查看';
                     dialogObj.value.type = 'getClues';
@@ -161,6 +166,8 @@ const glStatus = getStatus('卦灵');
                     oldClueSrc.value = allClues[newclue.deepClue].url + '.png';
                     break;
                 case 3:
+                    if(haveNewMission2.value[memberStore.info.teamInfo.flowIndex]) return
+                    haveNewMission2.value[memberStore.info.teamInfo.flowIndex] = true
                     dialogObj.value.title = '个人任务成功';
                     dialogObj.value.content = '获得一条深入线索';
                     dialogObj.value.type = 'success';
@@ -399,10 +406,15 @@ const getCurrentFormattedDate = () => {
     return `${year}/${month}/${day}`;
 }
 const isFourInOneShow = ref(false)
+const otherClick = ref(0)
+const handleOutsideTap = () => {
+    console.log('点击其他地方')
+    otherClick.value++
+    };
 </script>
 
 <template>
-    <view>
+    <view @tap="handleOutsideTap">
         <!-- 新线索+深入线索动画弹窗 -->
         <view class="newClue-mask flex-row-center" v-if="isNewClueShow">
             <view :class="isScale ? 'notScale' : 'isScale'" v-if="isDeepClue"
@@ -437,7 +449,7 @@ const isFourInOneShow = ref(false)
             @page="pageJump" :userInfo="userInfo" />
         <jump
             v-if="memberStore.info && memberStore.info.flow[0].status !== 1 && memberStore.roomId !== '' && currentPage !== 'RoomNumber'"
-            :hide-index="currentPage" @page="pageJump" :flow="flow" :userInfo="userInfo" />
+            :hide-index="currentPage" @page="pageJump" :flow="flow" :userInfo="userInfo" :otherClick="otherClick" />
 
         <RoomNumber v-show="currentPage === 'RoomNumber'" :dialog-obj="dialogObj" @updateDialogObj="updateDialogObj"
             @page="pageJump" />

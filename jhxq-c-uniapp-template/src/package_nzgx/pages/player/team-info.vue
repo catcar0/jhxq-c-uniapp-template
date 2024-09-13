@@ -87,7 +87,7 @@ const changeAvatar = () => {
 
                         // 使用uni.uploadFile上传图片
                         uni.uploadFile({
-                            url: 'http://up-z2.qiniup.com/', // 替换为你实际的上传接口URL
+                            url: 'https://up-z2.qiniup.com/', // 替换为你实际的上传接口URL
                             filePath: tempFilePath,
                             name: 'file', // 对应接口中的file字段
                             formData: {
@@ -139,7 +139,7 @@ const showDialog = (e: any) => {
             <img class="user-avatar-img" src="https://applet.cdn.wanjuyuanxian.com/nzgx/static/img/avatar_frame.png"
                 alt="">
             <view
-                style="background-color: black;position: absolute;margin-left: 15rpx;z-index: 1;height: 300rpx;width: 260rpx;margin-top: -330rpx;">
+                style="background-color: black;position: absolute;margin-left: 15rpx;z-index: 1;height: 300rpx;width: 260rpx;margin-top: -350rpx;">
                 <img style="height: 100%;width: 100%;" v-if="memberStore.info.characters[memberStore.virtualRoleId - 1]"
                     :src="memberStore.info.characters[memberStore.virtualRoleId - 1].playerAvatar" alt="">
             </view>
@@ -189,13 +189,13 @@ const showDialog = (e: any) => {
                     <text>个人经验: </text>
                     <view class="exp-icon" :style="{ width: ((userInfo!.score + 100) % 100) * 2.5 + 'rpx' }"></view>
                     <view class="exp-border flex-row-center">
-                        <img v-if="userInfo!.score > 400" class="ding-icon"
+                        <img v-if="userInfo!.score >= 400" class="ding-icon"
                             src="https://applet.cdn.wanjuyuanxian.com/nzgx/static/img/jia.png" alt="">
-                        <img v-if="userInfo!.score < 400 && userInfo!.score > 300" class="ding-icon"
+                        <img v-if="userInfo!.score < 400 && userInfo!.score >= 300" class="ding-icon"
                             src="https://applet.cdn.wanjuyuanxian.com/nzgx/static/img/yi.png" alt="">
-                        <img v-if="userInfo!.score < 300 && userInfo!.score > 200" class="ding-icon"
+                        <img v-if="userInfo!.score < 300 && userInfo!.score >= 200" class="ding-icon"
                             src="https://applet.cdn.wanjuyuanxian.com/nzgx/static/img/bing.png" alt="">
-                        <img v-if="userInfo!.score < 200 && userInfo!.score > 100" class="ding-icon"
+                        <img v-if="userInfo!.score < 200 && userInfo!.score >= 100" class="ding-icon"
                             src="https://applet.cdn.wanjuyuanxian.com/nzgx/static/img/ding.png" alt="">
                         <img v-if="userInfo!.score < 100" class="ding-icon"
                             src="https://applet.cdn.wanjuyuanxian.com/nzgx/static/img/wu2.png" alt="">

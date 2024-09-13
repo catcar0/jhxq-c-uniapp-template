@@ -41,9 +41,9 @@ const isgualingShow = computed(() => {
     if (!glContent.value) {
         return true
     }
-    console.log('---',glContent.value.xa.status)
+    console.log('---', glContent.value.xa.status)
     if (glContent.value.xa.status === 1 && glContent.value.hy.status !== 1) {
-        if (glContent.value.hy.qa[0].usersAnswer[memberStore.virtualRoleId - 1].status !== 3) {
+        if (glContent.value.hy.qa[0].usersAnswer[memberStore.virtualRoleId - 1].status !== 3 && glContent.value.hy.qa[0].usersAnswer[memberStore.virtualRoleId - 1].status !== 2) {
             return false;
         } else if (isgualingShowB.value && (glContent.value.hy.qa[0].usersAnswer[memberStore.virtualRoleId - 1].status === 2 || glContent.value.hy.qa[0].usersAnswer[memberStore.virtualRoleId - 1].status === 3)) {
             return true;
@@ -115,9 +115,11 @@ const submit = (status: number) => {
     if (status === 0) {
         dialogObj.value.title = '注意'
         dialogObj.value.content = '确定后数据将上传提交'
+        dialogObj.value.confirmText = '确定'
     } else {
         dialogObj.value.title = '注意'
         dialogObj.value.content = '确定后数据将再次提交切覆盖上一次提交'
+        dialogObj.value.confirmText = '确定'
     }
     dialogObj.value.gltype = glType.value
     dialogObj.value.type = 'submit'
@@ -143,7 +145,7 @@ const submit = (status: number) => {
                 <view class="class-title hyshtj">
                     卦灵
                 </view>
-                <view class="qa-box" v-if="glIndex === -1">
+                <view class="qa-box" v-if="glIndex === -1 || qaList.qa[0].usersAnswer[memberStore.virtualRoleId - 1].status === 3 || qaList.qa[0].usersAnswer[memberStore.virtualRoleId - 1].status === 2">
                     <view v-for="(item, index) in qaList.qa" :key="index">
                         <view class="question">{{ item.question }}</view>
                         <view class="answer">
@@ -188,9 +190,10 @@ const submit = (status: number) => {
                                 src="https://applet.cdn.wanjuyuanxian.com/nzgx/static/img/gl_select_icon.png" alt="">
                         </view>
                     </view>
-                    <view @tap="submit(qaList.usersSubmit[memberStore.virtualRoleId - 1])" class="theme-button button" style="margin-top: 100rpx;">
+                    <view @tap="submit(qaList.usersSubmit[memberStore.virtualRoleId - 1])" class="theme-button button"
+                        style="margin-top: 100rpx;">
                         <view class="theme-button-clear"></view>
-                        <view >{{ btnText }}</view>
+                        <view>{{ btnText }}</view>
                     </view>
                 </view>
 
@@ -207,7 +210,8 @@ const submit = (status: number) => {
                     <scroll-view scroll-y :style="{ height: cluesIndex === -1 ? '0vh' : '7vh' }">
                         <view
                             v-if="cluesIndex !== -1 && allClues[memberStore.info.characters[memberStore.virtualRoleId - 1].cueset.clues[cluesIndex].name].url"
-                            class="flex-row-center clue-text" :style="{paddingTop:memberStore.info.characters[memberStore.virtualRoleId - 1].cueset.clues[cluesIndex].name === 'clue36'? '28rpx':'10rpx'}">
+                            class="flex-row-center clue-text"
+                            :style="{ paddingTop: memberStore.info.characters[memberStore.virtualRoleId - 1].cueset.clues[cluesIndex].name === 'clue36' ? '28rpx' : '10rpx' }">
                             {{ allClues[memberStore.info.characters[memberStore.virtualRoleId -
                                 1].cueset.clues[cluesIndex].name].content2 }}
                             <!-- {{ allClues[memberStore.info.characters[memberStore.virtualRoleId -
@@ -235,8 +239,11 @@ const submit = (status: number) => {
                             </view>
                         </view>
                     </scroll-view>
-                    <view
+                    <view v-show="cluesIndex !== -1"
                         @tap="updateClue(memberStore.info.characters[memberStore.virtualRoleId - 1].cueset.clues[cluesIndex].name)"
+                        class="theme-button button">选择
+                    </view>
+                    <view v-show="cluesIndex === -1"
                         class="theme-button button">选择
                     </view>
                 </view>
@@ -244,14 +251,19 @@ const submit = (status: number) => {
                 <view class="select-clue"
                     v-if="glIndex !== -1 && (qaList.qa[glIndex].question === '凶手是谁？' || qaList.qa[glIndex].question === '谁会担心春天举报成功？' || qaList.qa[glIndex].question === '林佳李梦怀孕，孩子可能是谁的？') && qaList.qa[0].usersAnswer[memberStore.virtualRoleId - 1].status !== 3 && qaList.qa[0].usersAnswer[memberStore.virtualRoleId - 1].status !== 2">
                     <view style="height: 70rpx;">{{ qaList.qa[glIndex].question }}</view>
-                    <img class="clue-selected-border3" v-show="cluesIndex !== -1 && cluesIndex <= 6"
-                        src="https://applet.cdn.wanjuyuanxian.com/nzgx/static/img/cue_seleted2.png" alt="">
-                    <img v-if="cluesIndex !== -1 && cluesIndex <= 6 && allClues[memberStore.info.characters[memberStore.virtualRoleId - 1].cueset.clues[cluesIndex].name].url"
-                        class="clue-big-image" :src="allClues[avatarList[cluesIndex]].url + '.png'" alt="">
+                    <!-- <img class="clue-selected-border3" v-show="cluesIndex !== -1 && cluesIndex <= 6"
+                        src="https://applet.cdn.wanjuyuanxian.com/nzgx/static/img/cue_seleted2.png" alt=""> -->
+                    <!-- <img v-if="cluesIndex !== -1 && cluesIndex <= 6 && allClues[memberStore.info.characters[memberStore.virtualRoleId - 1].cueset.clues[cluesIndex].name].url"
+                        class="clue-big-image" :src="allClues[avatarList[cluesIndex]].url + '.png'" alt=""> -->
+                    <view class="clue-big-image-border">
+                        <img mode="heightFix"
+                            v-if="cluesIndex !== -1 && cluesIndex <= 6 && allClues[memberStore.info.characters[memberStore.virtualRoleId - 1].cueset.clues[cluesIndex].name].url"
+                            class="clue-big-image" :src="allClues[avatarList[cluesIndex]].url + '.png'" alt="">
+                    </view>
                     <scroll-view scroll-y :style="{ height: cluesIndex === -1 ? '0vh' : '6vh' }">
                         <view
                             v-if="cluesIndex !== -1 && allClues[memberStore.info.characters[memberStore.virtualRoleId - 1].cueset.clues[cluesIndex].name].url"
-                            class="flex-row-center clue-text" >
+                            class="flex-row-center clue-text">
                             <!-- {{ allClues[memberStore.info.characters[memberStore.virtualRoleId -
                                 1].cueset.clues[cluesIndex].name].content2 }} -->
                             <!-- {{ allClues[memberStore.info.characters[memberStore.virtualRoleId -
@@ -277,7 +289,9 @@ const submit = (status: number) => {
                             </view>
                         </view>
                     </scroll-view>
-                    <view @tap="updateClue(avatarList[cluesIndex])" class="theme-button button">选择
+                    <view v-show="cluesIndex !== -1" @tap="updateClue(avatarList[cluesIndex])" class="theme-button button">选择
+                    </view>
+                    <view v-show="cluesIndex === -1"  class="theme-button button">选择
                     </view>
                 </view>
 
