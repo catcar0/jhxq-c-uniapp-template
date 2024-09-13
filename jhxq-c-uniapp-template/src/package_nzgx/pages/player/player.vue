@@ -166,8 +166,7 @@ const haveNewMission2= ref([false,false,false])
                     oldClueSrc.value = allClues[newclue.deepClue].url + '.png';
                     break;
                 case 3:
-                    if(haveNewMission2.value[memberStore.info.teamInfo.flowIndex]) return
-                    haveNewMission2.value[memberStore.info.teamInfo.flowIndex] = true
+                    if (newClueSrc.value === allClues[newclue.name].url + '.png') return
                     dialogObj.value.title = '个人任务成功';
                     dialogObj.value.content = '获得一条深入线索';
                     dialogObj.value.type = 'success';
@@ -224,6 +223,8 @@ const haveNewMission2= ref([false,false,false])
                 dialogObj.value.type = 'error'
             }
             if (newqa.isNew) {
+                if(haveNewMission2.value[memberStore.info.teamInfo.flowIndex]) return
+                haveNewMission2.value[memberStore.info.teamInfo.flowIndex] = true
                 let newContent = '';
                 // 遍历 qalist 数组
                 newqa.qa.forEach(item => {
@@ -232,7 +233,6 @@ const haveNewMission2= ref([false,false,false])
                     // 将问题拼接到 newContent 中，并添加换行符
                     newContent += questionText + '\n';
                 });
-
                 dialogObj.value.dialogVisible = true
                 dialogObj.value.title = '你当前收到一条个人任务'
                 dialogObj.value.confirmText = '确定'
