@@ -1,27 +1,29 @@
-export function saveViewAsImage(viewId: string, canvasId: string, user: string, role: string, time: string, location: string, dm: string) {
+
+
+export function saveViewAsImage(instance:any,viewId: string, canvasId: string, user: string, role: string, time: string, location: string, dm: string) {
   return new Promise<void>((resolve, reject) => {
     // 下载网络图片到本地
     uni.downloadFile({
       url: 'https://applet.cdn.wanjuyuanxian.com/nzgx/static/img/pg.png', // 你要绘制的网络图片地址
       success: (downloadResult) => {
         if (downloadResult.statusCode === 200) {
-          uni.createSelectorQuery().in(this)
+          uni.createSelectorQuery().in(instance)
             .select(`#${canvasId}`) // 获取 WXML 中的 Canvas 节点
             .fields({ node: true, size: true })
             .exec((res) => {
               // 获取 Canvas 对象和实际宽高
               const canvas = res[0].node;
-              const renderWidth = res[0].width;
-              const renderHeight = res[0].height;
+              const renderWidth = 767;
+              const renderHeight = 1363;
 
               // 获取设备像素比 (dpr) 并调整 canvas 尺寸
-              const dpr = uni.getWindowInfo().pixelRatio;
-              canvas.width = renderWidth * dpr;
-              canvas.height = renderHeight * dpr;
+              // const dpr = uni.getWindowInfo().pixelRatio;
+              canvas.width = 767;
+              canvas.height = 1363;
 
               // 获取 2D 绘制上下文，并设置缩放比例
               const ctx = canvas.getContext('2d');
-              ctx.scale(dpr, dpr);
+              // ctx.scale(dpr, dpr);
 
               // 绘制背景色
               ctx.fillStyle = '#fff';

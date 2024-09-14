@@ -214,7 +214,7 @@ const showDialog = (e: any) => {
                         <view class="flex-row-sb"
                             :class="item.room_id === memberStore.roomId ? 'rank-box-item-me' : 'rank-box-item-other'">
                             <view class="flex-column-sb rank-box-left">
-                                <view class="font-player-gradient1">{{ item.team_name }}</view>
+                                <view class="font-player-gradient1">{{ item.room_id === memberStore.roomId ? memberStore.info.teamInfo.name: item.team_name }}</view>
                                 <view>
                                     <view class="font-player-gradient1">分区第 {{ item.rank }} 名</view>
                                     <view v-if="item.room_id !== memberStore.roomId">

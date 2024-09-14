@@ -1,5 +1,5 @@
 <script setup lang='ts'>
-import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
+import { computed, getCurrentInstance, onMounted, onUnmounted, ref, watch } from 'vue'
 import dmDialog from '@/package_nzgx/components/playerDialog.vue';
 import fourInOne from '@/package_nzgx/pages/player/components/fourInOne.vue';
 import jump from '@/package_nzgx/pages/player/components/jump.vue';
@@ -16,6 +16,7 @@ import { allClues, updateOriClueInfo } from '@/package_nzgx/services/clues';
 import { saveViewAsImage } from '@/package_nzgx/utils/saveViewAsImage';
 import { addNewItem } from '@/package_nzgx/services/info';
 import { onHide, onShow } from '@dcloudio/uni-app';
+const instance = getCurrentInstance(); // 获取组件实例
 const memberStore = useMemberStore()
 const webSocketStore = useWebSocketStore();
 const currentPage = ref('RoomNumber')
@@ -388,8 +389,7 @@ const handleSaveImage = async () => {
         title: '正在生成'
     })
     try {
-        console.log(memberStore.info?.characters[memberStore.virtualRoleId - 1].user.slice(0, 10), memberStore.info.characters[memberStore.virtualRoleId - 1]?.name, getCurrentFormattedDate(), memberStore.info.teamInfo.location, memberStore.info.teamInfo.dmName)
-        await saveViewAsImage('content-view', 'contentCanvas', memberStore.info?.characters[memberStore.virtualRoleId - 1].user.slice(0, 10) ?? '', memberStore.info.characters[memberStore.virtualRoleId - 1]?.name ?? '', getCurrentFormattedDate(), memberStore.info.teamInfo.location ?? '', memberStore.info.teamInfo.dmName ?? '');
+        await saveViewAsImage(instance,'content-view', 'contentCanvas', memberStore.info?.characters[memberStore.virtualRoleId - 1].user.slice(0, 10) ?? '', memberStore.info.characters[memberStore.virtualRoleId - 1]?.name ?? '', getCurrentFormattedDate(), memberStore.info.teamInfo.location ?? '', memberStore.info.teamInfo.dmName ?? '');
         uni.hideLoading()
         console.log('图片已成功保存到相册');
     } catch (error) {
@@ -530,7 +530,7 @@ onHide(() => {
                 </view>
             </view>
         </view>
-        <canvas style="position: fixed;left: 99999rpx;;width: 1080px;height: 1920px;" type="2d"
+        <canvas style="position: fixed;left: 99999rpx;;width: 767px;height: 1363px;" type="2d"
             id="contentCanvas"></canvas>
     </view>
 </template>

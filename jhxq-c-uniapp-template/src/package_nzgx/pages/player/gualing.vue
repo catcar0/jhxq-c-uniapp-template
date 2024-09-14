@@ -55,8 +55,11 @@ const isgualingShow = computed(() => {
         } else if (isgualingShowB.value && (glContent.value.xa.qa[0].usersAnswer[memberStore.virtualRoleId - 1].status === 2 || glContent.value.xa.qa[0].usersAnswer[memberStore.virtualRoleId - 1].status === 3)) {
             return true;
         }
+    } else if (glContent.value.xa.status === 3 && isgualingShowB.value) {
+        isgualingShowB.value = false
+        return false; // 或者根据需要返回 undefined
     } else {
-        return true; // 或者根据需要返回 undefined
+        return true
     }
 })
 const qaList = computed(() => {
@@ -66,7 +69,7 @@ const qaList = computed(() => {
     if (glContent.value.xa.status === 1 && glContent.value.hy.status !== 1) {
         glType.value = 'hy'
         return glContent.value.hy;
-    } else if (glContent.value.xa.status === 2) {
+    } else if (glContent.value.xa.status === 2 || glContent.value.xa.status === 3) {
         glType.value = 'xa'
         return glContent.value.xa;
     } else {
@@ -126,6 +129,12 @@ const submit = (status: number) => {
     dialogObj.value.glstatus = status
     modifyDialog()
 }
+const updateOneClue = (index: number, answer_index: number, answer: string) => {
+    addOrUpdate.value = 'update';
+     glIndex.value = index; 
+     updateClueIndex.value = answer_index
+    cluesIndex.value = memberStore.info.characters[memberStore.virtualRoleId - 1].cueset.clues.findIndex(item => item.name === answer)
+}
 </script>
 
 <template>
@@ -154,8 +163,7 @@ const submit = (status: number) => {
                             <view v-if="item.usersAnswer[memberStore.virtualRoleId - 1].answer.length !== 0"
                                 v-for="(answer, answer_index) in item.usersAnswer[memberStore.virtualRoleId - 1].answer"
                                 :key="answer_index">
-                                <view class="clues-item"
-                                    @tap="addOrUpdate = 'update'; glIndex = index; updateClueIndex = answer_index">
+                                <view class="clues-item" @tap="updateOneClue(index, answer_index, answer)">
 
                                     <img v-if="answer.length < 10" class="clue-selected-border2"
                                         src="https://applet.cdn.wanjuyuanxian.com/nzgx/static/img/cue_seleted.png"
@@ -185,7 +193,7 @@ const submit = (status: number) => {
                                     alt="">
                             </view>
                             <!-- {{ item.answer.length }}{{ item.usersAnswer[memberStore.virtualRoleId - 1].answer.length }} -->
-                            <img @tap="addOrUpdate = 'add'; glIndex = index"
+                            <img @tap="addOrUpdate = 'add'; glIndex = index; cluesIndex = -1"
                                 v-if="item.usersAnswer[memberStore.virtualRoleId - 1].answer.length < item.answer.length"
                                 class="answer-select-icon"
                                 src="https://applet.cdn.wanjuyuanxian.com/nzgx/static/img/gl_select_icon.png" alt="">
@@ -200,7 +208,7 @@ const submit = (status: number) => {
                 <view class="select-clue"
                     v-if="glIndex !== -1 && qaList.qa[glIndex].question !== '凶手是谁？' && qaList.qa[glIndex].question !== '谁会担心春天举报成功？' && qaList.qa[glIndex].question !== '林佳李梦怀孕，孩子可能是谁的？' && qaList.qa[0].usersAnswer[memberStore.virtualRoleId - 1].status !== 3 && qaList.qa[0].usersAnswer[memberStore.virtualRoleId - 1].status !== 2">
                     <view style="height: 70rpx;">{{ qaList.qa[glIndex].question }}</view>
-                    <view class="clue-big-image-border">
+                    <view>
                         <img mode="heightFix"
                             v-if="cluesIndex !== -1 && allClues[memberStore.info.characters[memberStore.virtualRoleId - 1].cueset.clues[cluesIndex].name].url"
                             class="clue-big-image"
