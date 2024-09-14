@@ -412,56 +412,52 @@ const handleOutsideTap = () => {
     console.log('点击其他地方')
     otherClick.value++
 };
-// onShow(() => {
-//     uni.onUserCaptureScreen(function () {
-//         isMaskShow.value = true
-//         setTimeout(() => {
-//             isMaskShow.value = false
-//         }, 3000);
-//         console.log('用户截屏了');
-//         // 可以执行一些操作，比如显示提示或隐藏敏感信息
-//         uni.showToast({
-//             title: '请勿截屏分享',
-//             icon: 'error'
-//         });
-//     });
+onShow(() => {
+    uni.onUserCaptureScreen(function () {
+        console.log('用户截屏了');
+        // 可以执行一些操作，比如显示提示或隐藏敏感信息
+        uni.showToast({
+            title: '请勿截屏分享',
+            icon: 'error'
+        });
+    });
 
-//     if (uni.setVisualEffectOnCapture) {
-//         uni.setVisualEffectOnCapture({
-//             visualEffect: 'hidden',
-//             complete: function (res) {
-//             }
-//         })
-//     }
+    if (uni.setVisualEffectOnCapture) {
+        uni.setVisualEffectOnCapture({
+            visualEffect: 'hidden',
+            complete: function (res) {
+            }
+        })
+    }
 
-//     if (uni.getScreenRecordingState) {
-//         uni.getScreenRecordingState({
-//             success: res => {
-//                 console.log(res.state)
-//             }
-//         })
-//     }
-//     if (uni.onScreenRecordingStateChanged) {
-//         uni.onScreenRecordingStateChanged(res => {
-//             console.log(res.state)
-//         })
-//     }
-// })
-// onHide(() => {
+    if (uni.getScreenRecordingState) {
+        uni.getScreenRecordingState({
+            success: res => {
+                console.log(res.state)
+            }
+        })
+    }
+    if (uni.onScreenRecordingStateChanged) {
+        uni.onScreenRecordingStateChanged(res => {
+            console.log(res.state)
+        })
+    }
+})
+onHide(() => {
 
-//     if (uni.setVisualEffectOnCapture) {
-//         uni.setVisualEffectOnCapture({
-//             visualEffect: 'none',
-//             complete: function (res) {
-//             }
-//         })
-//     }
+    if (uni.setVisualEffectOnCapture) {
+        uni.setVisualEffectOnCapture({
+            visualEffect: 'none',
+            complete: function (res) {
+            }
+        })
+    }
     
-//     if(uni.offScreenRecordingStateChanged){
-//         // 取消录屏监听事件
-//         uni.offScreenRecordingStateChanged()
-//     }
-// })
+    if(uni.offScreenRecordingStateChanged){
+        // 取消录屏监听事件
+        uni.offScreenRecordingStateChanged()
+    }
+})
 </script>
 
 <template>
