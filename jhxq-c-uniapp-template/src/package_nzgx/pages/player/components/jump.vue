@@ -50,7 +50,7 @@ watch(() => flowIndex, (a, b) => {
     { deep: true })
 const jump = (url: string, status: string, index: number) => {
     if (!canJump.value[index]) {
-        canJump.value[index] = true
+        canJump.value = [true, true, true];
         return
     }
     if (status === '0') return

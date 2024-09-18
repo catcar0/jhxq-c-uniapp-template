@@ -29,10 +29,10 @@ const audioList = ref([
 ])
 watch(
     () => memberStore.info?.characters?.[memberStore.virtualRoleId - 1]?.cueset?.audio || [],
-    (a,b) => {
+    (a, b) => {
         if (a.length === 0) return;
-        if (a.length === b.length)return;
-        if (a.length === audioList.value.length)return;
+        if (a.length === b.length) return;
+        if (a.length === audioList.value.length) return;
         const characterAudioList = a.map(audio => ({
             roles: allClues[audio.name]?.name,
             location: allClues[audio.name]?.content1,
@@ -52,7 +52,27 @@ watch(
     },
     { deep: true }
 );
+onMounted(() => {
+    if (!memberStore.info || !memberStore.virtualRoleId ) return
+    if(!memberStore.info?.characters?.[memberStore.virtualRoleId - 1]?.cueset?.audio) return
+    const a = memberStore.info?.characters?.[memberStore.virtualRoleId - 1]?.cueset?.audio
+    const characterAudioList = a.map(audio => ({
+        roles: allClues[audio.name]?.name,
+        location: allClues[audio.name]?.content1,
+        content: allClues[audio.name]?.content2,
+        src: allClues[audio.name]?.url + '.mp3',
+        isPlaying: false,
+        isRead: audio.isRead,
+        context: null,
+        duration: durationList[audio.name]?.duration,
+        scrollText: allClues[audio.name]?.content2,
+        scrollPosition: 0,
+        scrollOffset: 0,
+        scrollAnimationFrame: 0,
+    }));
 
+    audioList.value = characterAudioList;
+})
 
 const replayIndex = ref(-1)
 
@@ -175,7 +195,8 @@ const allHaveNotRead = computed(() => {
                 <scroll-view scroll-y :style="{ height: cluesIndex === -1 ? '0vh' : '7vh' }">
                     <view
                         v-if="cluesIndex !== -1 && memberStore.info && allClues[memberStore.info.characters[memberStore.virtualRoleId - 1].cueset.clues[cluesIndex].name].url"
-                        class="flex-row-center clue-text" :style="{paddingTop:memberStore.info.characters[memberStore.virtualRoleId - 1].cueset.clues[cluesIndex].name === 'clue36'? '28rpx':'10rpx'}">
+                        class="flex-row-center clue-text"
+                        :style="{ paddingTop: memberStore.info.characters[memberStore.virtualRoleId - 1].cueset.clues[cluesIndex].name === 'clue36' ? '28rpx' : '10rpx' }">
                         {{ allClues[memberStore.info.characters[memberStore.virtualRoleId -
                             1].cueset.clues[cluesIndex].name].content2 }}
                         <!-- {{ memberStore.info.characters[memberStore.virtualRoleId -
@@ -530,7 +551,8 @@ const allHaveNotRead = computed(() => {
     align-items: center; */
 }
 
-.audio-info {    height: 85rpx;
+.audio-info {
+    height: 85rpx;
 }
 </style>
 <style>

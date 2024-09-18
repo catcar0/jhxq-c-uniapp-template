@@ -120,6 +120,9 @@ watch(() => memberStore.info.flow[memberStore.info.teamInfo.flowIndex].inner.fin
     if (!a || !a.result || a.result === '' || (a !== undefined && b === undefined) || (a.users[0] === -1 || a.users[1] === -1)) {
         return
     }
+    if (!memberStore.info.flow[memberStore.info.teamInfo.flowIndex].inner.find((item: { title: string; }) => item.title === '音频搜证').content[userJoinRoom.value].users.includes(memberStore.virtualRoleId - 1)){
+        return
+    }
     if (a.result === '已验证成功') return
     if (a.result === '验证成功') {
         dialogObj.value.title = '推理成功'
@@ -127,7 +130,15 @@ watch(() => memberStore.info.flow[memberStore.info.teamInfo.flowIndex].inner.fin
         dialogObj.value.type = 'voice'
         dialogObj.value.confirmText = '收入线索集'
         dialogObj.value.hideCloseIcon = true
-        dialogObj.value.clue = a.clue
+        if (memberStore.info.flow[memberStore.info.teamInfo.flowIndex].inner.find((item: { title: string; }) => item.title === '音频搜证').content[userJoinRoom.value].name === '宿舍') {
+            if (memberStore.info.flow[memberStore.info.teamInfo.flowIndex].inner.find((item: { title: string; }) => item.title === '音频搜证').content[userJoinRoom.value].users.includes(1)) {
+                dialogObj.value.clue = 'clue39'
+            } else {
+                dialogObj.value.clue = 'clue38'
+            }
+        } else {
+            dialogObj.value.clue = a.clue
+        }
         memberStore.info.flow[memberStore.info.teamInfo.flowIndex].inner.find((item: { title: string; }) => item.title === '音频搜证').content[userJoinRoom.value].result = '已验证成功'
         voiceIndex.value = -1
         userJoinRoom.value = -1
@@ -173,11 +184,11 @@ const mapSerch = (clue: string, id: number, isShow: boolean) => {
         memberStore.info.locationList[id].isShow = false
         // addNewItem(userIndex.value, clue, 0, 'clues', '')
         for (let index = 0; index < memberStore.info.characters.length; index++) {
-            let isCurrentRole = (memberStore.virtualRoleId - 1) !== index;
+            let isCurrentRole = (memberStore.virtualRoleId - 1) === index;
             memberStore.info.characters[index].cueset['clues'].push(
                 {
                     name: clue,
-                    isNew: isCurrentRole? true : false,
+                    isNew: isCurrentRole ? true : false,
                     deepClue: '',
                     type: 0,
                     isRead: false,
@@ -188,7 +199,6 @@ const mapSerch = (clue: string, id: number, isShow: boolean) => {
         updateInfo(memberStore.info)
     }
 }
-
 </script>
 <template>
 
@@ -197,7 +207,8 @@ const mapSerch = (clue: string, id: number, isShow: boolean) => {
         <view class="map-search" v-for="(item, index) in filterLocations(memberStore.info.locationList)"
             :key="item.name" v-if="(zstStatus === 2 && ypStatus === 0) || (dtStatus === 2 && glStatus === 0)"
             @tap="mapSerch(item.clue, item.id, item.isShow)" :style="{ filter: item.isShow ? '' : 'brightness(50%)' }">
-            <view class="location flex-row-center hyshtj" :style="{ top: item.position.top, left: item.position.left }">
+            <view class="location flex-row-center hyshtj"
+                :style="{ top: item.position.top, left: item.position.left }">
                 {{ item.name }}
             </view>
             <img :style="{ top: item.position.iconTop, left: item.position.iconLeft }" class="location-icon"

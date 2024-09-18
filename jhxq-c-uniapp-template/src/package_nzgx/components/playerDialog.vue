@@ -8,6 +8,7 @@ import { allClues } from '@/package_nzgx/services/clues';
 const memberStore = useMemberStore()
 const webSocketStore = useWebSocketStore();
 import type { DmDialog } from '@/package_nzgx/types/dialog'
+import { onShow } from '@dcloudio/uni-app';
 const props = defineProps<{ dialogObj: DmDialog, userInfo: Object }>()
 const emit = defineEmits(["update:show", "confirm", "cancel", "page"]);
 const jump = (url: string) => {
@@ -28,7 +29,7 @@ const updateInfo = (info: any) => {
 }
 const userIndex = computed(() => memberStore.virtualRoleId - 1)
 const changeTeamName = () => {
-    if(userName.value === '') return
+    if (userName.value === '') return
     const newInfo = memberStore.info
     newInfo.characters[userIndex.value].user = userName.value
     webSocketStore.updateInfo(userName.value, memberStore.info.characters[memberStore.virtualRoleId - 1].playerAvatar)
@@ -94,22 +95,28 @@ const durationList = {
     clue40: { duration: 10 },
     clue41: { duration: 12 },
 }
-const audioList = computed(() => {
-    return     [{
-        roles: allClues[props.dialogObj.clue!].name,
-        location: allClues[props.dialogObj.clue!].content1,
-        content: allClues[props.dialogObj.clue!].content2,
-        src: allClues[props.dialogObj.clue!].url + '.mp3',
-        isPlaying: false,
-        context: null,
-        isRead: false,
-        duration: durationList[props.dialogObj.clue!]?.duration,
-        scrollText: allClues[props.dialogObj.clue!].content2,
-        scrollPosition: 0,
-        scrollOffset: 0,
-        scrollAnimationFrame: 0
-    }]
-})
+watch(
+    () => props.dialogObj.type,
+    (value) => {
+        if(value === 'voice'){
+            audioList.value = [{
+            roles: allClues[props.dialogObj.clue!].name,
+            location: allClues[props.dialogObj.clue!].content1,
+            content: allClues[props.dialogObj.clue!].content2,
+            src: allClues[props.dialogObj.clue!].url + '.mp3',
+            isPlaying: false,
+            context: null,
+            isRead: true,
+            duration: durationList[props.dialogObj.clue!]?.duration,
+            scrollText: allClues[props.dialogObj.clue!].content2,
+            scrollPosition: 0,
+            scrollOffset: 0,
+            scrollAnimationFrame: 0
+        }]
+        }
+    }
+)
+const audioList = ref()
 </script>
 
 <template>
@@ -121,7 +128,7 @@ const audioList = computed(() => {
             </view>
             <text class="hyshtj font-player-gradient1 dialog-title">{{ dialogObj.title }}</text>
             <view
-                v-show="dialogObj.type === '个人线索发放+个人问题' || dialogObj.type === 'getClues' || dialogObj.type === 'success' || dialogObj.type === 'matchResult' || dialogObj.type === 'error' || dialogObj.type === 'submit' || dialogObj.type==='newReplay' || dialogObj.type==='changeTeamName'"
+                v-show="dialogObj.type === '个人线索发放+个人问题' || dialogObj.type === 'getClues' || dialogObj.type === 'success' || dialogObj.type === 'matchResult' || dialogObj.type === 'error' || dialogObj.type === 'submit' || dialogObj.type === 'newReplay' || dialogObj.type === 'changeTeamName'"
                 class="dialog-content font-player-gradient1 ">
                 {{ dialogObj.content }}
             </view>
@@ -132,11 +139,11 @@ const audioList = computed(() => {
             </view>
             <view v-if="dialogObj.type === 'changeTeamName'">
                 <view class="input-box flex-row-center">
-                    <input type="text"  maxlength="10" style="text-align: center;" v-model="userName">
+                    <input type="text" maxlength="10" style="text-align: center;" v-model="userName">
                 </view>
             </view>
             <view class="flex-row-center" style="height: 200rpx;" v-if="dialogObj.type === 'voice'">
-                <audioplay  :audioList="audioList" :isDialog="true" />
+                <audioplay :audioList="audioList" :isDialog="true" />
             </view>
             <view class="dialog-control">
                 <view @tap="confirm" class="theme-button button">
@@ -283,9 +290,10 @@ const audioList = computed(() => {
 @import url("@/package_nzgx/styles/common.css");
 
 .almm {
-  font-family: 'Alimama ShuHeiTi';
+    font-family: 'Alimama ShuHeiTi';
 }
 
 .hyshtj {
-  font-family: 'hyshtj';
-}</style>
+    font-family: 'hyshtj';
+}
+</style>
