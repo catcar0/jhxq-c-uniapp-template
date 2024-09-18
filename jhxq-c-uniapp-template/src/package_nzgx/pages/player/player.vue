@@ -14,6 +14,7 @@ import { WebSocketService } from '@/package_nzgx/services/WebSocketService';
 import { initAllInfo, updateOriFlowInfo } from '@/package_nzgx/services/initInfo';
 import { allClues, updateOriClueInfo } from '@/package_nzgx/services/clues';
 import { saveViewAsImage } from '@/package_nzgx/utils/saveViewAsImage';
+import { preloadImages } from '@/package_nzgx/utils/preloadImg';
 import { addNewItem } from '@/package_nzgx/services/info';
 import { onHide, onShow } from '@dcloudio/uni-app';
 const instance = getCurrentInstance(); // 获取组件实例
@@ -301,6 +302,7 @@ onMounted(async () => {
     await updateOriClueInfo()
     uni.hideLoading()
     if (!memberStore.info) {
+        preloadImages()
         memberStore.setInfo(initAllInfo)
         // memberStore.setVirtualRoleId(0)
     }
