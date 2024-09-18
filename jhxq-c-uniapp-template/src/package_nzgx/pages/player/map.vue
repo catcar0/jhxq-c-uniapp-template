@@ -36,7 +36,7 @@ const dialogObj = ref({
 })
 const userIndex = computed(() => memberStore.virtualRoleId - 1)
 const faq = (item: any) => {
-    console.log('faq',item)
+    console.log('faq', item)
     let newContent = '';
     item.qa.forEach(itema => {
         const questionText = itema.question.replace(/^\d+\.\s*/, '');
@@ -86,7 +86,7 @@ const canJoin = ref(true)
 const userJoinRoom = ref(-1)
 const updateYpUsers = (user: number, newUserIndex: number, index: number, roomUserIndex: number) => {
     if (newUserIndex !== -1 && !canJoin.value) {
-        uni.showToast({ icon: 'none', title: '你无法加入,请先离开其他房间' })
+        uni.showToast({ icon: 'none', title: '你无法加入,请离开其他位置' })
         return
     }
     if (user === -1 || user === userIndex.value) {
@@ -171,9 +171,24 @@ const mapSerch = (clue: string, id: number, isShow: boolean) => {
     if (dtStatus.value === 2) {
         memberStore.info.locationList[id].clue = ''
         memberStore.info.locationList[id].isShow = false
-        addNewItem(userIndex.value, clue, 0, 'clues', '')
+        // addNewItem(userIndex.value, clue, 0, 'clues', '')
+        for (let index = 0; index < memberStore.info.characters.length; index++) {
+            let isCurrentRole = (memberStore.virtualRoleId - 1) !== index;
+            memberStore.info.characters[index].cueset['clues'].push(
+                {
+                    name: clue,
+                    isNew: isCurrentRole? true : false,
+                    deepClue: '',
+                    type: 0,
+                    isRead: false,
+                    timestamp: Date.now() // 当前时间戳
+                }
+            );
+        }
+        updateInfo(memberStore.info)
     }
 }
+
 </script>
 <template>
 
@@ -222,7 +237,8 @@ const mapSerch = (clue: string, id: number, isShow: boolean) => {
 
                     <view class="flex-row-sb avatar-box">
                         <view class="avatar flex-row-center" v-for="(item, index) in 2" :key="index">
-                            <view @tap="updateYpUsers(ypUsers[index], userIndex, voiceIndex, index)" class="flex-row-center" style="width: 80rpx;height: 80rpx;"
+                            <view @tap="updateYpUsers(ypUsers[index], userIndex, voiceIndex, index)"
+                                class="flex-row-center" style="width: 80rpx;height: 80rpx;"
                                 v-if="ypUsers[index] === -1">+
                             </view>
                             <img v-if="memberStore.info.characters[ypUsers[index]] && ypUsers[index] !== -1"

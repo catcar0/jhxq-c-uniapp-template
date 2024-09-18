@@ -30,7 +30,7 @@ export function saveViewAsImage(instance:any,viewId: string, canvasId: string, u
               ctx.fillRect(0, 0, renderWidth, renderHeight);
 
               // 设置字体样式
-              ctx.font = "bold 28px PingFang SC";
+              ctx.font = "bold 20px PingFang SC";
               ctx.fillStyle = '#000000';
 
               // 创建图片对象并加载图片
@@ -42,11 +42,11 @@ export function saveViewAsImage(instance:any,viewId: string, canvasId: string, u
                 ctx.drawImage(img, 0, 0, renderWidth, renderHeight);
 
                 // 绘制文本
-                ctx.fillText(user, 170, 1122);
-                ctx.fillText(role, 455, 1122);
-                ctx.fillText(time, 730, 1122);
-                ctx.fillText(location, 170, 1288);
-                ctx.fillText(dm, 455, 1288);
+                ctx.fillText(user, 120, 796.6);
+                ctx.fillText(role, 322, 796.6);
+                ctx.fillText(time, 518, 796.6);
+                ctx.fillText(location, 120, 914);
+                ctx.fillText(dm, 322, 914);
 
                 // 将 canvas 内容保存为图片
                 uni.canvasToTempFilePath({
