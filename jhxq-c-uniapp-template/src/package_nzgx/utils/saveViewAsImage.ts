@@ -1,6 +1,6 @@
 
 
-export function saveViewAsImage(instance:any,viewId: string, canvasId: string, user: string, role: string, time: string, location: string, dm: string) {
+export function saveViewAsImage(instance: any, viewId: string, canvasId: string, user: string, role: string, time: string, location: string, dm: string) {
   return new Promise<void>((resolve, reject) => {
     // 下载网络图片到本地
     uni.downloadFile({
@@ -18,16 +18,16 @@ export function saveViewAsImage(instance:any,viewId: string, canvasId: string, u
 
               // 获取设备像素比 (dpr) 并调整 canvas 尺寸
               // const dpr = uni.getWindowInfo().pixelRatio;
-              canvas.width = 767;
-              canvas.height = 1363;
+              canvas.width = 600;
+              canvas.height = 1293;
 
               // 获取 2D 绘制上下文，并设置缩放比例
               const ctx = canvas.getContext('2d');
               // ctx.scale(dpr, dpr);
 
               // 绘制背景色
-              ctx.fillStyle = '#fff';
-              ctx.fillRect(0, 0, renderWidth, renderHeight);
+              // ctx.fillStyle = '#fff';
+              // ctx.fillRect(0, 0, renderWidth, renderHeight);
 
               // 设置字体样式
               ctx.font = "bold 20px PingFang SC";
@@ -39,7 +39,14 @@ export function saveViewAsImage(instance:any,viewId: string, canvasId: string, u
 
               img.onload = () => {
                 // 绘制下载的图片
-                ctx.drawImage(img, 0, 0, renderWidth, renderHeight);
+                // 绘制图片的中间部分
+                ctx.drawImage(
+                  img,
+                  118, 50,      // 裁剪的起点
+                  1080, 1920, // 裁剪的宽高
+                  0, 0,                // 在canvas中绘制的起点
+                  767, 1363 // 绘制到canvas的宽高
+                );
 
                 // 绘制文本
                 ctx.fillText(user, 120, 796.6);
