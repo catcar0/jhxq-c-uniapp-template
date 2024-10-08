@@ -70,7 +70,7 @@ const updateInfo = (info: any) => {
 const changeAvatar = () => {
     // 首先获取token
     uni.request({
-        url: 'http://kaiben.center.wanjuyuanxian.com/open/upload_token', // 获取token的接口
+        url: 'https://kaiben.center.wanjuyuanxian.com/open/upload_token', // 获取token的接口
         method: 'GET',
         success: function (tokenRes) {
             if (tokenRes.statusCode === 200) {

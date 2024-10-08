@@ -219,7 +219,7 @@ const updateOneClue = (index: number, answer_index: number, answer: string) => {
                         <view
                             v-if="cluesIndex !== -1 && allClues[memberStore.info.characters[memberStore.virtualRoleId - 1].cueset.clues[cluesIndex].name].url"
                             class="flex-row-center clue-text"
-                            :style="{ paddingTop: memberStore.info.characters[memberStore.virtualRoleId - 1].cueset.clues[cluesIndex].name === 'clue36' ? '28rpx' : '10rpx' }">
+                            :style="{ paddingTop: memberStore.info.characters[memberStore.virtualRoleId - 1].cueset.clues[cluesIndex].name === 'clue36' ? '32rpx' : '10rpx' }">
                             {{ allClues[memberStore.info.characters[memberStore.virtualRoleId -
                                 1].cueset.clues[cluesIndex].name].content2 }}
                             <!-- {{ allClues[memberStore.info.characters[memberStore.virtualRoleId -
@@ -372,7 +372,7 @@ const updateOneClue = (index: number, answer_index: number, answer: string) => {
     font-size: 24rpx;
     font-weight: 600;
     height: 100rpx;
-    line-height: 150%;
+    line-height: 140%;
     text-align: center;
     /* margin-top: 0rpx;
     padding-top: 20rpx; */

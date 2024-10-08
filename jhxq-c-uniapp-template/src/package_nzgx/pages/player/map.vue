@@ -86,7 +86,7 @@ const canJoin = ref(true)
 const userJoinRoom = ref(-1)
 const updateYpUsers = (user: number, newUserIndex: number, index: number, roomUserIndex: number) => {
     if (newUserIndex !== -1 && !canJoin.value) {
-        uni.showToast({ icon: 'none', title: '你无法加入,请离开其他位置' })
+        uni.showToast({ icon: 'none', title: '你已经在其他地点，请离开后再做尝试' })
         return
     }
     if (user === -1 || user === userIndex.value) {

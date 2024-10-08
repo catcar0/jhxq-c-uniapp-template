@@ -116,6 +116,14 @@ watch(
         }
     }
 )
+watch(
+    () => props.dialogObj.dialogVisible,
+    (value) => {
+        if (props.dialogObj.type ==='changeTeamName'){
+            userName.value = memberStore.info.characters[memberStore.virtualRoleId - 1].user
+        }
+    }
+)
 const audioList = ref()
 </script>
 

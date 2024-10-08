@@ -196,7 +196,7 @@ const allHaveNotRead = computed(() => {
                     <view
                         v-if="cluesIndex !== -1 && memberStore.info && allClues[memberStore.info.characters[memberStore.virtualRoleId - 1].cueset.clues[cluesIndex].name].url"
                         class="flex-row-center clue-text"
-                        :style="{ paddingTop: memberStore.info.characters[memberStore.virtualRoleId - 1].cueset.clues[cluesIndex].name === 'clue36' ? '28rpx' : '10rpx' }">
+                        :style="{ paddingTop: memberStore.info.characters[memberStore.virtualRoleId - 1].cueset.clues[cluesIndex].name === 'clue36' ? '32rpx' : '10rpx' }">
                         {{ allClues[memberStore.info.characters[memberStore.virtualRoleId -
                             1].cueset.clues[cluesIndex].name].content2 }}
                         <!-- {{ memberStore.info.characters[memberStore.virtualRoleId -
@@ -479,7 +479,7 @@ const allHaveNotRead = computed(() => {
     font-size: 24rpx;
     font-weight: 600;
     height: 100rpx;
-    line-height: 150%;
+    line-height: 140%;
     text-align: center;
     /* margin-top: 0rpx;
     padding-top: 10rpx; */
