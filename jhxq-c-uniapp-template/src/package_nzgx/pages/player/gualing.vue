@@ -186,10 +186,10 @@ const updateOneClue = (index: number, answer_index: number, answer: string) => {
                             <view v-show="item.usersAnswer[memberStore.virtualRoleId - 1].status !== 0"
                                 class="verify-icon-box">
                                 <img class="verify-icon" v-show="item.question !== '凶手是谁？'"
-                                    :src="`https://applet.cdn.wanjuyuanxian.com/nzgx/static/img/${item.usersAnswer[memberStore.virtualRoleId - 1].status === 2 ? 'gl_correct_icon' : 'gl_wrong_icon'}.png`"
+                                    :src="`https://applet.cdn.wanjuyuanxian.com/nzgx/static/img/${item.usersAnswer[memberStore.virtualRoleId - 1].status < 2 ? 'gl_correct_icon' : 'gl_wrong_icon'}.png`"
                                     alt="">
                                 <img class="verify-icon" v-show="item.question === '凶手是谁？'"
-                                    :src="`https://applet.cdn.wanjuyuanxian.com/nzgx/static/img/${item.usersAnswer[memberStore.virtualRoleId - 1].status === 2 ? 'gl_mission_success_icon' : 'gl_mission_fail_icon'}.png`"
+                                    :src="`https://applet.cdn.wanjuyuanxian.com/nzgx/static/img/${item.usersAnswer[memberStore.virtualRoleId - 1].status < 6 ? 'gl_mission_success_icon' : 'gl_mission_fail_icon'}.png`"
                                     alt="">
                             </view>
                             <!-- {{ item.answer.length }}{{ item.usersAnswer[memberStore.virtualRoleId - 1].answer.length }} -->

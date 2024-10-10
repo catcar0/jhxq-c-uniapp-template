@@ -235,7 +235,7 @@ const mapSerch = (clue: string, id: number, isShow: boolean) => {
 
         <!-- 音频搜证选择地点入座 -->
         <view>
-            <view class="dialog-mask" :class="{ show: voiceIndex !== -1 }" v-if="voiceIndex !== -1"
+            <view  class="dialog-mask" :class="{ show: voiceIndex !== -1 }" v-if="voiceIndex !== -1 && ypStatus === 2 && dtStatus === 0"
                 :style="{ background: dialogObj.dialogVisible ? 'rgba(0, 0, 0, 0)' : 'rgba(0, 0, 0, 0.6)' }">
                 <view class="dialog-inner">
                     <view class="dialog-header">

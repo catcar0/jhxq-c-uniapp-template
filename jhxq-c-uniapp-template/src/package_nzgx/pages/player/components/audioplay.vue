@@ -108,7 +108,7 @@ const startScrollAnimation = (index: number) => {
     console.log(duration)
     // 计算滚动所需的每帧步进值，使字幕正好在音频结束时完成滚动
     const containerWidth = 0; // audio-content 的宽度
-    const textWidth = audio.scrollText.length * 14; // 字幕的宽度估计
+    const textWidth = audio.scrollText.length * 26; // 字幕的宽度估计
     const totalScrollDistance = textWidth + containerWidth; // 总滚动距离
     const fps = 60; // 每秒 60 帧
     const totalFrames = duration * fps; // 总帧数（音频播放期间）

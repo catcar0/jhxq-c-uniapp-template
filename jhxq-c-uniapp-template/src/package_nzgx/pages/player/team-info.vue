@@ -3,6 +3,7 @@ import { computed, ref, watch } from 'vue';
 import { defineEmits } from 'vue';
 import { useMemberStore } from '@/package_nzgx/stores'
 import { useWebSocketStore } from '@/package_nzgx/stores'
+import qfImageCropper from '@/package_nzgx/uni_modules/qf-image-cropper/components/qf-image-cropper/qf-image-cropper.vue';
 const memberStore = useMemberStore()
 const webSocketStore = useWebSocketStore();
 
@@ -14,8 +15,8 @@ const props = defineProps({
     newReplay: Number
 });
 
-const teamInfo = computed(() => memberStore.info?.teamInfo?? 0)
-const userInfo = computed(() => memberStore.info?.characters[memberStore.virtualRoleId - 1]?? 0)
+const teamInfo = computed(() => memberStore.info?.teamInfo ?? 0)
+const userInfo = computed(() => memberStore.info?.characters[memberStore.virtualRoleId - 1] ?? 0)
 const emit = defineEmits(['updateDialogObj']);
 
 const modifyDialog = () => {
@@ -67,7 +68,7 @@ const updateInfo = (info: any) => {
         info
     )
 }
-const changeAvatar = () => {
+const changeAvatar = (tempFilePath) => {
     // 首先获取token
     uni.request({
         url: 'https://kaiben.center.wanjuyuanxian.com/open/upload_token', // 获取token的接口
@@ -76,43 +77,32 @@ const changeAvatar = () => {
             if (tokenRes.statusCode === 200) {
                 const token = tokenRes.data.data.token; // 获取到的token
 
-                // 选择图片并上传
-                uni.chooseImage({
-                    count: 1, // 只允许选择一张图片
-                    sizeType: ['compressed'], // 可以指定是原图还是压缩图
-                    sourceType: ['album', 'camera'], // 可以指定来源是相册还是相机
-                    success: function (res) {
-                        const tempFilePath = res.tempFilePaths[0];
-                        const xFormat = '.png'; // 根据文档，设定文件后缀名
+                // 使用uni.uploadFile上传图片
+                uni.uploadFile({
+                    url: 'https://up-z2.qiniup.com/', // 替换为你实际的上传接口URL
+                    filePath: tempFilePath,
+                    name: 'file', // 对应接口中的file字段
+                    formData: {
+                        'x:format': 'png',
+                        'token': token
+                    },
+                    success: function (uploadRes) {
+                        if (uploadRes.statusCode === 200) {
+                            // 解析返回的JSON数据
+                            const responseData = JSON.parse(uploadRes.data);
+                            const uploadedImageUrl = responseData.key; // 从响应中获取图片的URL
 
-                        // 使用uni.uploadFile上传图片
-                        uni.uploadFile({
-                            url: 'https://up-z2.qiniup.com/', // 替换为你实际的上传接口URL
-                            filePath: tempFilePath,
-                            name: 'file', // 对应接口中的file字段
-                            formData: {
-                                'x:format': xFormat,
-                                'token': token
-                            },
-                            success: function (uploadRes) {
-                                if (uploadRes.statusCode === 200) {
-                                    // 解析返回的JSON数据
-                                    const responseData = JSON.parse(uploadRes.data);
-                                    const uploadedImageUrl = responseData.key; // 从响应中获取图片的URL
-
-                                    // 保存到 memberStore.avatar
-                                    memberStore.avatar = uploadedImageUrl;
-                                    memberStore.info.characters[memberStore.virtualRoleId - 1].playerAvatar = uploadedImageUrl;
-                                    updateInfo(memberStore.info);
-                                    webSocketStore.updateInfo(memberStore.info.characters[memberStore.virtualRoleId - 1].user, uploadedImageUrl);
-                                } else {
-                                    console.error('图片上传失败', uploadRes);
-                                }
-                            },
-                            fail: function (err) {
-                                console.error('上传图片失败', err);
-                            }
-                        });
+                            // 保存到 memberStore.avatar
+                            memberStore.avatar = uploadedImageUrl;
+                            memberStore.info.characters[memberStore.virtualRoleId - 1].playerAvatar = uploadedImageUrl;
+                            updateInfo(memberStore.info);
+                            webSocketStore.updateInfo(memberStore.info.characters[memberStore.virtualRoleId - 1].user, uploadedImageUrl);
+                        } else {
+                            console.error('图片上传失败', uploadRes);
+                        }
+                    },
+                    fail: function (err) {
+                        console.error('上传图片失败', err);
                     }
                 });
             } else {
@@ -131,11 +121,27 @@ const showDialog = (e: any) => {
     console.log(e)
     dialogObj.value.dialogVisible = true
 }
+const qf = ref();
+const cropperShow = ref(false)
+const handleCrop = (e: any) => {
+    changeAvatar(e.tempFilePath)
+    cropperShow.value = false
+}
+const close = () => {
+    cropperShow.value = false
+}
+const aa = () => {
+    cropperShow.value = true
+    qf.value.chooseImage({ sourceType: ['album','camera'],sizeType: ['compressed'], });
+}
 </script>
 
 <template>
-    <view class="team-info">
-        <view class="user-avatar" @click="changeAvatar">
+    <qf-image-cropper v-show="cropperShow" ref="qf" :width="500" :height="550" :radius="30" @crop="handleCrop"
+        @close="close"></qf-image-cropper>
+    <!-- <button @tap="aa">选择图片</button> -->
+    <view class="team-info" v-show="!cropperShow">
+        <view class="user-avatar" @click="aa">
             <img class="user-avatar-img" src="https://applet.cdn.wanjuyuanxian.com/nzgx/static/img/avatar_frame.png"
                 alt="">
             <view
@@ -214,7 +220,8 @@ const showDialog = (e: any) => {
                         <view class="flex-row-sb"
                             :class="item.room_id === memberStore.roomId ? 'rank-box-item-me' : 'rank-box-item-other'">
                             <view class="flex-column-sb rank-box-left">
-                                <view class="font-player-gradient1">{{ item.room_id === memberStore.roomId ? memberStore.info.teamInfo.name: item.team_name }}</view>
+                                <view class="font-player-gradient1">{{ item.room_id === memberStore.roomId ?
+                                    memberStore.info.teamInfo.name : item.team_name }}</view>
                                 <view>
                                     <view class="font-player-gradient1">分区第 {{ item.rank }} 名</view>
                                     <view v-if="item.room_id !== memberStore.roomId">
