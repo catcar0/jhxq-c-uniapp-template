@@ -244,10 +244,10 @@ watch(() => memberStore.info.characters[memberStore.virtualRoleId - 1].mask, (a,
             dialogObj.value.type = 'newTask'
         }
     } else if (newqa.type === -1) {
-        setTimeout(() => {
-            memberStore.info.characters[memberStore.virtualRoleId - 1].mask.slice(-1)[0].type = 0
-            updateInfo(memberStore.info)
-        }, 5000);
+        // setTimeout(() => {
+        //     memberStore.info.characters[memberStore.virtualRoleId - 1].mask.slice(-1)[0].type = 0
+        //     updateInfo(memberStore.info)
+        // }, 5000);
     }
 
 },
