@@ -53,6 +53,7 @@ export class WebSocketService {
 
     this.socketTask.onOpen(() => {
       console.log('WebSocket connection opened');
+      uni.showToast({ icon: 'none', title: '连接成功' })
       this.isConnectedFlag = true;  // 设置为已连接状态
       if (this.onOpen) {
         this.onOpen();
@@ -66,10 +67,12 @@ export class WebSocketService {
       const parsedData = JSON.parse(event.data);
       console.log(parsedData)
       if (parsedData.type === 'scores' && parsedData.data.statuses.allinfo) {
-        websocketStore.gameAddMessage(parsedData.data.statuses.allinfo.info);
+        websocketStore.gameAddMessage(parsedData.data.statuses.allinfo.info,parsedData.data.statuses.allinfo.version);
       }else if( parsedData.type==='team_ranking'){
         websocketStore.addMessage(parsedData);
       } else if (parsedData.players) {
+        websocketStore.addMessage(parsedData);
+      } else if (parsedData.type === 'versionError'){
         websocketStore.addMessage(parsedData);
       } else {
         websocketStore.addMessage(parsedData);
@@ -86,6 +89,7 @@ export class WebSocketService {
     });
 
     this.socketTask.onClose(() => {
+      uni.showToast({ icon: 'none', title: '你已经断开连接' })
       console.log('WebSocket connection closed');
       this.socketTask = null;
       this.stopHeartbeat();
@@ -100,6 +104,26 @@ export class WebSocketService {
         setTimeout(() => this.connect(), this.reconnectInterval);
       } else {
         console.warn('Max reconnect attempts reached, no longer trying to reconnect');
+        uni.showModal({
+          title: '提示',
+          content: '房间已经关闭或你已被踢出房间，请重新扫描二维码',
+          showCancel: false,
+          success: function (res) {
+              if (res.confirm) {
+                  uni.exitMiniProgram({
+                      success: function () {
+                          uni.clearStorageSync();
+                          console.log('退出小程序成功');
+                      },
+                      fail: function (err) {
+                          console.log('退出小程序失败', err);
+                      }
+                  })
+              } else {
+                  console.log('点击了取消')
+              }
+          }
+      })
       }
     });
   }

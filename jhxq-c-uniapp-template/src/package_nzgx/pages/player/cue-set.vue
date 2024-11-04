@@ -1,10 +1,58 @@
 <script setup lang='ts'>
-import { computed, onMounted, ref, watch } from 'vue';
+import { computed, onMounted, reactive, ref, watch } from 'vue';
 import audioplay from '@/package_nzgx/pages/player/components/audioplay.vue';
 import { useMemberStore } from '@/package_nzgx/stores'
 import { useWebSocketStore } from '@/package_nzgx/stores'
 import { allClues } from '@/package_nzgx/services/clues';
-const memberStore = useMemberStore()
+const memberStoreM = useMemberStore()
+const deepClone = (obj) => {
+    if (obj === null || typeof obj !== 'object') {
+        return obj; // 如果是基本数据类型，直接返回
+    }
+    
+    return JSON.parse(JSON.stringify(obj)); // 否则进行深拷贝
+};
+
+const memberStore = reactive({
+    info: deepClone(memberStoreM.info),
+    profile: deepClone(memberStoreM.profile),
+    virtualRoleId: deepClone(memberStoreM.virtualRoleId),
+    roomId: deepClone(memberStoreM.roomId),
+    avatar: deepClone(memberStoreM.avatar),
+    playerInfo: deepClone(memberStoreM.playerInfo),
+    startTime: deepClone(memberStoreM.startTime),
+    endTime: deepClone(memberStoreM.endTime),
+    clientVersion: deepClone(memberStoreM.clientVersion),
+});
+// 监听 memberStoreM 的变化
+watch(() => memberStoreM, (newVal) => {
+    memberStore.info = deepClone(newVal.info);
+    memberStore.profile = deepClone(newVal.profile);
+    memberStore.virtualRoleId = deepClone(newVal.virtualRoleId);
+    memberStore.roomId = deepClone(newVal.roomId);
+    memberStore.avatar = deepClone(newVal.avatar);
+    memberStore.playerInfo = deepClone(newVal.playerInfo);
+    memberStore.startTime = deepClone(newVal.startTime);
+    memberStore.endTime = deepClone(newVal.endTime);
+    memberStore.clientVersion = deepClone(newVal.clientVersion);
+}, { deep: true }); // 使用 deep 选项以深度监听
+watch(() => webSocketStore.messages, (a, b) => {
+    if (webSocketStore.messages.slice(-1)[0] && webSocketStore.messages.slice(-1)[0].type && webSocketStore.messages.slice(-1)[0].type === 'versionError') {
+        uni.showToast({ icon: 'none', title: '当前网络不稳定' })
+        const newVal = memberStoreM
+        memberStore.info = deepClone(newVal.info);
+        memberStore.profile = deepClone(newVal.profile);
+        memberStore.virtualRoleId = deepClone(newVal.virtualRoleId);
+        memberStore.roomId = deepClone(newVal.roomId);
+        memberStore.avatar = deepClone(newVal.avatar);
+        memberStore.playerInfo = deepClone(newVal.playerInfo);
+        memberStore.startTime = deepClone(newVal.startTime);
+        memberStore.endTime = deepClone(newVal.endTime);
+        memberStore.clientVersion = deepClone(newVal.clientVersion);
+    }
+
+},
+    { deep: true })
 const webSocketStore = useWebSocketStore();
 const setClass = ['物品', '音频', '记录']
 const classIndex = ref(0)
@@ -188,26 +236,26 @@ const allHaveNotRead = computed(() => {
                 </view>
                 <view v-if="cluesIndex !== -1" class="clue-big-image flex-row-center">
                     <img mode="heightFix"
-                        :src="allClues[memberStore.info.characters[memberStore.virtualRoleId - 1].cueset.clues[cluesIndex].name].url + '.png'"
+                        :src="allClues[memberStoreM.info.characters[memberStoreM.virtualRoleId - 1].cueset.clues[cluesIndex].name].url + '.png'"
                         alt=""
-                        @tap="preview(allClues[memberStore.info.characters[memberStore.virtualRoleId - 1].cueset.clues[cluesIndex].name].url + '.png')">
+                        @tap="preview(allClues[memberStoreM.info.characters[memberStoreM.virtualRoleId - 1].cueset.clues[cluesIndex].name].url + '.png')">
                 </view>
                 <scroll-view scroll-y :style="{ height: cluesIndex === -1 ? '0vh' : '7vh' }">
                     <view
-                        v-if="cluesIndex !== -1 && memberStore.info && allClues[memberStore.info.characters[memberStore.virtualRoleId - 1].cueset.clues[cluesIndex].name].url"
+                        v-if="cluesIndex !== -1 && memberStoreM.info && allClues[memberStoreM.info.characters[memberStoreM.virtualRoleId - 1].cueset.clues[cluesIndex].name].url"
                         class="flex-row-center clue-text"
-                        :style="{ paddingTop: memberStore.info.characters[memberStore.virtualRoleId - 1].cueset.clues[cluesIndex].name === 'clue36' ? '32rpx' : '10rpx' }">
-                        {{ allClues[memberStore.info.characters[memberStore.virtualRoleId -
+                        :style="{ paddingTop: memberStoreM.info.characters[memberStoreM.virtualRoleId - 1].cueset.clues[cluesIndex].name === 'clue36' ? '32rpx' : '10rpx' }">
+                        {{ allClues[memberStoreM.info.characters[memberStoreM.virtualRoleId -
                             1].cueset.clues[cluesIndex].name].content2 }}
-                        <!-- {{ memberStore.info.characters[memberStore.virtualRoleId -
+                        <!-- {{ memberStoreM.info.characters[memberStoreM.virtualRoleId -
                                 1].cueset.clues[cluesIndex].name }} -->
                     </view>
                 </scroll-view>
                 <scroll-view scroll-y :style="{ maxHeight: cluesIndex === -1 ? '71vh' : '29vh' }">
-                    <view class="clues-box flex-row-center" v-if="memberStore.info">
+                    <view class="clues-box flex-row-center" v-if="memberStoreM.info">
                         <!-- <view class="make-old2"></view> -->
                         <view
-                            v-for="(item, index) in memberStore.info.characters[memberStore.virtualRoleId - 1].cueset.clues"
+                            v-for="(item, index) in memberStoreM.info.characters[memberStoreM.virtualRoleId - 1].cueset.clues"
                             :key="index">
                             <view @tap="firstClue(index, item.name);" class="clues-item"
                                 :class="cluesIndex === index ? 'clue-selected-border1' : ''">
@@ -247,12 +295,12 @@ const allHaveNotRead = computed(() => {
                 <scroll-view scroll-y style="width: 625rpx;height: 71vh;padding-top: 20rpx;">
                     <view v-if="replayIndex === -1" v-show="item.hy.length !== 0 || item.xa.length !== 0"
                         class="audio-box flex-row-sb" @tap="replayIndex = index; readReplay(index)"
-                        v-for="(item, index) in memberStore.info?.teamInfo.replay" :key="index">
+                        v-for="(item, index) in memberStoreM.info?.teamInfo.replay" :key="index">
                         <view class="flex-row-sb" style="width: 100%;">
                             <view>{{ item.name }}</view>
                             <view style="font-size: 34rpx;font-weight: 700;" class="font-player-gradient1">
                                 <text
-                                    v-show="item.userRead[memberStore.virtualRoleId - 1] === 0 && item.xa.length !== 0 && item.hy.length !== 0">有更新</text>
+                                    v-show="item.userRead[memberStoreM.virtualRoleId - 1] === 0 && item.xa.length !== 0 && item.hy.length !== 0">有更新</text>
                             </view>
                         </view>
                     </view>
@@ -261,27 +309,27 @@ const allHaveNotRead = computed(() => {
                         <view style="display: flex;height: 50%;">
                             <view style="max-height: 70vh;width: 100rpx;" class="flex-row-center">
                                 <img style="height: 100rpx;width: 50rpx;" @tap="replayIndex--; readReplay(replayIndex)"
-                                    v-show="replayIndex !== 0 && memberStore.info?.teamInfo.replay.length > 1"
+                                    v-show="replayIndex !== 0 && memberStoreM.info?.teamInfo.replay.length > 1"
                                     src="https://applet.cdn.wanjuyuanxian.com/nzgx/static/img/left.png" alt="">
                             </view>
                             <view>
                                 <view style="font-weight: 700;height: 100rpx;text-align: center;padding-top: 30rpx;">{{
-                                    memberStore.info?.teamInfo.replay[replayIndex].name }}</view>
-                                <view v-for="(item, index) in memberStore.info?.teamInfo.replay[replayIndex].hy"
-                                    v-if="memberStore.info?.teamInfo.replay[replayIndex].hy.length !== 0"
+                                    memberStoreM.info?.teamInfo.replay[replayIndex].name }}</view>
+                                <view v-for="(item, index) in memberStoreM.info?.teamInfo.replay[replayIndex].hy"
+                                    v-if="memberStoreM.info?.teamInfo.replay[replayIndex].hy.length !== 0"
                                     style="display: flex;margin-top: 30rpx;gap: 20rpx;font-weight: 700;font-size: 25rpx;">
                                     <view>{{ item.charAt(0) }}.</view>
                                     <view>{{ item.slice(1) }}</view>
                                 </view>
-                                <view v-for="(item, index) in memberStore.info?.teamInfo.replay[replayIndex].xa"
-                                    v-if="memberStore.info?.teamInfo.replay[replayIndex].xa.length !== 0"
+                                <view v-for="(item, index) in memberStoreM.info?.teamInfo.replay[replayIndex].xa"
+                                    v-if="memberStoreM.info?.teamInfo.replay[replayIndex].xa.length !== 0"
                                     style="display: flex;margin-top: 30rpx;gap: 20rpx;font-weight: 700;font-size: 25rpx;">
                                     <view>{{ item.charAt(0) }}.</view>
                                     <view>{{ item.slice(1) }}</view>
                                 </view>
                             </view>
                             <view style="max-height: 70vh;width: 100rpx;" class="flex-row-center">
-                                <img v-if="replayIndex !== memberStore.info?.teamInfo.replay.length - 1 && memberStore.info?.teamInfo.replay.length > 1 && memberStore.info?.teamInfo.replay[replayIndex + 1].hy && memberStore.info?.teamInfo.replay[replayIndex + 1].hy.length !== 0"
+                                <img v-if="replayIndex !== memberStoreM.info?.teamInfo.replay.length - 1 && memberStoreM.info?.teamInfo.replay.length > 1 && memberStoreM.info?.teamInfo.replay[replayIndex + 1].hy && memberStoreM.info?.teamInfo.replay[replayIndex + 1].hy.length !== 0"
                                     style="height: 80rpx;width: 50rpx;transform: rotate(180deg);"
                                     @tap="replayIndex++; readReplay(replayIndex)"
                                     src="https://applet.cdn.wanjuyuanxian.com/nzgx/static/img/left.png" alt="">

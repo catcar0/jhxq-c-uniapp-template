@@ -1,9 +1,57 @@
 <script setup lang='ts'>
-import { computed, onMounted, ref, watch } from 'vue';
+import { computed, onMounted, reactive, ref, watch } from 'vue';
 import { useMemberStore } from '@/package_nzgx/stores'
 import { useWebSocketStore } from '@/package_nzgx/stores'
 import { allClues } from '@/package_nzgx/services/clues';
-const memberStore = useMemberStore()
+const memberStoreM = useMemberStore()
+const deepClone = (obj) => {
+    if (obj === null || typeof obj !== 'object') {
+        return obj; // 如果是基本数据类型，直接返回
+    }
+    
+    return JSON.parse(JSON.stringify(obj)); // 否则进行深拷贝
+};
+
+const memberStore = reactive({
+    info: deepClone(memberStoreM.info),
+    profile: deepClone(memberStoreM.profile),
+    virtualRoleId: deepClone(memberStoreM.virtualRoleId),
+    roomId: deepClone(memberStoreM.roomId),
+    avatar: deepClone(memberStoreM.avatar),
+    playerInfo: deepClone(memberStoreM.playerInfo),
+    startTime: deepClone(memberStoreM.startTime),
+    endTime: deepClone(memberStoreM.endTime),
+    clientVersion: deepClone(memberStoreM.clientVersion),
+});
+// 监听 memberStoreM 的变化
+watch(() => memberStoreM, (newVal) => {
+    memberStore.info = deepClone(newVal.info);
+    memberStore.profile = deepClone(newVal.profile);
+    memberStore.virtualRoleId = deepClone(newVal.virtualRoleId);
+    memberStore.roomId = deepClone(newVal.roomId);
+    memberStore.avatar = deepClone(newVal.avatar);
+    memberStore.playerInfo = deepClone(newVal.playerInfo);
+    memberStore.startTime = deepClone(newVal.startTime);
+    memberStore.endTime = deepClone(newVal.endTime);
+    memberStore.clientVersion = deepClone(newVal.clientVersion);
+}, { deep: true }); // 使用 deep 选项以深度监听
+watch(() => webSocketStore.messages, (a, b) => {
+    if (webSocketStore.messages.slice(-1)[0] && webSocketStore.messages.slice(-1)[0].type && webSocketStore.messages.slice(-1)[0].type === 'versionError')  {
+        uni.showToast({ icon: 'none', title: '当前网络不稳定' })
+        const newVal = memberStoreM
+        memberStore.info = deepClone(newVal.info);
+        memberStore.profile = deepClone(newVal.profile);
+        memberStore.virtualRoleId = deepClone(newVal.virtualRoleId);
+        memberStore.roomId = deepClone(newVal.roomId);
+        memberStore.avatar = deepClone(newVal.avatar);
+        memberStore.playerInfo = deepClone(newVal.playerInfo);
+        memberStore.startTime = deepClone(newVal.startTime);
+        memberStore.endTime = deepClone(newVal.endTime);
+        memberStore.clientVersion = deepClone(newVal.clientVersion);
+    }
+
+},
+    { deep: true })
 const webSocketStore = useWebSocketStore();
 import { defineProps, defineEmits } from 'vue';
 import { addNewItem } from '@/package_nzgx/services/info';
@@ -204,7 +252,7 @@ const mapSerch = (clue: string, id: number, isShow: boolean) => {
 
     <view class="map">
         <!-- 地图搜证 -->
-        <view class="map-search" v-for="(item, index) in filterLocations(memberStore.info.locationList)"
+        <view class="map-search" v-for="(item, index) in filterLocations(memberStoreM.info.locationList)"
             :key="item.name" v-if="(zstStatus === 2 && ypStatus === 0) || (dtStatus === 2 && glStatus === 0)"
             @tap="mapSerch(item.clue, item.id, item.isShow)" :style="{ filter: item.isShow ? '' : 'brightness(50%)' }">
             <view class="location flex-row-center hyshtj"
@@ -221,12 +269,12 @@ const mapSerch = (clue: string, id: number, isShow: boolean) => {
                 :style="{ top: item.position.top, left: item.position.left, zIndex: audioIndex === index ? '10011' : '1' }">
                 <view v-if="item.users[0] !== -1" class="audio-serach-location-avatar">
                     <img class="audio-serach-location-avatar-img"
-                        :src="memberStore.info.characters[ypContent[index].users[0]].avatar" alt="">
+                        :src="memberStoreM.info.characters[ypContent[index].users[0]].avatar" alt="">
                 </view>
                 <view v-if="item.users[1] !== -1" class="audio-serach-location-avatar"
                     style="margin-left: 80rpx;z-index: -1;">
                     <img class="audio-serach-location-avatar-img"
-                        :src="memberStore.info.characters[ypContent[index].users[1]].avatar" alt="">
+                        :src="memberStoreM.info.characters[ypContent[index].users[1]].avatar" alt="">
                 </view>
 
                 {{ item.name }}
@@ -252,8 +300,8 @@ const mapSerch = (clue: string, id: number, isShow: boolean) => {
                                 class="flex-row-center" style="width: 80rpx;height: 80rpx;"
                                 v-if="ypUsers[index] === -1">+
                             </view>
-                            <img v-if="memberStore.info.characters[ypUsers[index]] && ypUsers[index] !== -1"
-                                :src="memberStore.info.characters[ypUsers[index]].avatar" alt="">
+                            <img v-if="memberStoreM.info.characters[ypUsers[index]] && ypUsers[index] !== -1"
+                                :src="memberStoreM.info.characters[ypUsers[index]].avatar" alt="">
 
                             <img v-if="ypUsers[index] === userIndex"
                                 @tap="updateYpUsers(ypUsers[index], -1, voiceIndex, index)" class="out-btn"
@@ -280,7 +328,7 @@ const mapSerch = (clue: string, id: number, isShow: boolean) => {
 
         <!-- 开启逐风 -->
         <view class="newClue-mask"
-            v-if="zfStatus === 3 && memberStore.info.flow[memberStore.info.teamInfo.flowIndex].inner[1].status === 0">
+            v-if="zfStatus === 3 && memberStoreM.info.flow[memberStoreM.info.teamInfo.flowIndex].inner[1].status === 0">
             <view class="zhufeng">
             </view>
             <view class="zhufeng-text">我是逐风，我可以帮你梳理信息，

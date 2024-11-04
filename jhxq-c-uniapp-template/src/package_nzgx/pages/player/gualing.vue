@@ -1,11 +1,59 @@
 <script setup lang='ts'>
-import { computed, ref } from 'vue';
+import { computed, reactive, ref, watch } from 'vue';
 import { charactersStore } from '@/package_nzgx/stores';
 import { useMemberStore } from '@/package_nzgx/stores'
 import { useWebSocketStore } from '@/package_nzgx/stores'
 import { allClues } from '@/package_nzgx/services/clues';
 import { onLoad } from "@dcloudio/uni-app";
-const memberStore = useMemberStore()
+const memberStoreM = useMemberStore()
+const deepClone = (obj) => {
+    if (obj === null || typeof obj !== 'object') {
+        return obj; // 如果是基本数据类型，直接返回
+    }
+    
+    return JSON.parse(JSON.stringify(obj)); // 否则进行深拷贝
+};
+
+const memberStore = reactive({
+    info: deepClone(memberStoreM.info),
+    profile: deepClone(memberStoreM.profile),
+    virtualRoleId: deepClone(memberStoreM.virtualRoleId),
+    roomId: deepClone(memberStoreM.roomId),
+    avatar: deepClone(memberStoreM.avatar),
+    playerInfo: deepClone(memberStoreM.playerInfo),
+    startTime: deepClone(memberStoreM.startTime),
+    endTime: deepClone(memberStoreM.endTime),
+    clientVersion: deepClone(memberStoreM.clientVersion),
+});
+// 监听 memberStoreM 的变化
+watch(() => memberStoreM, (newVal) => {
+    memberStore.info = deepClone(newVal.info);
+    memberStore.profile = deepClone(newVal.profile);
+    memberStore.virtualRoleId = deepClone(newVal.virtualRoleId);
+    memberStore.roomId = deepClone(newVal.roomId);
+    memberStore.avatar = deepClone(newVal.avatar);
+    memberStore.playerInfo = deepClone(newVal.playerInfo);
+    memberStore.startTime = deepClone(newVal.startTime);
+    memberStore.endTime = deepClone(newVal.endTime);
+    memberStore.clientVersion = deepClone(newVal.clientVersion);
+}, { deep: true }); // 使用 deep 选项以深度监听
+watch(() => webSocketStore.messages, (a, b) => {
+    if (webSocketStore.messages.slice(-1)[0] && webSocketStore.messages.slice(-1)[0].type && webSocketStore.messages.slice(-1)[0].type === 'versionError') {
+        uni.showToast({ icon: 'none', title: '当前网络不稳定' })
+        const newVal = memberStoreM
+        memberStore.info = deepClone(newVal.info);
+        memberStore.profile = deepClone(newVal.profile);
+        memberStore.virtualRoleId = deepClone(newVal.virtualRoleId);
+        memberStore.roomId = deepClone(newVal.roomId);
+        memberStore.avatar = deepClone(newVal.avatar);
+        memberStore.playerInfo = deepClone(newVal.playerInfo);
+        memberStore.startTime = deepClone(newVal.startTime);
+        memberStore.endTime = deepClone(newVal.endTime);
+        memberStore.clientVersion = deepClone(newVal.clientVersion);
+    }
+
+},
+    { deep: true })
 const webSocketStore = useWebSocketStore();
 const emit = defineEmits(['updateDialogObj']);
 const modifyDialog = () => {
@@ -155,13 +203,13 @@ const updateOneClue = (index: number, answer_index: number, answer: string) => {
                     卦灵
                 </view>
                 <view class="qa-box"
-                    v-if="glIndex === -1 || qaList.qa[0].usersAnswer[memberStore.virtualRoleId - 1].status === 3 || qaList.qa[0].usersAnswer[memberStore.virtualRoleId - 1].status === 2">
+                    v-if="glIndex === -1 || qaList.qa[0].usersAnswer[memberStoreM.virtualRoleId - 1].status === 3 || qaList.qa[0].usersAnswer[memberStoreM.virtualRoleId - 1].status === 2">
                     <view v-for="(item, index) in qaList.qa" :key="index">
                         <view class="question">{{ item.question }}</view>
                         <view class="answer">
 
-                            <view v-if="item.usersAnswer[memberStore.virtualRoleId - 1].answer.length !== 0"
-                                v-for="(answer, answer_index) in item.usersAnswer[memberStore.virtualRoleId - 1].answer"
+                            <view v-if="item.usersAnswer[memberStoreM.virtualRoleId - 1].answer.length !== 0"
+                                v-for="(answer, answer_index) in item.usersAnswer[memberStoreM.virtualRoleId - 1].answer"
                                 :key="answer_index">
                                 <view class="clues-item" @tap="updateOneClue(index, answer_index, answer)">
 
@@ -183,46 +231,46 @@ const updateOneClue = (index: number, answer_index: number, answer: string) => {
                                 </view>
 
                             </view>
-                            <view v-show="item.usersAnswer[memberStore.virtualRoleId - 1].status !== 0"
+                            <view v-show="item.usersAnswer[memberStoreM.virtualRoleId - 1].status !== 0"
                                 class="verify-icon-box">
                                 <img class="verify-icon" v-show="item.question !== '凶手是谁？'"
-                                    :src="`https://applet.cdn.wanjuyuanxian.com/nzgx/static/img/${item.usersAnswer[memberStore.virtualRoleId - 1].status === 2 ? 'gl_correct_icon' : 'gl_wrong_icon'}.png`"
+                                    :src="`https://applet.cdn.wanjuyuanxian.com/nzgx/static/img/${item.usersAnswer[memberStoreM.virtualRoleId - 1].status === 2 ? 'gl_correct_icon' : 'gl_wrong_icon'}.png`"
                                     alt="">
                                 <img class="verify-icon" v-show="item.question === '凶手是谁？'"
-                                    :src="`https://applet.cdn.wanjuyuanxian.com/nzgx/static/img/${item.usersAnswer[memberStore.virtualRoleId - 1].status < 6 ? 'gl_mission_success_icon' : 'gl_mission_fail_icon'}.png`"
+                                    :src="`https://applet.cdn.wanjuyuanxian.com/nzgx/static/img/${item.usersAnswer[memberStoreM.virtualRoleId - 1].status < 6 ? 'gl_mission_success_icon' : 'gl_mission_fail_icon'}.png`"
                                     alt="">
                             </view>
-                            <!-- {{ item.answer.length }}{{ item.usersAnswer[memberStore.virtualRoleId - 1].answer.length }} -->
+                            <!-- {{ item.answer.length }}{{ item.usersAnswer[memberStoreM.virtualRoleId - 1].answer.length }} -->
                             <img @tap="addOrUpdate = 'add'; glIndex = index; cluesIndex = -1"
-                                v-if="item.usersAnswer[memberStore.virtualRoleId - 1].answer.length < item.answer.length"
+                                v-if="item.usersAnswer[memberStoreM.virtualRoleId - 1].answer.length < item.answer.length"
                                 class="answer-select-icon"
                                 src="https://applet.cdn.wanjuyuanxian.com/nzgx/static/img/gl_select_icon.png" alt="">
                         </view>
                     </view>
-                    <!-- <view @tap="submit(qaList.usersSubmit[memberStore.virtualRoleId - 1])" class="theme-button button">
+                    <!-- <view @tap="submit(qaList.usersSubmit[memberStoreM.virtualRoleId - 1])" class="theme-button button">
                         <view class="theme-button-clear"></view>
                         <view>{{ btnText }}</view>
                     </view> -->
                 </view>
 
                 <view class="select-clue"
-                    v-if="glIndex !== -1 && qaList.qa[glIndex].question !== '凶手是谁？' && qaList.qa[glIndex].question !== '谁会担心春天举报成功？' && qaList.qa[glIndex].question !== '林佳李梦怀孕，孩子可能是谁的？' && qaList.qa[0].usersAnswer[memberStore.virtualRoleId - 1].status !== 3 && qaList.qa[0].usersAnswer[memberStore.virtualRoleId - 1].status !== 2">
+                    v-if="glIndex !== -1 && qaList.qa[glIndex].question !== '凶手是谁？' && qaList.qa[glIndex].question !== '谁会担心春天举报成功？' && qaList.qa[glIndex].question !== '林佳李梦怀孕，孩子可能是谁的？' && qaList.qa[0].usersAnswer[memberStoreM.virtualRoleId - 1].status !== 3 && qaList.qa[0].usersAnswer[memberStoreM.virtualRoleId - 1].status !== 2">
                     <view style="height: 70rpx;">{{ qaList.qa[glIndex].question }}</view>
                     <view>
                         <img mode="heightFix"
-                            v-if="cluesIndex !== -1 && allClues[memberStore.info.characters[memberStore.virtualRoleId - 1].cueset.clues[cluesIndex].name].url"
+                            v-if="cluesIndex !== -1 && allClues[memberStoreM.info.characters[memberStoreM.virtualRoleId - 1].cueset.clues[cluesIndex].name].url"
                             class="clue-big-image"
-                            :src="allClues[memberStore.info.characters[memberStore.virtualRoleId - 1].cueset.clues[cluesIndex].name].url + '.png'"
+                            :src="allClues[memberStoreM.info.characters[memberStoreM.virtualRoleId - 1].cueset.clues[cluesIndex].name].url + '.png'"
                             alt="">
                     </view>
                     <scroll-view scroll-y :style="{ height: cluesIndex === -1 ? '0vh' : '7vh' }">
                         <view
-                            v-if="cluesIndex !== -1 && allClues[memberStore.info.characters[memberStore.virtualRoleId - 1].cueset.clues[cluesIndex].name].url"
+                            v-if="cluesIndex !== -1 && allClues[memberStoreM.info.characters[memberStoreM.virtualRoleId - 1].cueset.clues[cluesIndex].name].url"
                             class="flex-row-center clue-text"
-                            :style="{ paddingTop: memberStore.info.characters[memberStore.virtualRoleId - 1].cueset.clues[cluesIndex].name === 'clue36' ? '32rpx' : '10rpx' }">
-                            {{ allClues[memberStore.info.characters[memberStore.virtualRoleId -
+                            :style="{ paddingTop: memberStoreM.info.characters[memberStoreM.virtualRoleId - 1].cueset.clues[cluesIndex].name === 'clue36' ? '32rpx' : '10rpx' }">
+                            {{ allClues[memberStoreM.info.characters[memberStoreM.virtualRoleId -
                                 1].cueset.clues[cluesIndex].name].content2 }}
-                            <!-- {{ allClues[memberStore.info.characters[memberStore.virtualRoleId -
+                            <!-- {{ allClues[memberStoreM.info.characters[memberStoreM.virtualRoleId -
                                 1].cueset.clues[cluesIndex].name].name }} -->
                         </view>
                     </scroll-view>
@@ -230,7 +278,7 @@ const updateOneClue = (index: number, answer_index: number, answer: string) => {
                         <view class="clues-box flex-row-center">
                             <!-- <view class="make-old2"></view> -->
                             <view
-                                v-for="(item, index) in memberStore.info.characters[memberStore.virtualRoleId - 1].cueset.clues"
+                                v-for="(item, index) in memberStoreM.info.characters[memberStoreM.virtualRoleId - 1].cueset.clues"
                                 :key="index">
                                 <view @tap="cluesIndex === index ? cluesIndex = -1 : cluesIndex = index"
                                     class="clues-item" :class="cluesIndex === index ? 'clue-selected-border1' : ''">
@@ -248,7 +296,7 @@ const updateOneClue = (index: number, answer_index: number, answer: string) => {
                         </view>
                     </scroll-view>
                     <!-- <view v-show="cluesIndex !== -1"
-                        @tap="updateClue(memberStore.info.characters[memberStore.virtualRoleId - 1].cueset.clues[cluesIndex].name)"
+                        @tap="updateClue(memberStoreM.info.characters[memberStoreM.virtualRoleId - 1].cueset.clues[cluesIndex].name)"
                         class="theme-button button">选择
                     </view>
                     <view v-show="cluesIndex === -1"
@@ -257,24 +305,24 @@ const updateOneClue = (index: number, answer_index: number, answer: string) => {
                 </view>
 
                 <view class="select-clue"
-                    v-if="glIndex !== -1 && (qaList.qa[glIndex].question === '凶手是谁？' || qaList.qa[glIndex].question === '谁会担心春天举报成功？' || qaList.qa[glIndex].question === '林佳李梦怀孕，孩子可能是谁的？') && qaList.qa[0].usersAnswer[memberStore.virtualRoleId - 1].status !== 3 && qaList.qa[0].usersAnswer[memberStore.virtualRoleId - 1].status !== 2">
+                    v-if="glIndex !== -1 && (qaList.qa[glIndex].question === '凶手是谁？' || qaList.qa[glIndex].question === '谁会担心春天举报成功？' || qaList.qa[glIndex].question === '林佳李梦怀孕，孩子可能是谁的？') && qaList.qa[0].usersAnswer[memberStoreM.virtualRoleId - 1].status !== 3 && qaList.qa[0].usersAnswer[memberStoreM.virtualRoleId - 1].status !== 2">
                     <view style="height: 70rpx;">{{ qaList.qa[glIndex].question }}</view>
                     <!-- <img class="clue-selected-border3" v-show="cluesIndex !== -1 && cluesIndex <= 6"
                         src="https://applet.cdn.wanjuyuanxian.com/nzgx/static/img/cue_seleted2.png" alt=""> -->
-                    <!-- <img v-if="cluesIndex !== -1 && cluesIndex <= 6 && allClues[memberStore.info.characters[memberStore.virtualRoleId - 1].cueset.clues[cluesIndex].name].url"
+                    <!-- <img v-if="cluesIndex !== -1 && cluesIndex <= 6 && allClues[memberStoreM.info.characters[memberStoreM.virtualRoleId - 1].cueset.clues[cluesIndex].name].url"
                         class="clue-big-image" :src="allClues[avatarList[cluesIndex]].url + '.png'" alt=""> -->
                     <view class="clue-big-image-border">
                         <img mode="heightFix"
-                            v-if="cluesIndex !== -1 && cluesIndex <= 6 && allClues[memberStore.info.characters[memberStore.virtualRoleId - 1].cueset.clues[cluesIndex].name].url"
+                            v-if="cluesIndex !== -1 && cluesIndex <= 6 && allClues[memberStoreM.info.characters[memberStoreM.virtualRoleId - 1].cueset.clues[cluesIndex].name].url"
                             class="clue-big-image" :src="allClues[avatarList[cluesIndex]].url + '.png'" alt="">
                     </view>
                     <scroll-view scroll-y :style="{ height: cluesIndex === -1 ? '0vh' : '6vh' }">
                         <view
-                            v-if="cluesIndex !== -1 && allClues[memberStore.info.characters[memberStore.virtualRoleId - 1].cueset.clues[cluesIndex].name].url"
+                            v-if="cluesIndex !== -1 && allClues[memberStoreM.info.characters[memberStoreM.virtualRoleId - 1].cueset.clues[cluesIndex].name].url"
                             class="flex-row-center clue-text">
-                            <!-- {{ allClues[memberStore.info.characters[memberStore.virtualRoleId -
+                            <!-- {{ allClues[memberStoreM.info.characters[memberStoreM.virtualRoleId -
                                 1].cueset.clues[cluesIndex].name].content2 }} -->
-                            <!-- {{ allClues[memberStore.info.characters[memberStore.virtualRoleId -
+                            <!-- {{ allClues[memberStoreM.info.characters[memberStoreM.virtualRoleId -
                                 1].cueset.clues[cluesIndex].name].name }} -->
                         </view>
                     </scroll-view>
@@ -304,17 +352,17 @@ const updateOneClue = (index: number, answer_index: number, answer: string) => {
                 </view>
             </view>
             <view
-                v-if="glIndex === -1 || qaList.qa[0].usersAnswer[memberStore.virtualRoleId - 1].status === 3 || qaList.qa[0].usersAnswer[memberStore.virtualRoleId - 1].status === 2">
-                <view @tap="submit(qaList.usersSubmit[memberStore.virtualRoleId - 1])" class="theme-button button">
+                v-if="glIndex === -1 || qaList.qa[0].usersAnswer[memberStoreM.virtualRoleId - 1].status === 3 || qaList.qa[0].usersAnswer[memberStoreM.virtualRoleId - 1].status === 2">
+                <view @tap="submit(qaList.usersSubmit[memberStoreM.virtualRoleId - 1])" class="theme-button button">
                     <view class="theme-button-clear"></view>
                     <view>{{ btnText }}</view>
                 </view>
             </view>
 
             <view
-                v-if="glIndex !== -1 && qaList.qa[glIndex].question !== '凶手是谁？' && qaList.qa[glIndex].question !== '谁会担心春天举报成功？' && qaList.qa[glIndex].question !== '林佳李梦怀孕，孩子可能是谁的？' && qaList.qa[0].usersAnswer[memberStore.virtualRoleId - 1].status !== 3 && qaList.qa[0].usersAnswer[memberStore.virtualRoleId - 1].status !== 2">
+                v-if="glIndex !== -1 && qaList.qa[glIndex].question !== '凶手是谁？' && qaList.qa[glIndex].question !== '谁会担心春天举报成功？' && qaList.qa[glIndex].question !== '林佳李梦怀孕，孩子可能是谁的？' && qaList.qa[0].usersAnswer[memberStoreM.virtualRoleId - 1].status !== 3 && qaList.qa[0].usersAnswer[memberStoreM.virtualRoleId - 1].status !== 2">
                 <view v-show="cluesIndex !== -1"
-                    @tap="updateClue(memberStore.info.characters[memberStore.virtualRoleId - 1].cueset.clues[cluesIndex].name)"
+                    @tap="updateClue(memberStoreM.info.characters[memberStoreM.virtualRoleId - 1].cueset.clues[cluesIndex].name)"
                     class="theme-button button">选择
                 </view>
                 <view v-show="cluesIndex === -1" class="theme-button button">选择
@@ -322,7 +370,7 @@ const updateOneClue = (index: number, answer_index: number, answer: string) => {
             </view>
 
             <view
-                v-if="glIndex !== -1 && (qaList.qa[glIndex].question === '凶手是谁？' || qaList.qa[glIndex].question === '谁会担心春天举报成功？' || qaList.qa[glIndex].question === '林佳李梦怀孕，孩子可能是谁的？') && qaList.qa[0].usersAnswer[memberStore.virtualRoleId - 1].status !== 3 && qaList.qa[0].usersAnswer[memberStore.virtualRoleId - 1].status !== 2">
+                v-if="glIndex !== -1 && (qaList.qa[glIndex].question === '凶手是谁？' || qaList.qa[glIndex].question === '谁会担心春天举报成功？' || qaList.qa[glIndex].question === '林佳李梦怀孕，孩子可能是谁的？') && qaList.qa[0].usersAnswer[memberStoreM.virtualRoleId - 1].status !== 3 && qaList.qa[0].usersAnswer[memberStoreM.virtualRoleId - 1].status !== 2">
                 <view v-show="cluesIndex !== -1" @tap="updateClue(avatarList[cluesIndex])" class="theme-button button">
                     选择
                 </view>
