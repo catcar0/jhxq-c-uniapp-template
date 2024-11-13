@@ -53,7 +53,7 @@ export class WebSocketService {
 
     this.socketTask.onOpen(() => {
       console.log('WebSocket connection opened');
-      uni.showToast({ icon: 'none', title: '连接成功' })
+      uni.showToast({ icon: 'none', title: '连接成功' ,mask:true,duration: 3500})
       this.isConnectedFlag = true;  // 设置为已连接状态
       if (this.onOpen) {
         this.onOpen();

@@ -136,9 +136,9 @@ const play = async({ avatar, nickname }: { avatar: string, nickname: string }) =
                     uni.showToast({ icon: 'success', title: '加入成功' })
                     emit('page', 'TeamInfo')
                 }
-            }, 3000);
+            }, 2000);
         }
-    }, 2000);
+    }, 1500);
 }
 </script>
 
