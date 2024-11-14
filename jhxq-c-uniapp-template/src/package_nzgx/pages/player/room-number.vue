@@ -53,6 +53,9 @@ const play = async({ avatar, nickname }: { avatar: string, nickname: string }) =
     if (!(memberStore.profile.token && memberStore.roomId && memberStore.virtualRoleId)) {
         return
     }
+    uni.setStorageSync('virtualRoleId_b',memberStore.virtualRoleId);
+    uni.setStorageSync('profile_b',memberStore.profile);
+    uni.setStorageSync('roomId_b',memberStore.roomId);
     //显示加载框
     uni.showLoading({
         title: '加载中'

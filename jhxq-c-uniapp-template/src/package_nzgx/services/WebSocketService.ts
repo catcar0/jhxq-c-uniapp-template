@@ -12,6 +12,7 @@ export class WebSocketService {
   private heartbeatTimer: number | null = null;
   private maxReconnectAttempts: number; // 最大重连次数
   private reconnectAttempts: number; // 当前重连次数
+  private msgType: string; // 当前重连次数
   private isConnectedFlag: boolean = false;
 
   // 定义 onOpen、onError 和 onClose 回调函数
@@ -27,6 +28,7 @@ export class WebSocketService {
     this.heartbeatInterval = heartbeatInterval;
     this.maxReconnectAttempts = maxReconnectAttempts;
     this.reconnectAttempts = 0;
+    this.msgType = ''
   }
   public isConnected(): boolean {
     return this.isConnectedFlag;
@@ -65,7 +67,12 @@ export class WebSocketService {
       // 处理消息
       const websocketStore = useWebSocketStore();
       const parsedData = JSON.parse(event.data);
+      this.msgType = parsedData.type
       console.log(parsedData)
+      if(parsedData.type==='reconnect_success'){
+        console.log('重连成功重置重连次数')
+        this.reconnectAttempts = 0; // 重置重连次数
+      }
       if (parsedData.type === 'scores' && parsedData.data.statuses.allinfo) {
         websocketStore.gameAddMessage(parsedData.data.statuses.allinfo.info,parsedData.data.statuses.allinfo.version);
       }else if( parsedData.type==='team_ranking'){
@@ -97,7 +104,7 @@ export class WebSocketService {
       if (this.onClose) {
         this.onClose();
       }
-      if (this.reconnectAttempts < this.maxReconnectAttempts) {
+      if (this.reconnectAttempts < this.maxReconnectAttempts && this.msgType!=='kicked') {
         console.log(`Reconnecting attempt ${this.reconnectAttempts + 1}/${this.maxReconnectAttempts}...`);
         this.reconnectAttempts++;
         // this.connect()

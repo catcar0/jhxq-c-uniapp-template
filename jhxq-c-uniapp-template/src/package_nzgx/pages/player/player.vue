@@ -316,10 +316,21 @@ onMounted(async () => {
         currentPage.value = 'TeamInfo'
         return;
     }
-    if (!(memberStore.profile && memberStore.profile.token && memberStore.roomId && memberStore.virtualRoleId)) {
+    let virtualRoleId_b = uni.getStorageSync('virtualRoleId_b')
+    let profile_b = uni.getStorageSync('profile_b')
+    let roomId_b = uni.getStorageSync('roomId_b')
+    let wsService: any
+    if ((memberStore.profile && memberStore.profile.token && memberStore.roomId && memberStore.virtualRoleId)) {
+        console.log('原始数据')
+        wsService = new WebSocketService(`token=${memberStore.profile.token}&room_id=${memberStore.roomId}&virtual_role_id=${memberStore.virtualRoleId}`);
+    } else if ((profile_b && profile_b.token && roomId_b && virtualRoleId_b)) {
+        console.log('备份数据')
+        wsService = new WebSocketService(`token=${profile_b.token}&room_id=${roomId_b}&virtual_role_id=${virtualRoleId_b}`);
+    } else {
+        console.log('无ws连接数据')
         return
     }
-    const wsService = new WebSocketService(`token=${memberStore.profile.token}&room_id=${memberStore.roomId}&virtual_role_id=${memberStore.virtualRoleId}`);
+    // const wsService = new WebSocketService(`token=${memberStore.profile.token}&room_id=${memberStore.roomId}&virtual_role_id=${memberStore.virtualRoleId}`);
     console.log(wsService)
     // 监听连接错误或关闭事件
     wsService.onError = (error) => {
@@ -391,7 +402,7 @@ const handleSaveImage = async () => {
         title: '正在生成'
     })
     try {
-        await saveViewAsImage(instance,'content-view', 'contentCanvas', memberStore.info?.characters[memberStore.virtualRoleId - 1].user.slice(0, 10) ?? '', memberStore.info.characters[memberStore.virtualRoleId - 1]?.name ?? '', getCurrentFormattedDate(), memberStore.info.teamInfo.location ?? '', memberStore.info.teamInfo.dmName ?? '');
+        await saveViewAsImage(instance, 'content-view', 'contentCanvas', memberStore.info?.characters[memberStore.virtualRoleId - 1].user.slice(0, 10) ?? '', memberStore.info.characters[memberStore.virtualRoleId - 1]?.name ?? '', getCurrentFormattedDate(), memberStore.info.teamInfo.location ?? '', memberStore.info.teamInfo.dmName ?? '');
         uni.hideLoading()
         console.log('图片已成功保存到相册');
     } catch (error) {
@@ -454,8 +465,8 @@ onHide(() => {
             }
         })
     }
-    
-    if(uni.offScreenRecordingStateChanged){
+
+    if (uni.offScreenRecordingStateChanged) {
         // 取消录屏监听事件
         uni.offScreenRecordingStateChanged()
     }
@@ -538,7 +549,6 @@ onHide(() => {
 </template>
 
 <style scoped>
-
 .poster-info {
     width: 33%;
     padding-left: 5%;
