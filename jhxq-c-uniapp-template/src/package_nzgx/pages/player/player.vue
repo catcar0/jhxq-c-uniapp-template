@@ -324,6 +324,9 @@ onMounted(async () => {
         console.log('原始数据')
         wsService = new WebSocketService(`token=${memberStore.profile.token}&room_id=${memberStore.roomId}&virtual_role_id=${memberStore.virtualRoleId}`);
     } else if ((profile_b && profile_b.token && roomId_b && virtualRoleId_b)) {
+        memberStore.setRoomId(roomId_b);
+        memberStore.setProfile(profile_b);
+        memberStore.setVirtualRoleId(virtualRoleId_b);
         console.log('备份数据')
         wsService = new WebSocketService(`token=${profile_b.token}&room_id=${roomId_b}&virtual_role_id=${virtualRoleId_b}`);
     } else {
@@ -374,12 +377,14 @@ onMounted(async () => {
         }
         uni.showToast({ icon: 'none', title: '你已经成功连接' })
         console.log("WebSocket 连接成功");
-        currentPage.value = 'TeamInfo'
         // 连接成功后执行后续操作
         webSocketStore.gameWebSocketService = wsService;
         // webSocketStore.gameConnect();
         setTimeout(() => {
             webSocketStore.gameplayerFirstSend()
+            setTimeout(() => {
+                        currentPage.value = 'TeamInfo'
+            }, 1500);
         }, 500);
         canDialog.value = false
         setTimeout(() => {
