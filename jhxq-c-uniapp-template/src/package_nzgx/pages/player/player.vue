@@ -225,7 +225,8 @@ watch(() => memberStore.info.characters[memberStore.virtualRoleId - 1].mask, (a,
             dialogObj.value.hideCloseIcon = true
             dialogObj.value.type = 'error'
         }
-        if (newqa.isNew) {
+        const flowItem = memberStore.info.flow[memberStore.info.teamInfo.flowIndex].inner.find((item: { title: string; }) => item.title === '个人线索发放+个人问题');
+        if (newqa.isNew && newqa.index === memberStore.info.teamInfo.flowIndex && (flowItem && flowItem.status!==3)) {
             if (haveNewMission2.value[memberStore.info.teamInfo.flowIndex]) return
             haveNewMission2.value[memberStore.info.teamInfo.flowIndex] = true
             let newContent = '';

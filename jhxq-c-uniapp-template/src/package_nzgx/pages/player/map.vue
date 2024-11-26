@@ -8,7 +8,7 @@ const deepClone = (obj) => {
     if (obj === null || typeof obj !== 'object') {
         return obj; // 如果是基本数据类型，直接返回
     }
-    
+
     return JSON.parse(JSON.stringify(obj)); // 否则进行深拷贝
 };
 
@@ -36,7 +36,7 @@ watch(() => memberStoreM, (newVal) => {
     memberStore.clientVersion = deepClone(newVal.clientVersion);
 }, { deep: true }); // 使用 deep 选项以深度监听
 watch(() => webSocketStore.messages, (a, b) => {
-    if (webSocketStore.messages.slice(-1)[0] && webSocketStore.messages.slice(-1)[0].type && webSocketStore.messages.slice(-1)[0].type === 'versionError')  {
+    if (webSocketStore.messages.slice(-1)[0] && webSocketStore.messages.slice(-1)[0].type && webSocketStore.messages.slice(-1)[0].type === 'versionError') {
         uni.showToast({ icon: 'none', title: '当前网络不稳定' })
         const newVal = memberStoreM
         memberStore.info = deepClone(newVal.info);
@@ -133,6 +133,22 @@ const fyContent2 = getContent('封印动画2');
 const canJoin = ref(true)
 const userJoinRoom = ref(-1)
 const updateYpUsers = (user: number, newUserIndex: number, index: number, roomUserIndex: number) => {
+    const yp = ypContent.value
+    let joined = false
+    yp.forEach(item => {
+        console.log('item', item,item.status)
+        if (item.status !== 3) {
+            if (item.users[0] === userIndex.value || item.users[1] === userIndex.value) {
+                console.log('已在其他地点')
+                joined = true
+            }
+        }
+    });
+    if (!joined) {
+        canJoin.value = true;
+    } else{
+        canJoin.value = false;
+    }
     if (newUserIndex !== -1 && !canJoin.value) {
         uni.showToast({ icon: 'none', title: '你已经在其他地点，请离开后再做尝试' })
         return
@@ -168,7 +184,7 @@ watch(() => memberStore.info.flow[memberStore.info.teamInfo.flowIndex].inner.fin
     if (!a || !a.result || a.result === '' || (a !== undefined && b === undefined) || (a.users[0] === -1 || a.users[1] === -1)) {
         return
     }
-    if (!memberStore.info.flow[memberStore.info.teamInfo.flowIndex].inner.find((item: { title: string; }) => item.title === '音频搜证').content[userJoinRoom.value].users.includes(memberStore.virtualRoleId - 1)){
+    if (!memberStore.info.flow[memberStore.info.teamInfo.flowIndex].inner.find((item: { title: string; }) => item.title === '音频搜证').content[userJoinRoom.value].users.includes(memberStore.virtualRoleId - 1)) {
         return
     }
     if (a.result === '已验证成功') return
@@ -247,6 +263,7 @@ const mapSerch = (clue: string, id: number, isShow: boolean) => {
         updateInfo(memberStore.info)
     }
 }
+const flowItem = memberStore.info.flow[memberStore.info.teamInfo.flowIndex].inner.find((item: { title: string; }) => item.title === '个人线索发放+个人问题');
 </script>
 <template>
 
@@ -255,8 +272,7 @@ const mapSerch = (clue: string, id: number, isShow: boolean) => {
         <view class="map-search" v-for="(item, index) in filterLocations(memberStoreM.info.locationList)"
             :key="item.name" v-if="(zstStatus === 2 && ypStatus === 0) || (dtStatus === 2 && glStatus === 0)"
             @tap="mapSerch(item.clue, item.id, item.isShow)" :style="{ filter: item.isShow ? '' : 'brightness(50%)' }">
-            <view class="location flex-row-center hyshtj"
-                :style="{ top: item.position.top, left: item.position.left }">
+            <view class="location flex-row-center hyshtj" :style="{ top: item.position.top, left: item.position.left }">
                 {{ item.name }}
             </view>
             <img :style="{ top: item.position.iconTop, left: item.position.iconLeft }" class="location-icon"
@@ -283,7 +299,8 @@ const mapSerch = (clue: string, id: number, isShow: boolean) => {
 
         <!-- 音频搜证选择地点入座 -->
         <view>
-            <view  class="dialog-mask" :class="{ show: voiceIndex !== -1 }" v-if="voiceIndex !== -1 && ypStatus === 2 && dtStatus === 0"
+            <view class="dialog-mask" :class="{ show: voiceIndex !== -1 }"
+                v-if="voiceIndex !== -1 && ypStatus === 2 && dtStatus === 0"
                 :style="{ background: dialogObj.dialogVisible ? 'rgba(0, 0, 0, 0)' : 'rgba(0, 0, 0, 0.6)' }">
                 <view class="dialog-inner">
                     <view class="dialog-header">
@@ -323,7 +340,7 @@ const mapSerch = (clue: string, id: number, isShow: boolean) => {
 
         <!-- 个人任务 -->
         <view class="FAQ" @tap="faq(userInfo!.mask.slice(-1)[0])"
-            v-if="userInfo && userInfo!.mask.slice(-1)[0] && userInfo!.mask.slice(-1)[0].type === 0">
+            v-if="userInfo && userInfo!.mask.slice(-1)[0] && userInfo!.mask.slice(-1)[0].type === 0 && userInfo!.mask.slice(-1)[0].index === memberStore.info.teamInfo.flowIndex && (flowItem && flowItem.status !== 3)">
         </view>
 
         <!-- 开启逐风 -->
