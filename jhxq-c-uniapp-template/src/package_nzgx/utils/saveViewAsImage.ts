@@ -49,11 +49,11 @@ export function saveViewAsImage(instance: any, viewId: string, canvasId: string,
                 );
 
                 // 绘制文本
-                ctx.fillText(user, 120, 796.6);
-                ctx.fillText(role, 322, 796.6);
-                ctx.fillText(time, 518, 796.6);
-                ctx.fillText(location, 120, 914);
-                ctx.fillText(dm, 322, 914);
+                ctx.fillText(user, 33, 756.6);
+                ctx.fillText(role, 235, 756.6);
+                ctx.fillText(time, 431, 756.6);
+                ctx.fillText(location, 33, 874);
+                ctx.fillText(dm, 235, 874);
 
                 // 将 canvas 内容保存为图片
                 uni.canvasToTempFilePath({

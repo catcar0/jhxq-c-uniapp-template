@@ -24,6 +24,7 @@ const modifyDialog = () => {
     emit('updateDialogObj', dialogObj);
 };
 const rankList = computed(() => {
+    console.log(memberStore.rankList)
     if (!memberStore.rankList) return []
     // 获取 rankList
     const list = memberStore.rankList;
@@ -34,7 +35,7 @@ const rankList = computed(() => {
     // 初始化新数组
     let newList = [];
 
-    // 如果找到 roomid = 20 的对象
+    // 如果找到 roomid = 房间ID 的对象
     if (roomId20Index !== -1) {
         if (roomId20Index === 0) {
             // 如果 roomid = 20 的对象在第 0 位，取它的后两位
@@ -45,6 +46,19 @@ const rankList = computed(() => {
         } else {
             // 如果 roomid = 20 的对象在其他位置，取它前一个和它本身
             newList = [list[0], list[roomId20Index - 1], list[roomId20Index]];
+        }
+    } else {
+        newList = list.slice(0, 3);
+        newList[2] = {
+            business_id: "1605",
+            id: 103,
+            level: 0,
+            rank: 10,
+            room_id: memberStore.roomId,
+            status: "1",
+            team_name: memberStore.info.teamInfo.name,
+            time: "2024-11-14",
+            total_score: 10,
         }
     }
 
@@ -132,7 +146,7 @@ const close = () => {
 }
 const aa = () => {
     cropperShow.value = true
-    qf.value.chooseImage({ sourceType: ['album','camera'],sizeType: ['compressed'], });
+    qf.value.chooseImage({ sourceType: ['album', 'camera'], sizeType: ['compressed'], });
 }
 </script>
 
