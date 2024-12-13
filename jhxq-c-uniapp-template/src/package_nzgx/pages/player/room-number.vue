@@ -17,9 +17,9 @@ const roomNumber = ref('')
 const roomId = ref('')
 const loginVisible = ref<boolean>(false);
 const connectCount = ref<number>(0)
-const currentRoomId = (index: number,item:any) => {
-    if (roomNumber.value.length < 8){
-        roomNumber.value += item; 
+const currentRoomId = (index: number, item: any) => {
+    if (roomNumber.value.length < 8) {
+        roomNumber.value += item;
     } else return
     if (index >= 0 && index < 9) {
         roomId.value += index + 1 + ''
@@ -30,11 +30,11 @@ const currentRoomId = (index: number,item:any) => {
 
 
 const toPlay = () => {
-    console.log(roomNumber.value,roomId.value)
+    console.log(roomNumber.value, roomId.value)
     loginVisible.value = true;
 }
 
-const play = async({ avatar, nickname }: { avatar: string, nickname: string }) => {
+const play = async ({ avatar, nickname }: { avatar: string, nickname: string }) => {
     const token = LemToken.get();
     let avatarUrl = avatar;
     let nickName = nickname;
@@ -53,9 +53,9 @@ const play = async({ avatar, nickname }: { avatar: string, nickname: string }) =
     if (!(memberStore.profile.token && memberStore.roomId && memberStore.virtualRoleId)) {
         return
     }
-    uni.setStorageSync('virtualRoleId_b',memberStore.virtualRoleId);
-    uni.setStorageSync('profile_b',memberStore.profile);
-    uni.setStorageSync('roomId_b',memberStore.roomId);
+    uni.setStorageSync('virtualRoleId_b', memberStore.virtualRoleId);
+    uni.setStorageSync('profile_b', memberStore.profile);
+    uni.setStorageSync('roomId_b', memberStore.roomId);
     //显示加载框
     uni.showLoading({
         title: '加载中'
@@ -104,10 +104,10 @@ const play = async({ avatar, nickname }: { avatar: string, nickname: string }) =
                     }
                 }
             })
-        }else{
+        } else {
             // 断开后尝试重新连接三次
             if (connectCount.value < 3) {
-                connectCount.value ++
+                connectCount.value++
                 wsService.connect()
             }
         }
@@ -131,9 +131,28 @@ const play = async({ avatar, nickname }: { avatar: string, nickname: string }) =
                         memberStore.info
                     )
                 }
-                if (IsTestPlay.value && Object.keys(memberStore.playerInfo.players).length > 8) {
+                if (IsTestPlay.value && Object.keys(memberStore.playerInfo.players).length > 2) {
                     uni.showToast({ icon: 'none', title: '无法加入' })
-                    webSocketStore.gameClose()
+                    uni.showModal({
+                        title: '提示',
+                        content: '模拟测试房间人数已满，请重新选择房间',
+                        showCancel: false,
+                        success: function (res) {
+                            if (res.confirm) {
+                                uni.exitMiniProgram({
+                                    success: function () {
+                                        webSocketStore.kickplayer(memberStore.virtualRoleId)
+                                        uni.clearStorageSync();
+                                        console.log('退出小程序成功');
+                                    },
+                                    fail: function (err) {
+                                        console.log('退出小程序失败', err);
+                                    }
+                                })
+                            } else {
+                            }
+                        }
+                    })
                     return
                 } else {
                     uni.showToast({ icon: 'success', title: '加入成功' })
@@ -155,7 +174,7 @@ const play = async({ avatar, nickname }: { avatar: string, nickname: string }) =
             <view class="num-key">
                 <view v-for="(item, index) in keys" :key="index">
                     <view v-show="item !== 'clear' && item !== 'backspace' && item !== '启'"
-                        class="num-key-btn flex-row-center" @tap="currentRoomId(index,item)">
+                        class="num-key-btn flex-row-center" @tap="currentRoomId(index, item)">
                         <text class="number">{{ item }}</text>
                     </view>
                     <view v-show="item === 'backspace'" class="num-key-btn flex-row-center"
